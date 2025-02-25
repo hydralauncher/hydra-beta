@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import styles from "./page.module.css";
 
 export default function Home() {
@@ -17,6 +18,7 @@ export default function Home() {
           <li>
             Get started by editing <code>src/app/page.tsx</code>.
           </li>
+          <Link href="/profile/Znq8XqOR">Profile</Link>
           <li>Save and see your changes instantly.</li>
         </ol>
 
