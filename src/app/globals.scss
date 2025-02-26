@@ -1,6 +1,22 @@
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --primary: rgba(255, 255, 255, 1);
+  --secondary: rgba(20, 20, 20, 1);
+  --success: rgba(138, 235, 19, 1);
+  --alert: rgba(243, 198, 17, 1);
+  --error: rgba(225, 29, 72, 1);
+  --sucess-secondary: rgba(138, 235, 19, 0.5);
+  --alert-secondary: rgba(243, 198, 17, 0.5);
+  --error-secondary: rgba(225, 29, 72, 0.5);
+  --sucess-background: rgba(138, 235, 19, 0.05);
+  --alert-background: rgba(243, 198, 17, 0.05);
+  --error-background: rgba(225, 29, 72, 0.05);
+  --background: rgba(8, 8, 8, 1);
+  --surface: rgba(8, 8, 8, 1);
+  --text: rgba(206, 206, 206, 1);
+  --text-secondary: rgba(131, 131, 131, 1);
+  --text-error: rgba(225, 29, 72, 1);
+  --border: rgba(255, 255, 255, 0.1);
+  --spacing-unit: 0.25rem;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -21,6 +37,7 @@
     --text: rgba(206, 206, 206, 1);
     --text-secondary: rgba(131, 131, 131, 1);
     --text-error: rgba(225, 29, 72, 1);
+    --spacing-unit: 0.25rem;
   }
 }
 
