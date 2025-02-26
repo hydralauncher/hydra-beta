@@ -17,9 +17,13 @@ jobs:
           override: true
           components: rustfmt
 
-      - name: Run rustfmt
+      - name: Install dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y libwebkit2gtk-4.0-dev libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
+
+      - name: Run rustfmt
+        run: |
+          mkdir out
           cargo fmt --manifest-path src-tauri/Cargo.toml -- --check
           cargo clippy --manifest-path src-tauri/Cargo.toml
