@@ -43,7 +43,7 @@ jobs:
           bun tauri build
 
       - name: Upload Artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: tauri-build
           path: target/release/*
