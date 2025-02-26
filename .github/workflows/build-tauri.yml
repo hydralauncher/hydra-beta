@@ -24,12 +24,12 @@ jobs:
         uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
-          components: rustfmt, tauri-cli
+          components: rustfmt
 
       - name: Install dependencies
         run: |
           - bun install
-          - cargo install
+          - cargo install tauri-cli
 
       - name: Build Tauri App
         run: bun tauri build
