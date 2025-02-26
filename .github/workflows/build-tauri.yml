@@ -43,12 +43,4 @@ jobs:
         with:
           name: build-${{ matrix.os }}
           path: |
-            src-tauri/target/release/*.exe
-            src-tauri/target/release/*.zip
-            src-tauri/target/release/*.dmg
-            src-tauri/target/release/*.deb
-            src-tauri/target/release/*.rpm
-            src-tauri/target/release/*.tar.gz
-            src-tauri/target/release/*.yml
-            src-tauri/target/release/*.blockmap
-            src-tauri/target/release/*.pacman
+            src-tauri/target/release/bundle/
