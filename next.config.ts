@@ -3,8 +3,16 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   /* config options here */
   images: {
-    domains: ['cdn.losbroxas.org']
-  }
+    remotePatterns: [
+      {
+        hostname: 'cdn.losbroxas.org',
+        protocol: 'https',
+        port: '',
+        pathname: '/**',
+        search: '',
+      },
+    ],
+  },
 };
 
 export default nextConfig;
