@@ -1,3 +1,2 @@
 cargo fmt --manifest-path src-tauri/Cargo.toml
 bun format
-echo "ok"
