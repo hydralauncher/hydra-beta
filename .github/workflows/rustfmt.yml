@@ -24,6 +24,5 @@ jobs:
 
       - name: Run rustfmt
         run: |
-          mkdir out
           cargo fmt --manifest-path src-tauri/Cargo.toml -- --check
           cargo clippy --manifest-path src-tauri/Cargo.toml
