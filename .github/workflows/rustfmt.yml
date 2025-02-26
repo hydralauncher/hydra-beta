@@ -10,11 +10,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: install dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf javascriptcoregtk-4.1 libsoup-2.4
-
       - name: Set up Rust
         uses: actions-rs/toolchain@v1
         with:
@@ -24,5 +19,7 @@ jobs:
 
       - name: Run rustfmt
         run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf javascriptcoregtk-4.1 libsoup-3.0
           cargo fmt --manifest-path src-tauri/Cargo.toml -- --check
           cargo clippy --manifest-path src-tauri/Cargo.toml
