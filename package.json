@@ -6,7 +6,9 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "prepare": "husky",
+    "format": "prettier --write ."
   },
   "dependencies": {
     "@tanstack/react-query": "^5.66.9",
@@ -25,6 +27,8 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "15.1.7",
+    "husky": "^9.1.7",
+    "prettier": "^3.5.2",
     "typescript": "^5"
   }
 }
