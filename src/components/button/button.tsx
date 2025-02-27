@@ -42,7 +42,7 @@ export function Button({
   children,
   target,
   "aria-label": ariaLabel,
-}: ButtonProps) {
+}: Readonly<ButtonProps>) {
   return (
     <>
       {!href ? (
