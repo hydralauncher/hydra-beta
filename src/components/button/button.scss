@@ -3,7 +3,7 @@
 .button {
   appearance: none;
   height: 44px;
-  padding: 0px 16px;
+  padding: 0px calc(var(--spacing-unit) * 4);
   border-radius: var(--spacing-unit);
   border-width: 1px;
   border: none;
@@ -114,7 +114,7 @@
   }
 
   &__text {
-    padding: 8px 0px;
+    padding: calc(var(--spacing-unit) * 2) 0px;
     height: 100%;
     width: 100%;
     display: flex;
@@ -128,7 +128,7 @@
     align-items: center;
     justify-content: center;
     height: 100%;
-    padding: 8px 0px;
+    padding: calc(var(--spacing-unit) * 2) 0px;
 
     &--left::after {
       content: "";
