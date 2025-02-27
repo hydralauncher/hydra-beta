@@ -14,6 +14,7 @@ export const base = (args: CheckboxProps) => <Checkbox {...args} />;
 base.args = {
   label: "Adventure",
   block: false,
+  onChange: () => console.log("onChange"),
 };
 
 export const block = (args: CheckboxProps) => <Checkbox {...args} />;
