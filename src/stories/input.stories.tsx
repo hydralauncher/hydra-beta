@@ -4,8 +4,19 @@ import { MagnifyingGlass } from "@phosphor-icons/react";
 export default {
   title: "Components/Input",
   component: Input,
+  tags: ["autodocs"],
   parameters: {
     layout: "centered",
+  },
+  argTypes: {
+    type: { control: "text" },
+    placeholder: { control: "text" },
+    value: { control: "text" },
+    label: { control: "text" },
+    hint: { control: "text" },
+    error: { control: "boolean" },
+    iconLeft: { control: false },
+    iconRight: { control: false },
   },
 };
 
@@ -25,7 +36,7 @@ export const Types = (args: InputProps) => (
       value="Value"
       hint="example@email.com"
       placeholder="Enter your email"
-     />
+    />
 
     <Input
       type="text"

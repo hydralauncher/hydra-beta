@@ -5,7 +5,7 @@ import { PlusCircle } from "@phosphor-icons/react";
 export default {
   title: "Components/Button",
   component: Button,
-  tags: ["status:stable"],
+  tags: ["autodocs"],
   parameters: {
     layout: "centered",
   },
@@ -15,6 +15,9 @@ export default {
     disabled: { control: "boolean" },
     variant: { control: "select" },
     size: { control: "select" },
+    loading: { control: "boolean" },
+    iconPosition: { control: "select", options: ["left", "right"] },
+    target: { control: "select", options: ["_blank", "_self", "_parent", "_top"] },
     onClick: { action: "clicked" },
   },
 };
