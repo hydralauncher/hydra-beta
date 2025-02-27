@@ -1,5 +1,3 @@
-import "./row.scss";
-
 interface RowProps {
   children: React.ReactNode;
   gap?: number;
@@ -8,5 +6,5 @@ interface RowProps {
 }
 
 export function Row({ children, gap = 44, align = "center", justify = "center" }: Readonly<RowProps>) {
-  return <div className="row" style={{ gap, alignItems: align, justifyContent: justify }}>{children}</div>;
+  return <div style={{ display: "flex", gap, alignItems: align, justifyContent: justify }}>{children}</div>;
 }
