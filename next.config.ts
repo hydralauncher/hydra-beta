@@ -5,11 +5,11 @@ const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
       {
-        hostname: 'cdn.losbroxas.org',
-        protocol: 'https',
-        port: '',
-        pathname: '/**',
-        search: '',
+        hostname: "cdn.losbroxas.org",
+        protocol: "https",
+        port: "",
+        pathname: "/**",
+        search: "",
       },
     ],
   },

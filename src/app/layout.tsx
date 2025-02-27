@@ -30,7 +30,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${inter.variable} ${geistMono.variable} ${spaceGrotesk.variable}`}>
+      <body
+        className={`${inter.variable} ${geistMono.variable} ${spaceGrotesk.variable}`}
+      >
         <Providers>{children}</Providers>
       </body>
     </html>
