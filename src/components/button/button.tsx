@@ -2,18 +2,15 @@ import { Spinner } from "@phosphor-icons/react";
 import Link from "next/link";
 import "./button.scss";
 
-export interface ButtonProps {
-  disabled?: boolean;
+export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   loading?: boolean;
   variant?: keyof typeof variants;
   size?: keyof typeof sizes;
   children: React.ReactNode;
   icon?: React.ReactNode;
   href?: string;
-  "aria-label"?: string;
   iconPosition?: "left" | "right";
   target?: "_blank" | "_self" | "_parent" | "_top";
-  onClick?: () => void;
 }
 
 const variants = {
