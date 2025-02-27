@@ -1,5 +1,12 @@
 import "./row.scss";
 
-export function Row({ children }: { children: React.ReactNode }) {
-  return <div className="row">{children}</div>;
+interface RowProps {
+  children: React.ReactNode;
+  gap?: number;
+  align?: "center" | "start" | "end";
+  justify?: "center" | "start" | "end";
+}
+
+export function Row({ children, gap = 44, align = "center", justify = "center" }: Readonly<RowProps>) {
+  return <div className="row" style={{ gap, alignItems: align, justifyContent: justify }}>{children}</div>;
 }
