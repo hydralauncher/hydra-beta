@@ -7,6 +7,7 @@ export interface CheckboxProps {
   label?: string;
   checked?: boolean;
   block?: boolean;
+  disabled?: boolean;
   onChange?: (checked: boolean) => void;
 }
 
@@ -25,10 +26,12 @@ export const Checkbox = ({ label, ...props }: CheckboxProps) => {
     <div
       className={`checkbox 
         ${props.block ? "checkbox--block" : ""} 
-        ${props.block && isChecked ? "checkbox--block--active" : ""}`}
+        ${props.block && isChecked ? "checkbox--block--active" : ""}
+        ${props.disabled ? "checkbox--disabled" : ""}`}
     >
       <button // NOSONAR
         id={id}
+        disabled={props.disabled}
         className={`checkbox__input ${
           isChecked ? "checkbox__input--checked" : ""
         }`}

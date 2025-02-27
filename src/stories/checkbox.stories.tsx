@@ -1,4 +1,5 @@
 import { Checkbox, CheckboxProps } from "@/components";
+import { Row } from "@/components/storybook/row";
 
 export default {
   title: "Components/Checkbox",
@@ -12,8 +13,11 @@ export default {
 export const base = (args: CheckboxProps) => <Checkbox {...args} />;
 
 base.args = {
+  id: "base-checkbox",
   label: "Adventure",
+  checked: false,
   block: false,
+  disabled: false,
   onChange: () => console.log("onChange"),
 };
 
@@ -24,3 +28,10 @@ block.args = {
   block: true,
   checked: true,
 };
+
+export const State = (args: CheckboxProps) => (
+  <Row>
+    <Checkbox label="Disabled" disabled checked {...args} />
+    <Checkbox label="Disabled" disabled checked block {...args} />
+  </Row>
+);

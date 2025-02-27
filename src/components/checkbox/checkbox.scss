@@ -30,6 +30,11 @@
     }
   }
 
+  &--disabled {
+    opacity: 0.5;
+    pointer-events: none;
+  }
+
   &__native-input {
     appearance: none;
   }
@@ -45,7 +50,7 @@
     justify-content: center;
     transition: background-color 0.2s ease-in-out;
     cursor: pointer;
-    
+
     &--checked {
       background-color: var(--primary);
     }
