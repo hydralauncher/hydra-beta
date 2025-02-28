@@ -10,7 +10,7 @@ export default {
   },
 };
 
-export const Default = () => (
+export const Base = () => (
   <HorizontalCard
     image="https://cdn2.steamgriddb.com/thumb/a779abf92aeec12331d10524426171fb.jpg"
     title="Baldur's Gate 3"
