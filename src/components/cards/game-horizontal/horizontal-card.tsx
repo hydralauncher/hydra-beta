@@ -22,7 +22,9 @@ export function HorizontalCard({
       <div className="horizontal-card__content">
         <div className="horizontal-card__content__info">
           <h3 className="horizontal-card__content__info__title">{title}</h3>
-          <p className="horizontal-card__content__info__description">{description}</p>
+          <p className="horizontal-card__content__info__description">
+            {description}
+          </p>
         </div>
         <div className="horizontal-card__content__action">{action}</div>
       </div>

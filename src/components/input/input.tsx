@@ -1,6 +1,7 @@
 import "./input.scss";
 
-export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+export interface InputProps
+  extends React.InputHTMLAttributes<HTMLInputElement> {
   label?: string;
   hint?: string;
   error?: boolean;
@@ -11,14 +12,13 @@ export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> 
 export function Input({
   type = "text",
   placeholder = "Placeholder",
-  value = "",
   label,
   hint,
-  onChange,
   error = false,
   disabled = false,
   iconLeft,
   iconRight,
+  ...props
 }: Readonly<InputProps>) {
   return (
     <div className="input-container">
@@ -38,9 +38,14 @@ export function Input({
           className={`input ${error ? "input--error" : ""} ${
             disabled ? "input--disabled" : ""
           }`}
+          {...props}
         />
-        {iconLeft && <div className="input-icon input-icon--left">{iconLeft}</div>}
-        {iconRight && <div className="input-icon input-icon--right">{iconRight}</div>}
+        {iconLeft && (
+          <div className="input-icon input-icon--left">{iconLeft}</div>
+        )}
+        {iconRight && (
+          <div className="input-icon input-icon--right">{iconRight}</div>
+        )}
       </div>
       {hint && (
         <p className={`input-hint ${error ? "input-hint--error" : ""}`}>

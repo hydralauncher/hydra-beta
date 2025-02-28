@@ -15,6 +15,10 @@ export const Base = () => (
     image="https://cdn2.steamgriddb.com/thumb/a779abf92aeec12331d10524426171fb.jpg"
     title="Baldur's Gate 3"
     description="2 download sources"
-    action={<Button variant="secondary" size="icon"><PlusCircle size={24} /></Button>}
+    action={
+      <Button variant="secondary" size="icon">
+        <PlusCircle size={24} />
+      </Button>
+    }
   />
 );

@@ -2,17 +2,6 @@ import { Spinner } from "@phosphor-icons/react";
 import Link from "next/link";
 import "./button.scss";
 
-export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  loading?: boolean;
-  variant?: keyof typeof variants;
-  size?: keyof typeof sizes;
-  children: React.ReactNode;
-  icon?: React.ReactNode;
-  href?: string;
-  iconPosition?: "left" | "right";
-  target?: "_blank" | "_self" | "_parent" | "_top";
-}
-
 const variants = {
   primary: "button--primary",
   secondary: "button--secondary",
@@ -27,6 +16,18 @@ const sizes = {
   large: "button--large",
 };
 
+export interface ButtonProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  loading?: boolean;
+  variant?: keyof typeof variants;
+  size?: keyof typeof sizes;
+  children: React.ReactNode;
+  icon?: React.ReactNode;
+  href?: string;
+  iconPosition?: "left" | "right";
+  target?: "_blank" | "_self" | "_parent" | "_top";
+}
+
 export function Button({
   loading = false,
   disabled = false,
@@ -39,12 +40,12 @@ export function Button({
   children,
   target,
   "aria-label": ariaLabel,
+  ...props
 }: Readonly<ButtonProps>) {
   return (
     <>
       {!href ? (
         <button
-          type="button"
           onClick={onClick}
           disabled={disabled || loading}
           aria-busy={loading}
@@ -52,6 +53,7 @@ export function Button({
           className={`button ${variants[variant]} ${sizes[size]} ${
             disabled || loading ? "button--disabled" : ""
           }`}
+          {...props}
         >
           {loading && (
             <div

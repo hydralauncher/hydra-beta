@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { Inter, Geist_Mono, Space_Grotesk } from "next/font/google";
-import "./globals.scss";
+
 import { Providers } from "./providers";
+
+import "./globals.scss";
 
 const inter = Inter({
   variable: "--font-inter",
