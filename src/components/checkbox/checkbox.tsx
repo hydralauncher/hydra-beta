@@ -16,7 +16,7 @@ export const Checkbox = ({ label, ...props }: CheckboxProps) => {
   const id = props.id ?? generatedId;
 
   const [isChecked, setIsChecked] = React.useState(props.checked);
-  
+
   const handleChange = (checked: boolean) => {
     setIsChecked(checked);
     props.onChange?.(checked);

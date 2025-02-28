@@ -17,7 +17,10 @@ export default {
     size: { control: "select" },
     loading: { control: "boolean" },
     iconPosition: { control: "select", options: ["left", "right"] },
-    target: { control: "select", options: ["_blank", "_self", "_parent", "_top"] },
+    target: {
+      control: "select",
+      options: ["_blank", "_self", "_parent", "_top"],
+    },
     onClick: { action: "clicked" },
   },
 };
