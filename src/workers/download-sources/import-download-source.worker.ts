@@ -1,12 +1,10 @@
-import { db } from "@/dexie";
-import { downloadsTable, downloadSourcesTable } from "@/dexie";
+import { db, downloadsTable, downloadSourcesTable } from "@/dexie";
 
 import { downloadSourceSchema } from "@/schemas/download-source.schema";
 import axios from "axios";
 import { DownloadSourceStatus, ImportDownloadSourceError } from "./constants";
 import type { InferType } from "yup";
-import { addNewDownloads } from "./helpers";
-import { getSteamGamesByLetter } from "./helpers";
+import { addNewDownloads, getSteamGamesByLetter } from "./helpers";
 
 self.onmessage = async (event: MessageEvent<string>) => {
   try {
