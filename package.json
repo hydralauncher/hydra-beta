@@ -9,11 +9,14 @@
     "lint": "next lint",
     "prepare": "husky",
     "format": "prettier --write .",
-    "test": "vitest"
+    "test": "vitest",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.66.9",
     "@tauri-apps/api": "1",
+    "@phosphor-icons/react": "^2.1.7",
     "axios": "^1.8.1",
     "dexie": "^4.0.11",
     "lodash-es": "^4.17.21",
@@ -25,17 +28,31 @@
     "zustand": "^5.0.3"
   },
   "devDependencies": {
+    "@chromatic-com/storybook": "^3.2.4",
     "@eslint/eslintrc": "^3",
+    "@storybook/addon-essentials": "^8.6.0",
+    "@storybook/addon-onboarding": "^8.6.0",
+    "@storybook/blocks": "^8.6.0",
+    "@storybook/experimental-addon-test": "^8.6.0",
+    "@storybook/experimental-nextjs-vite": "8.6.0",
+    "@storybook/react": "^8.6.0",
+    "@storybook/test": "^8.6.0",
     "@tauri-apps/cli": "1.0.0",
     "@types/bun": "^1.2.4",
     "@types/lodash-es": "^4.17.12",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@vitest/browser": "^3.0.7",
+    "@vitest/coverage-v8": "^3.0.7",
     "eslint": "^9",
     "eslint-config-next": "15.1.7",
     "husky": "^9.1.7",
     "prettier": "^3.5.2",
+    "eslint-plugin-storybook": "^0.11.3",
+    "playwright": "^1.50.1",
+    "sass": "^1.85.1",
+    "storybook": "^8.6.0",
     "typescript": "^5",
     "vitest": "^3.0.7"
   }

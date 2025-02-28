@@ -1,5 +1,3 @@
-
-
 use rusty_leveldb::{Options, DB};
 use serde::{Deserialize, Serialize};
 use tauri::command;
