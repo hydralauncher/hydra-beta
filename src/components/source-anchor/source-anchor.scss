@@ -1,0 +1,28 @@
+@use "../../app/globals.scss";
+
+.source-anchor {
+  background-color: var(--secondary-hover);
+  height: 28px;
+  padding: 0 calc(var(--spacing-unit) * 2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--spacing-unit);
+
+  &__title {
+    font-size: 10px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+    color: var(--primary);
+    opacity: 0.8;
+  }
+}
+
+a {
+  &:focus-visible {
+    outline: 1px solid var(--primary);
+    outline-offset: 2px;
+    border-radius: var(--spacing-unit);
+  }
+}

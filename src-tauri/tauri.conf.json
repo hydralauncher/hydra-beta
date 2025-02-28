@@ -3,7 +3,7 @@
   "build": {
     "beforeDevCommand": "bun run dev",
     "devPath": "http://localhost:3000",
-    "distDir": "../.next"
+    "distDir": "https://web.hydralauncher.gg"
   },
   "package": {
     "productName": "hydra-beta",
@@ -11,7 +11,10 @@
   },
   "tauri": {
     "allowlist": {
-      "all": true
+      "all": true,
+      "http": {
+        "scope": ["https://assets.hydralauncher.gg/*"]
+      }
     },
     "bundle": {
       "active": true,
@@ -28,7 +31,7 @@
         "icons/icon.icns",
         "icons/icon.ico"
       ],
-      "identifier": "com.tauri.dev",
+      "identifier": "gg.hydralauncher.hydra",
       "longDescription": "",
       "macOS": {
         "entitlements": null,
