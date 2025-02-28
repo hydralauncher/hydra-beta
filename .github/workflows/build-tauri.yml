@@ -52,7 +52,12 @@ jobs:
           sudo apt-get install -y libwebkit2gtk-4.0-dev libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
 
       - name: Build Tauri App
+        if: matrix.target == ''
         run: bun tauri build
+
+      - name: Build Tauri App with target
+        if: matrix.target != ''
+        run: bun tauri build --target ${{ matrix.target }}
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
