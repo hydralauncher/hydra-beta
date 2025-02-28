@@ -1,1 +1,2 @@
-export const IS_DESKTOP = "__TAURI__" in window;
+export const IS_DESKTOP =
+  typeof window !== "undefined" && "__TAURI__" in window;
