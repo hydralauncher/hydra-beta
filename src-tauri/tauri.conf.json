@@ -6,7 +6,7 @@
     "distDir": "https://beta.hydralauncher.gg"
   },
   "package": {
-    "productName": "hydra-beta",
+    "productName": "Hydra Beta",
     "version": "0.1.0"
   },
   "tauri": {
@@ -60,7 +60,7 @@
         "fullscreen": false,
         "height": 600,
         "resizable": true,
-        "title": "hydra-beta",
+        "title": "Hydra Beta",
         "width": 800
       }
     ]
