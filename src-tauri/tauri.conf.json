@@ -3,7 +3,7 @@
   "build": {
     "beforeDevCommand": "bun run dev",
     "devPath": "http://localhost:3000",
-    "distDir": "https://web.hydralauncher.gg"
+    "distDir": "https://beta.hydralauncher.gg"
   },
   "package": {
     "productName": "hydra-beta",
