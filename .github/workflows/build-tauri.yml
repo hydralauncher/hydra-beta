@@ -10,24 +10,8 @@ jobs:
   build:
     runs-on: ${{ matrix.os }}
     strategy:
-      fail-fast: false
       matrix:
-        include:
-          # Linux build
-          - os: ubuntu-22.04
-            target: ""
-
-          # Windows build
-          - os: windows-latest
-            target: ""
-
-          # macOS (Apple Silicon - ARM64)
-          - os: macos-latest
-            target: "aarch64-apple-darwin"
-
-          # macOS (Intel - x86_64)
-          - os: macos-latest
-            target: "x86_64-apple-darwin"
+        os: [ubuntu-22.04, macos-latest, windows-latest]
 
     steps:
       - name: Checkout code
@@ -36,15 +20,11 @@ jobs:
       - name: Set up Bun
         uses: oven-sh/setup-bun@v1
 
-      - name: Set up Rust
+      - name: Install Rust
         uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
           components: rustfmt
-
-      - name: Add target platform
-        if: matrix.target != ''
-        run: rustup target add ${{ matrix.target }}
 
       - name: Install dependencies
         run: bun install
@@ -56,16 +36,11 @@ jobs:
           sudo apt-get install -y libwebkit2gtk-4.0-dev libwebkit2gtk-4.1-dev libappindicator3-dev librsvg2-dev patchelf
 
       - name: Build Tauri App
-        if: matrix.target == ''
         run: bun tauri build
-
-      - name: Build Tauri App with target
-        if: matrix.target != ''
-        run: bun tauri build --target ${{ matrix.target }}
 
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: build-${{ matrix.os }}-${{ matrix.target || 'default' }}
+          name: build-${{ matrix.os }}
           path: |
             src-tauri/target/release/bundle/
