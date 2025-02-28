@@ -42,6 +42,10 @@ jobs:
           toolchain: stable
           components: rustfmt
 
+      - name: Add target platform
+        if: matrix.target != ''
+        run: rustup target add ${{ matrix.target }}
+
       - name: Install dependencies
         run: bun install
 
