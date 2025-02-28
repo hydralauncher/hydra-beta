@@ -20,8 +20,6 @@ export interface Download extends DexieModel {
 export interface DownloadSource extends DexieModel {
   url: string;
   name: string;
-  /* etag is only available in desktop app */
-  etag?: string;
   objectIds: string[];
   downloadCount: number;
   status: DownloadSourceStatus;

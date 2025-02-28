@@ -42,7 +42,6 @@ self.onmessage = async (event: MessageEvent<string>) => {
         const id = await downloadSourcesTable.add({
           url: event.data,
           name,
-          etag: response.headers["etag"],
           status: DownloadSourceStatus.UpToDate,
           downloadCount: downloads.length,
           createdAt: now,
