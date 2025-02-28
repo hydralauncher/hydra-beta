@@ -2,7 +2,7 @@ import { Button, ListCard } from "@/components";
 import { PlusCircle } from "@phosphor-icons/react";
 
 export default {
-  title: "Game Cards/Listcard",
+  title: "Game Cards/List Card",
   component: ListCard,
   parameters: {
     layout: "centered",

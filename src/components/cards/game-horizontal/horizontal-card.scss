@@ -1,21 +1,26 @@
 @use "../../../app/globals.scss";
 
-.list-card {
+.horizontal-card {
   display: flex;
-  flex-direction: row;
-  height: 100px;
-  width: 100%;
-  border-radius: calc(var(--spacing-unit) * 2);
+  flex-direction: column;
   align-items: center;
-  overflow: hidden;
-  transition: background-color 0.1s ease-in-out;
+  border-radius: var(--spacing-unit);
+  transition: background-color 0.1s ease-in-out, border 0.1s ease-in-out;
+  border: 1px solid transparent;
+  cursor: pointer;
+
   &:hover {
     background-color: var(--secondary);
+    border: 1px solid var(--secondary-border);
+
+    .horizontal-card__content__action {
+      opacity: 1;
+    }
   }
 
   &__image {
-    width: 200px;
-    height: 100px;
+    width: 268px;
+    height: 136px;
     border-radius: var(--spacing-unit);
     overflow: hidden;
   }
@@ -23,15 +28,11 @@
   &__content {
     display: flex;
     flex-direction: row;
-    gap: var(--spacing-unit);
-    padding: calc(var(--spacing-unit) * 4);
+    gap: calc(var(--spacing-unit) * 2);
+    align-items: center;
     justify-content: space-between;
-    flex: 1;
-    height: 100px;
-
-    &:hover &__action {
-      opacity: 1;
-    }
+    padding: calc(var(--spacing-unit) * 2);
+    width: 100%;
 
     &__info {
       display: flex;
@@ -55,22 +56,11 @@
         color: var(--primary);
         opacity: 0.5;
       }
-
-      &__sources {
-        margin-top: var(--spacing-unit);
-        display: flex;
-        flex-direction: row;
-        gap: calc(var(--spacing-unit) * 2);
-      }
     }
 
     &__action {
       opacity: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: opacity 0.05s ease-in-out;
-      margin-right: calc(var(--spacing-unit) * 2);
+      transition: opacity 0.1s ease-in-out;
     }
   }
 }
