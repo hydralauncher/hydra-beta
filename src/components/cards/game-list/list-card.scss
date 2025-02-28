@@ -70,6 +70,7 @@
       align-items: center;
       justify-content: center;
       transition: opacity 0.05s ease-in-out;
+      margin-right: calc(var(--spacing-unit) * 2);
     }
   }
 }
