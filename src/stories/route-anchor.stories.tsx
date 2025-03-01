@@ -29,7 +29,7 @@ Base.args = {
   icon: <House size={24} />,
 };
 
-export const Collapsible = (args: RouteAnchorProps) => (
+export const Collapsible = () => (
   <div
     style={{
       width: "200px",
