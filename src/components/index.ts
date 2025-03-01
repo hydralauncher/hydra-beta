@@ -3,7 +3,10 @@ export { Input, type InputProps } from "./input/input";
 export { Checkbox, type CheckboxProps } from "./checkbox/checkbox";
 export { ListCard, type ListCardProps } from "./cards/game-list/list-card";
 export { Divider, type DividerProps } from "./divider/divider";
-export { RouteAnchor, type RouteAnchorProps } from "./route-anchor/route-anchor";
+export {
+  RouteAnchor,
+  type RouteAnchorProps,
+} from "./route-anchor/route-anchor";
 export {
   SourceAnchor,
   type SourceAnchorProps,

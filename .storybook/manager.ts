@@ -27,5 +27,5 @@ addons.setConfig({
     inputBorder: "#ffffff1a",
     inputTextColor: "#ffffff",
     inputBorderRadius: 4,
-  })
+  }),
 });
