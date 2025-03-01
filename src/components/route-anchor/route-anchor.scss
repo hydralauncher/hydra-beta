@@ -1,0 +1,70 @@
+@use "../../app/globals.scss";
+
+.route-anchor {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--spacing-unit) * 3);
+  padding: calc(var(--spacing-unit) * 2);
+  border-radius: var(--spacing-unit);
+  transition: background-color 0.2s ease-in-out;
+  width: 100%;
+  color: var(--text);
+  user-select: none;
+
+  &--extra-padding {
+    padding: calc(var(--spacing-unit) * 3);
+  }
+
+  &--collapsed {
+    width: 48px;
+  }
+  
+  &--active {
+    color: var(--primary);
+    background-color: var(--secondary-hover);
+  }
+
+  &:not(&--active):hover {
+    background-color: var(--secondary);
+  }
+
+  &__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--spacing-unit);
+    overflow: hidden;
+
+    &--small-size {
+      width: 24px;
+      height: 24px;
+    }
+
+    &--large-size {
+      width: 32px;
+      height: 32px;
+    }
+  }
+
+  &__label {
+    font-size: 14px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+
+    &--collapsed {
+      display: none;
+    }
+  }
+}
+
+.state-wrapper {
+  &--disabled {
+    opacity: 0.5;
+    pointer-events: none;
+  }
+
+  &--active {
+    pointer-events: none;
+  }
+}
