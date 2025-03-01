@@ -38,8 +38,8 @@ export const Collapsible = (args: RouteAnchorProps) => (
       gap: "16px",
     }}
   >
-    <RouteAnchor {...args} />
-    <RouteAnchor {...args} collapsed />
+    <RouteAnchor href="/" label="Home" icon={<House size={24} />} />
+    <RouteAnchor href="/" label="Home" icon={<House size={24} />} collapsed />
   </div>
 );
 

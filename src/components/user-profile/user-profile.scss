@@ -1,0 +1,85 @@
+@use "../../app/globals.scss";
+
+.user-profile {
+  display: flex;
+  align-items: center;
+  height: 64px;
+  width: 100%;
+  padding: calc(var(--spacing-unit) * 2);
+  gap: calc(var(--spacing-unit) * 3);
+
+  &__info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-unit);
+
+    &__name {
+      color: var(--text-primary);
+      font-size: 16px;
+      font-style: normal;
+      font-weight: 700;
+      line-height: normal;
+    }
+
+    &__status {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: center;
+      gap: calc(var(--spacing-unit) * 1.5);
+
+      &__icon {
+        width: 16px;
+        height: 16px;
+      }
+
+      &__label {
+        color: rgba(255, 255, 255, 0.5);
+        font-size: 13px;
+        font-style: normal;
+        font-weight: 400;
+        line-height: normal;
+      }
+    }
+  }
+
+  &__image {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--spacing-unit);
+    border: 1px solid var(--border);
+  }
+
+  &__initials {
+    width: 48px;
+    height: 48px;
+    border-radius: var(--spacing-unit);
+    background-color: var(--secondary);
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 20px;
+  }
+
+  &__image-wrapper {
+    position: relative;
+    width: 48px;
+    height: 48px;
+  }
+
+  &__status-icon--collapsed {
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    background-color: rgba(0, 0, 0, 0.25);
+    padding: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--border);
+    border-radius: var(--spacing-unit);
+  }
+}
