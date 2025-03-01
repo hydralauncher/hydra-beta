@@ -4,7 +4,7 @@ import {
 } from "@/components/route-anchor/route-anchor";
 import { House } from "@phosphor-icons/react";
 export default {
-  title: "Sidebar/RouteAnchor",
+  title: "Sidebar/Route Anchor",
   component: RouteAnchor,
   tags: ["autodocs"],
   parameters: {
@@ -38,8 +38,8 @@ export const Collapsible = (args: RouteAnchorProps) => (
       gap: "16px",
     }}
   >
-    <RouteAnchor href="/" label="Home" icon={<House size={24} />} />
-    <RouteAnchor href="/" label="Home" icon={<House size={24} />} collapsed />
+    <RouteAnchor {...args} />
+    <RouteAnchor {...args} collapsed />
   </div>
 );
 
@@ -64,7 +64,7 @@ export const States = () => (
   </div>
 );
 
-export const GameIcon = (args: RouteAnchorProps) => (
+export const GameIcon = () => (
   <div
     style={{
       width: "200px",
