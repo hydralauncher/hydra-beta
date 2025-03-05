@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
+import cookiesStorage from "./cookie-storage";
 
 export interface Auth {
   accessToken: string;
@@ -10,6 +11,7 @@ export interface Auth {
 export interface AuthState {
   auth: Auth | null;
   setAuth: (auth: Auth) => void;
+  clearAuth: () => void;
 }
 
 export const useAuthStore = create(
@@ -17,10 +19,11 @@ export const useAuthStore = create(
     (set) => ({
       auth: null,
       setAuth: (auth) => set({ auth }),
+      clearAuth: () => set({ auth: null }),
     }),
     {
       name: "auth",
-      storage: createJSONStorage(() => localStorage),
+      storage: createJSONStorage(() => cookiesStorage),
     }
   )
 );

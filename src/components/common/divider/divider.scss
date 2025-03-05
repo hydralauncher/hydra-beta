@@ -1,0 +1,16 @@
+.divider {
+  background-color: var(--border);
+  display: inline-block;
+  min-width: 1px;
+  min-height: 1px;
+
+  &--horizontal {
+    width: 100%;
+    height: 1px;
+  }
+
+  &--vertical {
+    width: 1px;
+    height: 100%;
+  }
+}

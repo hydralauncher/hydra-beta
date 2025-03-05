@@ -1,5 +1,5 @@
-import { Button, ButtonProps } from "@/components";
-import { Row } from "@/components/storybook";
+import { Button, ButtonProps } from "@/components/common";
+import { Row } from "@/components/common/storybook";
 import { PlusCircle } from "@phosphor-icons/react";
 
 export default {

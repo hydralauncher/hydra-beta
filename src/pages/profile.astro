@@ -1,0 +1,14 @@
+---
+import Layout from "../layouts/layout.astro";
+import { App } from "../app";
+import { api } from "@/services";
+import type { User } from "@/types";
+
+const id = "Znq8XqOR";
+
+const profile = await api.get<User>(`users/${id}`).json();
+---
+
+<Layout>
+  <App client:load profile={profile} initialPath="/profile" />
+</Layout>

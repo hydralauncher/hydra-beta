@@ -1,4 +1,4 @@
-import { SourceAnchor, SourceAnchorProps } from "@/components";
+import { SourceAnchor, SourceAnchorProps } from "@/components/common";
 
 export default {
   title: "Components/Button/Source Anchor",

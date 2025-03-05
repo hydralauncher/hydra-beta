@@ -1,5 +1,5 @@
-import { Checkbox, CheckboxProps } from "@/components";
-import { Row } from "@/components/storybook/row";
+import { Checkbox, CheckboxProps } from "@/components/common";
+import { Row } from "@/components/common/storybook/row";
 
 export default {
   title: "Components/Checkbox",

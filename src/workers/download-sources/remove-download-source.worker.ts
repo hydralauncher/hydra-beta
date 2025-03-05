@@ -1,4 +1,8 @@
-import { db, downloadSourcesTable, downloadsTable } from "@/dexie";
+import {
+  db,
+  downloadSourcesTable,
+  downloadsTable,
+} from "@/services/dexie.service";
 
 self.onmessage = async (event: MessageEvent<number>) => {
   await db.transaction("rw", downloadsTable, downloadSourcesTable, async () => {

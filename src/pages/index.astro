@@ -1,0 +1,12 @@
+---
+import Layout from "../layouts/layout.astro";
+import { App } from "../app";
+
+const cookies = Astro.cookies.get("auth");
+
+console.log(cookies);
+---
+
+<Layout>
+  <App client:load initialPath="/" />
+</Layout>
