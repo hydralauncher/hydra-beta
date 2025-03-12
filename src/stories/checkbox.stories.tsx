@@ -1,4 +1,4 @@
-import { Checkbox, CheckboxProps } from "@/components/common";
+import { Checkbox, type CheckboxProps } from "@/components/common";
 import { Row } from "@/components/common/storybook/row";
 
 export default {

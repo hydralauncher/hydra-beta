@@ -1,4 +1,4 @@
-import { Input, InputProps } from "@/components/common";
+import { Input, type InputProps } from "@/components/common";
 import { Row } from "@/components/common/storybook/row";
 import { MagnifyingGlass } from "@phosphor-icons/react";
 

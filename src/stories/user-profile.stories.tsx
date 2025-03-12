@@ -1,4 +1,4 @@
-import { UserProfile, UserProfileProps } from "@/components/common";
+import { UserProfile, type UserProfileProps } from "@/components/common";
 
 export default {
   title: "Sidebar/User Profile",

@@ -1,4 +1,4 @@
-import { Button, ButtonProps } from "@/components/common";
+import { Button, type ButtonProps } from "@/components/common";
 import { Row } from "@/components/common/storybook";
 import { PlusCircle } from "@phosphor-icons/react";
 
