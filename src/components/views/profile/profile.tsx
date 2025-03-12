@@ -7,7 +7,7 @@ export interface User {
 }
 
 export interface ProfileProps {
-  profile?: any;
+  profile?: any; // eslint-disable-line @typescript-eslint/no-explicit-any
 }
 
 export function Profile(props: ProfileProps) {

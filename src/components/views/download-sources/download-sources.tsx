@@ -34,7 +34,7 @@ export function DownloadSources() {
   });
 
   const { mutate: importDownloadSource, isPending: isImporting } = useMutation({
-    mutationFn: (values: any) =>
+    mutationFn: (values: any) => // eslint-disable-line @typescript-eslint/no-explicit-any
       new Promise((resolve) => {
         const worker = new ImportDownloadSourceWorker();
 
