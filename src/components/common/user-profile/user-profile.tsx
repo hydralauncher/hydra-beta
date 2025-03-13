@@ -27,7 +27,9 @@ export const UserProfile = ({
 
   return (
     <a href={href}>
-      <div className={`user-profile ${collapsed ? "user-profile--collapsed" : ""}`}>
+      <div
+        className={`user-profile ${collapsed ? "user-profile--collapsed" : ""}`}
+      >
         <div className="user-profile__image-wrapper">
           {image ? (
             <img
