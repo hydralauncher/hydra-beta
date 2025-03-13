@@ -63,13 +63,13 @@ function SidebarContainer({ children }: Readonly<SidebarContainerProps>) {
 
   useEffect(() => {
     if (!isResizing) return;
-    
-    document.addEventListener('mousemove', handleResize);
-    document.addEventListener('mouseup', stopResizing);
-    
+
+    document.addEventListener("mousemove", handleResize);
+    document.addEventListener("mouseup", stopResizing);
+
     return () => {
-      document.removeEventListener('mousemove', handleResize);
-      document.removeEventListener('mouseup', stopResizing);
+      document.removeEventListener("mousemove", handleResize);
+      document.removeEventListener("mouseup", stopResizing);
     };
   }, [isResizing, handleResize, stopResizing]);
 
@@ -127,7 +127,7 @@ function SidebarGroup() {
     <div className="sidebar-group">
       <h2>Group</h2>
       <ul>
-      <li>Item</li>
+        <li>Item</li>
       </ul>
     </div>
   );
