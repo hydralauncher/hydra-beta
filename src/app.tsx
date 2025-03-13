@@ -2,6 +2,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, MemoryRouter, Route, Routes } from "react-router";
 
 import { DownloadSources, Home, Profile } from "@/components";
+import { Sidebar } from "@/layouts/sidebar/sidebar";
 
 const queryClient = new QueryClient();
 
@@ -29,6 +30,7 @@ export function App(props: AppProps) {
   return (
     <QueryClientProvider client={queryClient}>
       <Router initialPath={props.initialPath}>
+        <Sidebar />
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/download-sources" element={<DownloadSources />} />

@@ -1,0 +1,34 @@
+.sidebar-container {
+  height: 100%;
+  background-color: var(--background);
+  position: relative;
+
+  &__slider {
+    height: 100%;
+    background-color: transparent;
+    width: 7px;
+    cursor: col-resize;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    right: 0;
+    transform: translateX(7px);
+
+    &:hover {
+      .sidebar-container__slider-trigger {
+        background-color: var(--secondary-hover);
+      }
+    }
+
+    &-trigger {
+      height: 98%;
+      border-radius: 10px;
+      background-color: transparent;
+      width: 1px;
+      cursor: col-resize;
+    }
+  }
+
+}
