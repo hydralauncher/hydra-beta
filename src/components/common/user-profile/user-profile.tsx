@@ -4,7 +4,7 @@ export interface UserProfileProps {
   image?: string;
   name: string;
   href: string;
-  status?: {
+  playingStatus?: {
     icon: string;
     label: string;
   };
@@ -15,7 +15,7 @@ export const UserProfile = ({
   image,
   name,
   href,
-  status,
+  playingStatus,
   collapsed = false,
 }: UserProfileProps) => {
   const nameInitials = name
@@ -27,7 +27,7 @@ export const UserProfile = ({
 
   return (
     <a href={href}>
-      <div className="user-profile">
+      <div className={`user-profile ${collapsed ? "user-profile--collapsed" : ""}`}>
         <div className="user-profile__image-wrapper">
           {image ? (
             <img
@@ -43,11 +43,11 @@ export const UserProfile = ({
           ) : (
             <div className="user-profile__initials">{nameInitials}</div>
           )}
-          {collapsed && status && (
+          {collapsed && playingStatus && (
             <div className="user-profile__status-icon--collapsed">
               <img
-                src={status.icon}
-                alt={status.label}
+                src={playingStatus.icon}
+                alt={playingStatus.label}
                 width={16}
                 height={16}
               />
@@ -57,17 +57,17 @@ export const UserProfile = ({
         {!collapsed && (
           <div className="user-profile__info">
             <div className="user-profile__info__name">{name}</div>
-            {status && (
+            {playingStatus && (
               <div className="user-profile__info__status">
                 <img
-                  src={status.icon}
-                  alt={status.label}
+                  src={playingStatus.icon}
+                  alt={playingStatus.label}
                   width={16}
                   height={16}
                   className="user-profile__info__status__icon"
                 />
                 <span className="user-profile__info__status__label">
-                  {status.label}
+                  {playingStatus.label}
                 </span>
               </div>
             )}

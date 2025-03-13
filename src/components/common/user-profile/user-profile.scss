@@ -6,6 +6,10 @@
   padding: calc(var(--spacing-unit) * 2);
   gap: calc(var(--spacing-unit) * 3);
 
+  &--collapsed {
+    padding: 0;
+  }
+
   &__info {
     display: flex;
     flex-direction: column;
