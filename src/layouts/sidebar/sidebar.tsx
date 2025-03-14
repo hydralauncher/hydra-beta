@@ -1,16 +1,26 @@
-import { UserProfile } from "@/components/common";
+import { Divider, RouteAnchor, UserProfile } from "@/components/common";
 import { api } from "@/services";
+import { DownloadSimple, Gear, House, SquaresFour } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { createContext, type CSSProperties, useContext, useEffect, useMemo, useState } from "react";
 import "./sidebar.scss";
 
-export interface User {
+interface User {
   displayName: string;
   profileImageUrl: string;
 }
 
-export interface SidebarContainerProps {
+interface SidebarContainerProps {
   children: React.ReactNode;
+}
+
+interface SidebarGroupProps {
+  children: React.ReactNode;
+}
+
+interface SidebarContext {
+  isCollapsed: boolean;
+  setIsCollapsed: (isCollapsed: boolean) => void;
 }
 
 function SidebarMockUser(): User | null {
@@ -31,6 +41,11 @@ function SidebarMockUser(): User | null {
 
   return profile;
 }
+
+const SidebarContext = createContext<SidebarContext>({
+  isCollapsed: false,
+  setIsCollapsed: () => {},
+});
 
 function SidebarContainer({ children }: Readonly<SidebarContainerProps>) {
   const SIDEBAR_DEFAULT_WIDTH = 250;
@@ -73,9 +88,14 @@ function SidebarContainer({ children }: Readonly<SidebarContainerProps>) {
     };
   }, [isResizing, handleResize, stopResizing]);
 
-  const containerStyle = {
+  const containerStyle: CSSProperties = {
     width: isCollapsed ? SIDEBAR_COLLAPSED_WIDTH : width,
   };
+
+  const contextValue = useMemo(
+    () => ({ isCollapsed, setIsCollapsed }),
+    [isCollapsed]
+  );
 
   return (
     <div className="sidebar-container" style={containerStyle}>
@@ -90,14 +110,16 @@ function SidebarContainer({ children }: Readonly<SidebarContainerProps>) {
       >
         <div className="sidebar-container__slider-trigger" />
       </div>
-      {children}
+      <SidebarContext.Provider value={contextValue}>
+        {children}
+      </SidebarContext.Provider>
     </div>
   );
 }
 
 function SidebarHeader() {
   const profile = SidebarMockUser();
-
+  const { isCollapsed } = useContext(SidebarContext);
   if (!profile) {
     // TODO: add skeleton
     return <div>Loading...</div>;
@@ -108,8 +130,59 @@ function SidebarHeader() {
       <UserProfile
         name={profile.displayName}
         image={profile.profileImageUrl}
+        collapsed={isCollapsed}
         href="#"
       />
+      <Divider />
+    </div>
+  );
+}
+
+function SidebarRoutes() {
+  const appRoutes = [
+    {
+      path: "/",
+      label: "Home",
+      icon: <House size={24} />,
+    },
+    {
+      path: "/catalog",
+      label: "Catalog",
+      icon: <SquaresFour size={24} />,
+    },
+    {
+      path: "/downloads",
+      label: "Downloads",
+      icon: <DownloadSimple size={24} />,
+    },
+    {
+      path: "/settings",
+      label: "Settings",
+      icon: <Gear size={24} />,
+    },
+  ];
+
+  const { isCollapsed } = useContext(SidebarContext);
+
+  return (
+    <div className="sidebar-routes">
+      {appRoutes.map((route) => (
+        <RouteAnchor
+          key={route.path}
+          href={route.path}
+          label={route.label}
+          icon={route.icon}
+          collapsed={isCollapsed}
+        />
+      ))}
+    </div>
+  );
+}
+
+function SidebarLibrary(library: any) {
+  return (
+    <div className="sidebar-library">
+      <h2>Library</h2>
     </div>
   );
 }
@@ -117,26 +190,26 @@ function SidebarHeader() {
 function SidebarContent() {
   return (
     <div className="sidebar-content">
-      <SidebarGroup />
+      <SidebarGroup>
+        <SidebarRoutes />
+      </SidebarGroup>
+      <Divider />
+      <SidebarGroup>
+        <SidebarLibrary />
+      </SidebarGroup>
     </div>
   );
 }
 
-function SidebarGroup() {
-  return (
-    <div className="sidebar-group">
-      <h2>Group</h2>
-      <ul>
-        <li>Item</li>
-      </ul>
-    </div>
-  );
+function SidebarGroup({ children }: Readonly<SidebarGroupProps>) {
+  return <div className="sidebar-group">{children}</div>;
 }
 
 export function Sidebar() {
   return (
     <SidebarContainer>
-      <p>asdasd</p>
+      <SidebarHeader />
+      <SidebarContent />
     </SidebarContainer>
   );
 }
