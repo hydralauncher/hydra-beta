@@ -10,13 +10,12 @@ export interface AppProps {
   initialPath: string;
 }
 
-function Router({
-  children,
-  initialPath,
-}: {
+interface RouterProps {
   children: React.ReactNode;
   initialPath: string;
-}) {
+}
+
+function Router({ children, initialPath }: Readonly<RouterProps>) {
   if (typeof window === "undefined") {
     return (
       <MemoryRouter initialEntries={[initialPath]}>{children}</MemoryRouter>
@@ -26,7 +25,7 @@ function Router({
   return <BrowserRouter>{children}</BrowserRouter>;
 }
 
-export function App(props: AppProps) {
+export function App(props: Readonly<AppProps>) {
   return (
     <QueryClientProvider client={queryClient}>
       <Router initialPath={props.initialPath}>
