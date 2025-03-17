@@ -75,7 +75,7 @@ const SidebarMockUser = (): User | null => {
       label: "Hollow Knight",
     },
   };
-}
+};
 
 const SidebarContext = createContext<SidebarContext>({
   isCollapsed: false,
