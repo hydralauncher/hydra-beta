@@ -2,6 +2,10 @@
   height: 100%;
   background-color: var(--background);
   position: relative;
+  padding: calc(var(--spacing-unit) * 3);
+  gap: calc(var(--spacing-unit) * 8);
+  display: flex;
+  flex-direction: column;
 
   &__slider {
     height: 100%;
@@ -18,7 +22,7 @@
 
     &:hover {
       .sidebar-container__slider-trigger {
-        background-color: var(--secondary-hover);
+        background-color: rgba(255, 255, 255, 0.1);
       }
     }
 
@@ -30,4 +34,22 @@
       cursor: col-resize;
     }
   }
+}
+
+.sidebar-header {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--spacing-unit) * 2);
+}
+
+.sidebar-content {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--spacing-unit) * 8);
+}
+
+.sidebar-library {
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--spacing-unit) * 2);
 }

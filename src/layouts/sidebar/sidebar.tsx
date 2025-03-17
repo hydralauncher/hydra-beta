@@ -1,13 +1,34 @@
 import { Divider, RouteAnchor, UserProfile } from "@/components/common";
 import { api } from "@/services";
-import { DownloadSimple, Gear, House, SquaresFour } from "@phosphor-icons/react";
+import {
+  DownloadSimple,
+  Gear,
+  House,
+  SquaresFour,
+} from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
-import { createContext, type CSSProperties, useContext, useEffect, useMemo, useState } from "react";
+import {
+  createContext,
+  type CSSProperties,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import "./sidebar.scss";
 
 interface User {
   displayName: string;
   profileImageUrl: string;
+  libraryGames: {
+    id: string;
+    objectId: string;
+    shop: string;
+  }[];
+  status: {
+    icon: string;
+    label: string;
+  };
 }
 
 interface SidebarContainerProps {
@@ -20,10 +41,11 @@ interface SidebarGroupProps {
 
 interface SidebarContext {
   isCollapsed: boolean;
+  user: User | null;
   setIsCollapsed: (isCollapsed: boolean) => void;
 }
 
-function SidebarMockUser(): User | null {
+const SidebarMockUser = (): User | null => {
   const id = "Znq8XqOR";
 
   const { data: profile, isLoading } = useQuery({
@@ -32,6 +54,11 @@ function SidebarMockUser(): User | null {
     initialData: {
       displayName: "",
       profileImageUrl: "",
+      libraryGames: [],
+      status: {
+        icon: "",
+        label: "",
+      },
     },
   });
 
@@ -39,12 +66,21 @@ function SidebarMockUser(): User | null {
     return null;
   }
 
-  return profile;
+  console.log(profile);
+
+  return {
+    ...profile,
+    status: {
+      icon: "https://cdn2.steamgriddb.com/icon/602d1305678a8d5fdb372271e980da6a/32/256x256.png",
+      label: "Hollow Knight",
+    },
+  };
 }
 
 const SidebarContext = createContext<SidebarContext>({
   isCollapsed: false,
   setIsCollapsed: () => {},
+  user: null,
 });
 
 function SidebarContainer({ children }: Readonly<SidebarContainerProps>) {
@@ -92,9 +128,11 @@ function SidebarContainer({ children }: Readonly<SidebarContainerProps>) {
     width: isCollapsed ? SIDEBAR_COLLAPSED_WIDTH : width,
   };
 
+  const user = SidebarMockUser();
+
   const contextValue = useMemo(
-    () => ({ isCollapsed, setIsCollapsed }),
-    [isCollapsed]
+    () => ({ isCollapsed, setIsCollapsed, user }),
+    [isCollapsed, user]
   );
 
   return (
@@ -118,9 +156,8 @@ function SidebarContainer({ children }: Readonly<SidebarContainerProps>) {
 }
 
 function SidebarHeader() {
-  const profile = SidebarMockUser();
-  const { isCollapsed } = useContext(SidebarContext);
-  if (!profile) {
+  const { isCollapsed, user } = useContext(SidebarContext);
+  if (!user) {
     // TODO: add skeleton
     return <div>Loading...</div>;
   }
@@ -128,9 +165,10 @@ function SidebarHeader() {
   return (
     <div className="sidebar-header">
       <UserProfile
-        name={profile.displayName}
-        image={profile.profileImageUrl}
+        name={user.displayName}
+        image={user.profileImageUrl}
         collapsed={isCollapsed}
+        playingStatus={user.status}
         href="#"
       />
       <Divider />
@@ -179,10 +217,33 @@ function SidebarRoutes() {
   );
 }
 
-function SidebarLibrary(library: any) {
+function SidebarLibrary() {
+  const { user, isCollapsed } = useContext(SidebarContext);
+
+  if (!user) {
+    // TODO: add skeleton
+    return <div>Loading...</div>;
+  }
+
+  const userGameLibrary = user.libraryGames.map((game) => {
+    return {
+      id: game.id,
+      objectId: game.objectId,
+      shop: game.shop,
+    };
+  });
+
   return (
     <div className="sidebar-library">
-      <h2>Library</h2>
+      {userGameLibrary.map((game) => (
+        <RouteAnchor
+          href={`/store/${game.id}`}
+          label={game.objectId}
+          icon={`https://cdn.cloudflare.steamstatic.com/steam/apps/${game.objectId}/logo.png`}
+          key={game.id}
+          collapsed={isCollapsed}
+        />
+      ))}
     </div>
   );
 }
