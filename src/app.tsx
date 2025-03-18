@@ -31,9 +31,9 @@ export function App(props: Readonly<AppProps>) {
       <Router initialPath={props.initialPath}>
         <Sidebar />
         <Routes>
-          <Route path="/" element={<Home />} />
+          {/* <Route path="/" element={<Home />} />
           <Route path="/download-sources" element={<DownloadSources />} />
-          <Route path="/profile" element={<Profile />} />
+          <Route path="/profile" element={<Profile />} /> */}
         </Routes>
       </Router>
     </QueryClientProvider>
