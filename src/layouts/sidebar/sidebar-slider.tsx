@@ -4,17 +4,12 @@ import { SidebarContext } from "./sidebar-context";
 import "./sidebar.scss";
 
 export function SidebarSlider() {
-  const { 
-    startResizing, 
-    isResizing, 
-    currentWidth, 
-    sidebarSizes 
-  } = useContext(SidebarContext);
-  
+  const { startResizing, isResizing, currentWidth, sidebarSizes } =
+    useContext(SidebarContext);
+
   return (
     <div // NOSONAR
-      className={
-        clsx('sidebar__slider', {
+      className={clsx("sidebar__slider", {
         resizing: isResizing,
       })}
       onMouseDown={startResizing}

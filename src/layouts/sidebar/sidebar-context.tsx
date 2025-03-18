@@ -38,20 +38,24 @@ export const SidebarContext = createContext<SidebarContext>({
   currentWidth: SIDEBAR_SIZES.DEFAULT,
 });
 
-export function SidebarProvider({ children }: Readonly<{ children: React.ReactNode }>) {
+export function SidebarProvider({
+  children,
+}: Readonly<{ children: React.ReactNode }>) {
   const [isResizing, setIsResizing] = useState<boolean>(false);
   const [isCollapsed, setIsCollapsed] = useState<boolean>(false);
-  const [currentWidth, setCurrentWidth] = useState<number>(SIDEBAR_SIZES.DEFAULT);
+  const [currentWidth, setCurrentWidth] = useState<number>(
+    SIDEBAR_SIZES.DEFAULT
+  );
   const user = mockUser;
 
   const startResizing = () => {
     setIsResizing(true);
-    document.body.classList.add('sidebar-resizing');
+    document.body.classList.add("sidebar-resizing");
   };
-  
+
   const stopResizing = () => {
     setIsResizing(false);
-    document.body.classList.remove('sidebar-resizing');
+    document.body.classList.remove("sidebar-resizing");
   };
 
   const handleResize = (e: MouseEvent) => {
@@ -83,7 +87,7 @@ export function SidebarProvider({ children }: Readonly<{ children: React.ReactNo
   }, [isResizing]);
 
   const contextValue = useMemo(
-    () => ({ 
+    () => ({
       user,
       isResizing,
       isCollapsed,

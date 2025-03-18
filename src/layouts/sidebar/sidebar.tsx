@@ -1,22 +1,24 @@
 import { Divider, RouteAnchor } from "@/components/common";
-import { DownloadSimple, Gear, House, SquaresFour } from "@phosphor-icons/react";
+import {
+  DownloadSimple,
+  Gear,
+  House,
+  SquaresFour,
+} from "@phosphor-icons/react";
 import clsx from "clsx";
 import { useContext } from "react";
 import { SidebarContext, SidebarProvider } from "./sidebar-context";
 import { SidebarSlider } from "./sidebar-slider";
 import "./sidebar.scss";
 
-function SidebarContainer({ 
+function SidebarContainer({
   children,
-}: Readonly<{ 
-  children: React.ReactNode,
+}: Readonly<{
+  children: React.ReactNode;
 }>) {
-  const { 
-    currentWidth, 
-    isCollapsed, 
-    sidebarSizes 
-  } = useContext(SidebarContext);
-  
+  const { currentWidth, isCollapsed, sidebarSizes } =
+    useContext(SidebarContext);
+
   return (
     <div
       className="sidebar-container"
@@ -72,7 +74,11 @@ function SidebarDivider() {
   const { isCollapsed } = useContext(SidebarContext);
 
   return (
-    <div className={clsx("sidebar-divider", { "sidebar-divider--collapsed": isCollapsed })}>
+    <div
+      className={clsx("sidebar-divider", {
+        "sidebar-divider--collapsed": isCollapsed,
+      })}
+    >
       <Divider />
     </div>
   );
