@@ -5,7 +5,10 @@ import cookiesStorage from "./cookie-storage";
 export interface Auth {
   accessToken: string;
   refreshToken: string;
-  tokenExpirationTimestamp: number;
+  featurebaseJwt: string;
+  expiresIn: number;
+
+  tokenExpirationTimestamp?: number;
 }
 
 export interface AuthState {
@@ -18,7 +21,10 @@ export const useAuthStore = create(
   persist<AuthState>(
     (set) => ({
       auth: null,
-      setAuth: (auth) => set({ auth }),
+      setAuth: (auth) => {
+        auth.tokenExpirationTimestamp = Date.now() + auth.expiresIn * 1000;
+        set({ auth });
+      },
       clearAuth: () => set({ auth: null }),
     }),
     {

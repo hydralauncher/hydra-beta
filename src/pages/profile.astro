@@ -1,14 +1,40 @@
 ---
 import Layout from "../layouts/layout.astro";
 import { App } from "../app";
-import { api } from "@/services";
+import { api, ACCESS_TOKEN_EXPIRATION_OFFSET_IN_MS } from "@/services";
 import type { User } from "@/types";
 
-const id = "Znq8XqOR";
+const getAuth = async () => {
+  if (Astro.cookies.has("auth")) {
+    const { state } = Astro.cookies.get("auth")?.json();
 
-const profile = await api.get<User>(`users/${id}`).json();
+    if (
+      state.auth.tokenExpirationTimestamp <
+      Date.now() - ACCESS_TOKEN_EXPIRATION_OFFSET_IN_MS
+    ) {
+      // refresh token
+      console.log("NEEDS TOKEN REFRESH");
+    }
+
+    return state.auth;
+  }
+
+  return null;
+};
+
+const auth = await getAuth();
+
+const profile = await api
+  .get<User>("profile/me", {
+    headers: {
+      Authorization: `Bearer ${auth?.accessToken}`,
+    },
+  })
+  .json();
+
+console.log(profile);
 ---
 
 <Layout>
-  <App client:load profile={profile} initialPath="/profile" />
+  <App client:load initialPath="/profile" profile={profile} />
 </Layout>

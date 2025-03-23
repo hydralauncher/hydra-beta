@@ -6,7 +6,7 @@ const cookiesStorage: StateStorage = {
     return getCookie(name) ?? null;
   },
   setItem: (name: string, value: string) => {
-    setCookie(name, value, { expires: 1 });
+    setCookie(name, value);
   },
   removeItem: (name: string) => {
     removeCookie(name);

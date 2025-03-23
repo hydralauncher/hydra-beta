@@ -3,11 +3,13 @@ import { BrowserRouter, MemoryRouter, Route, Routes } from "react-router";
 
 import { DownloadSources, Home, Profile } from "@/components";
 import { Sidebar } from "@/layouts/sidebar/sidebar";
+import type { User } from "./types";
 
 const queryClient = new QueryClient();
 
 export interface AppProps {
   initialPath: string;
+  profile?: User;
 }
 
 interface RouterProps {
@@ -31,9 +33,9 @@ export function App(props: Readonly<AppProps>) {
       <Router initialPath={props.initialPath}>
         <Sidebar />
         <Routes>
-          {/* <Route path="/" element={<Home />} />
+          <Route path="/" element={<Home />} />
           <Route path="/download-sources" element={<DownloadSources />} />
-          <Route path="/profile" element={<Profile />} /> */}
+          <Route path="/profile" element={<Profile />} />
         </Routes>
       </Router>
     </QueryClientProvider>

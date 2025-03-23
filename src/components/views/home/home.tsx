@@ -4,31 +4,42 @@ import { api } from "@/services";
 import { useAuthStore, type Auth } from "@/stores/auth.store";
 import type { User } from "@/types";
 import { useQuery } from "@tanstack/react-query";
-import { useCallback } from "react";
-import { Link } from "react-router";
+import { useCallback, useEffect } from "react";
+import { Link, useSearchParams } from "react-router";
+
+const AUTH_URL = "http://localhost:5173";
 
 export function Home() {
   const { auth, setAuth, clearAuth } = useAuthStore();
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const { data } = useQuery({
     queryKey: ["me", auth?.accessToken],
-    queryFn: () =>
-      api
-        .get<User>("profile/me", {
-          headers: {
-            Authorization: `Bearer ${auth?.accessToken}`,
-          },
-        })
-        .json(),
+    queryFn: () => api.get<User>("profile/me").json(),
     enabled: !!auth,
   });
+
+  const payload = searchParams.get("payload");
+
+  useEffect(() => {
+    if (payload) {
+      try {
+        const auth = JSON.parse(atob(payload));
+        setAuth(auth);
+
+        setSearchParams({});
+      } catch (err) {
+        console.error("Failed to parse payload", err);
+      }
+    }
+  }, [payload, setAuth]);
 
   const openAuth = useCallback(async () => {
     if (IS_DESKTOP) {
       const { WebviewWindow } = await import("@tauri-apps/api/webviewWindow");
 
       const webview = new WebviewWindow("auth", {
-        url: "http://localhost:5173",
+        url: AUTH_URL,
         width: 600,
         height: 640,
         parent: "main",
@@ -42,6 +53,12 @@ export function Home() {
         setAuth(event.payload as Auth);
         webview.close();
       });
+    } else {
+      const params = new URLSearchParams({
+        return_to: window.location.href,
+      });
+
+      window.location.href = AUTH_URL + "?" + params.toString();
     }
   }, [setAuth]);
 
@@ -61,10 +78,6 @@ export function Home() {
 
       <Link to="/download-sources">Download Sources</Link>
       <Link to="/profile">Profile</Link>
-
-      <Tooltip content="Download Sources" position="right">
-        <Button size="icon">R</Button>
-      </Tooltip>
     </div>
   );
 }
