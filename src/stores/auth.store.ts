@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import cookiesStorage from "./cookie-storage";
+import { calculateTokenExpirationTimestamp } from "@/services";
 
 export interface Auth {
   accessToken: string;
@@ -22,7 +23,9 @@ export const useAuthStore = create(
     (set) => ({
       auth: null,
       setAuth: (auth) => {
-        auth.tokenExpirationTimestamp = Date.now() + auth.expiresIn * 1000;
+        auth.tokenExpirationTimestamp = calculateTokenExpirationTimestamp(
+          auth.expiresIn
+        );
         set({ auth });
       },
       clearAuth: () => set({ auth: null }),

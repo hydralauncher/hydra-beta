@@ -1,13 +1,9 @@
 import { api } from "@/services";
 import { useQuery } from "@tanstack/react-query";
-
-export interface User {
-  displayName: string;
-  profileImageUrl: string;
-}
+import type { User } from "@/types";
 
 export interface ProfileProps {
-  profile?: any; // eslint-disable-line @typescript-eslint/no-explicit-any
+  profile?: User | null;
 }
 
 export function Profile(props: ProfileProps) {
@@ -15,8 +11,8 @@ export function Profile(props: ProfileProps) {
 
   const { data: profile, isLoading } = useQuery({
     queryKey: ["profile", id],
-    queryFn: () => api.get<User>(`users/${id}`).json(),
-    initialData: props.profile,
+    queryFn: () => api.get<User | null>(`users/${id}`).json(),
+    placeholderData: props.profile,
   });
 
   if (isLoading || !profile) {

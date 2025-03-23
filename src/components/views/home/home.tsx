@@ -4,35 +4,27 @@ import { api } from "@/services";
 import { useAuthStore, type Auth } from "@/stores/auth.store";
 import type { User } from "@/types";
 import { useQuery } from "@tanstack/react-query";
-import { useCallback, useEffect } from "react";
-import { Link, useSearchParams } from "react-router";
+import { useCallback } from "react";
+import { Link } from "react-router";
 
 const AUTH_URL = "http://localhost:5173";
+const AUTH_REDIRECT_URL = "http://localhost:4321/api/auth";
 
-export function Home() {
+export interface HomeProps {
+  profile?: User | null;
+}
+
+export function Home(props: HomeProps) {
   const { auth, setAuth, clearAuth } = useAuthStore();
-  const [searchParams, setSearchParams] = useSearchParams();
 
-  const { data } = useQuery({
+  const { data, refetch } = useQuery({
     queryKey: ["me", auth?.accessToken],
-    queryFn: () => api.get<User>("profile/me").json(),
-    enabled: !!auth,
+    queryFn: () => {
+      if (!auth) return null;
+      return api.get<User>("profile/me").json();
+    },
+    placeholderData: props.profile,
   });
-
-  const payload = searchParams.get("payload");
-
-  useEffect(() => {
-    if (payload) {
-      try {
-        const auth = JSON.parse(atob(payload));
-        setAuth(auth);
-
-        setSearchParams({});
-      } catch (err) {
-        console.error("Failed to parse payload", err);
-      }
-    }
-  }, [payload, setAuth]);
 
   const openAuth = useCallback(async () => {
     if (IS_DESKTOP) {
@@ -55,7 +47,7 @@ export function Home() {
       });
     } else {
       const params = new URLSearchParams({
-        return_to: window.location.href,
+        return_to: AUTH_REDIRECT_URL,
       });
 
       window.location.href = AUTH_URL + "?" + params.toString();
@@ -64,13 +56,14 @@ export function Home() {
 
   const logout = useCallback(() => {
     clearAuth();
-  }, [clearAuth]);
+    refetch();
+  }, [clearAuth, refetch]);
 
   return (
     <div>
       <p>Logged in as {data?.displayName}</p>
 
-      {auth ? (
+      {data ? (
         <Button onClick={logout}>Logout</Button>
       ) : (
         <Button onClick={openAuth}>Login</Button>

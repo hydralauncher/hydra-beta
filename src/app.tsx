@@ -9,7 +9,7 @@ const queryClient = new QueryClient();
 
 export interface AppProps {
   initialPath: string;
-  profile?: User;
+  profile?: User | null;
 }
 
 interface RouterProps {
@@ -33,9 +33,12 @@ export function App(props: Readonly<AppProps>) {
       <Router initialPath={props.initialPath}>
         <Sidebar />
         <Routes>
-          <Route path="/" element={<Home />} />
+          <Route path="/" element={<Home profile={props.profile} />} />
           <Route path="/download-sources" element={<DownloadSources />} />
-          <Route path="/profile" element={<Profile />} />
+          <Route
+            path="/profile"
+            element={<Profile profile={props.profile} />}
+          />
         </Routes>
       </Router>
     </QueryClientProvider>

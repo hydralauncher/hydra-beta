@@ -6,6 +6,10 @@ import { useAuthStore, type Auth } from "@/stores/auth.store";
 
 export const ACCESS_TOKEN_EXPIRATION_OFFSET_IN_MS = 1000 * 60 * 5;
 
+export const calculateTokenExpirationTimestamp = (expiresIn: number) => {
+  return Date.now() + expiresIn * 1000;
+};
+
 const API_URL = "https://api-staging.hydralauncher.gg";
 
 const refreshToken = async (auth: Auth) => {

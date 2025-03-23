@@ -1,15 +1,17 @@
 ---
 import Layout from "../layouts/layout.astro";
 import { App } from "../app";
-import { api, ACCESS_TOKEN_EXPIRATION_OFFSET_IN_MS } from "@/services";
+import { ACCESS_TOKEN_EXPIRATION_OFFSET_IN_MS, api } from "@/services";
 import type { User } from "@/types";
 
 const getAuth = async () => {
-  if (Astro.cookies.has("auth")) {
-    const { state } = Astro.cookies.get("auth")!.json();
+  const authCookie = Astro.cookies.get("auth");
+
+  if (authCookie) {
+    const { state } = authCookie.json();
 
     if (
-      state.auth.tokenExpirationTimestamp <
+      state.auth?.tokenExpirationTimestamp <
       Date.now() - ACCESS_TOKEN_EXPIRATION_OFFSET_IN_MS
     ) {
       // refresh token
@@ -22,21 +24,21 @@ const getAuth = async () => {
   return null;
 };
 
-const auth = await getAuth();
+const getProfile = async () => {
+  const auth = await getAuth();
 
-if (!auth) {
-  Astro.redirect("/");
-}
+  if (!auth) return null;
 
-const profile = await api
-  .get<User>("profile/me", {
-    headers: {
-      Authorization: `Bearer ${auth.accessToken}`,
-    },
-  })
-  .json();
+  return await api
+    .get<User>("profile/me", {
+      headers: {
+        Authorization: `Bearer ${auth.accessToken}`,
+      },
+    })
+    .json();
+};
 
-console.log(profile);
+const profile = await getProfile();
 ---
 
 <Layout>
