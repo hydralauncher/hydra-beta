@@ -1,6 +1,6 @@
-import { HorizontalCard } from "@/components/cards/game-horizontal/horizontal-card";
+import { HorizontalCard } from "@/components/common/cards/game-horizontal/horizontal-card";
 import { PlusCircle } from "@phosphor-icons/react";
-import { Button } from "@/components";
+import { Button } from "@/components/common";
 
 export default {
   title: "Game Cards/Horizontal Card",

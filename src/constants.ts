@@ -1,2 +1,3 @@
-export const IS_DESKTOP =
-  typeof window !== "undefined" && "__TAURI__" in window;
+export const IS_BROWSER = typeof window !== "undefined";
+
+export const IS_DESKTOP = IS_BROWSER && "__TAURI_INTERNALS__" in window;

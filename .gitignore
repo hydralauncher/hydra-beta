@@ -44,4 +44,4 @@ next-env.d.ts
 storybook-static/
 
 .vscode/
-.next/
+.astro/

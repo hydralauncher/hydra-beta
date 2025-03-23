@@ -1,68 +1,37 @@
 {
-  "$schema": "../node_modules/@tauri-apps/cli/schema.json",
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Hydra Launcher",
+  "version": "0.1.0-alpha",
+  "identifier": "com.losbroxas.hydra-launcher.app",
   "build": {
     "beforeDevCommand": "bun run dev",
-    "devPath": "http://localhost:3000",
-    "distDir": "https://beta.hydralauncher.gg"
+    "devUrl": "http://localhost:4321",
+    "beforeBuildCommand": "bun run build",
+    "frontendDist": "../dist"
   },
-  "package": {
-    "productName": "Hydra Beta",
-    "version": "0.1.0"
-  },
-  "tauri": {
-    "allowlist": {
-      "all": true,
-      "http": {
-        "scope": ["https://assets.hydralauncher.gg/*"]
-      }
-    },
-    "bundle": {
-      "active": true,
-      "category": "DeveloperTool",
-      "copyright": "",
-      "deb": {
-        "depends": []
-      },
-      "externalBin": [],
-      "icon": [
-        "icons/32x32.png",
-        "icons/128x128.png",
-        "icons/128x128@2x.png",
-        "icons/icon.icns",
-        "icons/icon.ico"
-      ],
-      "identifier": "gg.hydralauncher.hydra",
-      "longDescription": "",
-      "macOS": {
-        "entitlements": null,
-        "exceptionDomain": "",
-        "frameworks": [],
-        "providerShortName": null,
-        "signingIdentity": null
-      },
-      "resources": [],
-      "shortDescription": "",
-      "targets": "all",
-      "windows": {
-        "certificateThumbprint": null,
-        "digestAlgorithm": "sha256",
-        "timestampUrl": ""
-      }
-    },
-    "security": {
-      "csp": null
-    },
-    "updater": {
-      "active": false
-    },
+  "app": {
     "windows": [
       {
         "fullscreen": false,
-        "height": 600,
         "resizable": true,
-        "title": "Hydra Beta",
-        "width": 800
+        "title": "Hydra Launcher",
+        "width": 1280,
+        "height": 720
       }
+    ],
+    "security": {
+      "csp": null
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
     ]
   }
 }

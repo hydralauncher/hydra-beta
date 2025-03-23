@@ -1,0 +1,26 @@
+---
+import Layout from "../layouts/layout.astro";
+import { App } from "../app";
+import { api } from "@/services";
+import type { User } from "@/types";
+
+const getProfile = async () => {
+  const accessToken = Astro.locals.accessToken;
+
+  if (!accessToken) return null;
+
+  return await api
+    .get<User>("profile/me", {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    })
+    .json();
+};
+
+const profile = await getProfile();
+---
+
+<Layout>
+  <App client:load initialPath="/" profile={profile} />
+</Layout>

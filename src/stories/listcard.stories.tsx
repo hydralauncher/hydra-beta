@@ -1,4 +1,4 @@
-import { Button, ListCard } from "@/components";
+import { Button, ListCard } from "@/components/common";
 import { PlusCircle } from "@phosphor-icons/react";
 
 export default {

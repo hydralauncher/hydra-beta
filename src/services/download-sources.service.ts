@@ -1,12 +1,12 @@
-import { db, steamGamesByLetterTable } from "@/dexie";
+import { db, steamGamesByLetterTable } from "@/services/dexie.service";
 import type { SteamGamesByLetterResponse } from "@/types";
 
-import axios from "axios";
+import ky from "ky";
 
 export const getSteamGamesByLetter = async () =>
-  axios
+  ky
     .get<SteamGamesByLetterResponse>("/assets/steam-games-by-letter.json")
-    .then((response) => response.data);
+    .json();
 
 export const importSteamGamesByLetter = async (
   response: SteamGamesByLetterResponse

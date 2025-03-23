@@ -1,4 +1,4 @@
-import { Divider, type DividerProps } from "@/components";
+import { Divider, type DividerProps } from "@/components/common";
 
 export default {
   title: "Components/Divider",

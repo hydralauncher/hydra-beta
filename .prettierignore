@@ -1,3 +1,4 @@
-src-tauri/
-.next/
+.astro/
 public/assets/
+storybook-static/
+src-tauri/target/

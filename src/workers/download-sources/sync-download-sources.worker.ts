@@ -1,6 +1,10 @@
-import axios from "axios";
+import ky from "ky";
 
-import { db, downloadSourcesTable, downloadsTable } from "@/dexie";
+import {
+  db,
+  downloadSourcesTable,
+  downloadsTable,
+} from "@/services/dexie.service";
 import { downloadSourceSchema } from "@/schemas";
 import { getSteamGamesByLetter, addNewDownloads } from "./helpers";
 import { DownloadSourceStatus } from "./constants";
@@ -15,9 +19,9 @@ self.onmessage = async () => {
       );
 
     for (const downloadSource of downloadSources) {
-      const response = await axios.get(downloadSource.url);
+      const response = await ky.get(downloadSource.url).json();
 
-      const source = await downloadSourceSchema.validate(response.data);
+      const source = await downloadSourceSchema.validate(response);
 
       const steamGames = await getSteamGamesByLetter();
 

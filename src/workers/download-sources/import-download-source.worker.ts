@@ -1,20 +1,22 @@
-import { db, downloadsTable, downloadSourcesTable } from "@/dexie";
+import {
+  db,
+  downloadsTable,
+  downloadSourcesTable,
+} from "@/services/dexie.service";
 
 import { downloadSourceSchema } from "@/schemas/download-source.schema";
-import axios from "axios";
+import ky from "ky";
 import { DownloadSourceStatus, ImportDownloadSourceError } from "./constants";
 import type { InferType } from "yup";
 import { addNewDownloads, getSteamGamesByLetter } from "./helpers";
 
 self.onmessage = async (event: MessageEvent<string>) => {
   try {
-    const response = await axios.get<InferType<typeof downloadSourceSchema>>(
-      event.data
-    );
+    const response = await ky
+      .get<InferType<typeof downloadSourceSchema>>(event.data)
+      .json();
 
-    const { name, downloads } = await downloadSourceSchema.validate(
-      response.data
-    );
+    const { name, downloads } = await downloadSourceSchema.validate(response);
 
     const downloadSources = await downloadSourcesTable
       .where("url")
