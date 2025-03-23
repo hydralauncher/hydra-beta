@@ -1,4 +1,4 @@
-import { Button, Tooltip } from "@/components/common";
+import { Button } from "@/components/common";
 import { IS_DESKTOP } from "@/constants";
 import { api } from "@/services";
 import { useAuthStore, type Auth } from "@/stores/auth.store";

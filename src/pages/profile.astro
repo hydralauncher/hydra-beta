@@ -24,10 +24,14 @@ const getAuth = async () => {
 
 const auth = await getAuth();
 
+if (!auth) {
+  Astro.redirect("/");
+}
+
 const profile = await api
   .get<User>("profile/me", {
     headers: {
-      Authorization: `Bearer ${auth?.accessToken}`,
+      Authorization: `Bearer ${auth.accessToken}`,
     },
   })
   .json();
