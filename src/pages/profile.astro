@@ -6,7 +6,7 @@ import type { User } from "@/types";
 
 const getAuth = async () => {
   if (Astro.cookies.has("auth")) {
-    const { state } = Astro.cookies.get("auth")?.json();
+    const { state } = Astro.cookies.get("auth")!.json();
 
     if (
       state.auth.tokenExpirationTimestamp <
