@@ -14,7 +14,7 @@ export interface HomeProps {
   profile?: User | null;
 }
 
-export function Home(props: HomeProps) {
+export function Home(props: Readonly<HomeProps>) {
   const { auth, setAuth, clearAuth } = useAuthStore();
 
   const { data, refetch } = useQuery({
