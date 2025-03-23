@@ -70,7 +70,7 @@ export function Home(props: HomeProps) {
       )}
 
       <Link to="/download-sources">Download Sources</Link>
-      <Link to="/profile">Profile</Link>
+      <Link to={`/profile/${data?.id}`}>Profile</Link>
     </div>
   );
 }

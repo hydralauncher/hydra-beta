@@ -36,7 +36,7 @@ export function App(props: Readonly<AppProps>) {
           <Route path="/" element={<Home profile={props.profile} />} />
           <Route path="/download-sources" element={<DownloadSources />} />
           <Route
-            path="/profile"
+            path="/profile/:id"
             element={<Profile profile={props.profile} />}
           />
         </Routes>

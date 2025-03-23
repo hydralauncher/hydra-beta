@@ -4,41 +4,21 @@ import { App } from "../app";
 import { ACCESS_TOKEN_EXPIRATION_OFFSET_IN_MS, api } from "@/services";
 import type { User } from "@/types";
 
-const getAuth = async () => {
-  const authCookie = Astro.cookies.get("auth");
+const getUser = async () => {
+  const accessToken = Astro.locals.accessToken;
 
-  if (authCookie) {
-    const { state } = authCookie.json();
-
-    if (
-      state.auth?.tokenExpirationTimestamp <
-      Date.now() - ACCESS_TOKEN_EXPIRATION_OFFSET_IN_MS
-    ) {
-      // refresh token
-      console.log("NEEDS TOKEN REFRESH");
-    }
-
-    return state.auth;
-  }
-
-  return null;
-};
-
-const getProfile = async () => {
-  const auth = await getAuth();
-
-  if (!auth) return null;
+  if (!accessToken) return null;
 
   return await api
-    .get<User>("profile/me", {
+    .get<User>("users/", {
       headers: {
-        Authorization: `Bearer ${auth.accessToken}`,
+        Authorization: `Bearer ${accessToken}`,
       },
     })
     .json();
 };
 
-const profile = await getProfile();
+const profile = await getUser();
 ---
 
 <Layout>

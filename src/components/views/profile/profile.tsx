@@ -1,13 +1,14 @@
 import { api } from "@/services";
 import { useQuery } from "@tanstack/react-query";
 import type { User } from "@/types";
+import { useParams } from "react-router";
 
 export interface ProfileProps {
   profile?: User | null;
 }
 
 export function Profile(props: ProfileProps) {
-  const id = "Znq8XqOR";
+  const { id } = useParams();
 
   const { data: profile, isLoading } = useQuery({
     queryKey: ["profile", id],

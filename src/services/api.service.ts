@@ -12,7 +12,7 @@ export const calculateTokenExpirationTimestamp = (expiresIn: number) => {
 
 const API_URL = "https://api-staging.hydralauncher.gg";
 
-const refreshToken = async (auth: Auth) => {
+export const refreshToken = async (auth: Auth) => {
   const response = await ky.post(`${API_URL}/auth/refresh`, {
     json: {
       refreshToken: auth.refreshToken,
