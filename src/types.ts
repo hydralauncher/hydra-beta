@@ -109,3 +109,18 @@ export interface User {
   displayName: string;
   profileImageUrl: string;
 }
+
+export interface UserGame {
+  id: string;
+  shop: GameShop;
+  title: string;
+  createdAt: Date;
+  objectId: string;
+  iconHash: string;
+  achievementCount: number;
+  playTimeInSeconds: number;
+  lastTimePlayed: Date | null;
+  playTimeInMilliseconds: number;
+  unlockedAchievementCount: number;
+  achievementsPointsEarnedSum: number;
+}
