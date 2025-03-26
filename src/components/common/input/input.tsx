@@ -8,7 +8,7 @@ export interface InputProps
   error?: boolean;
   iconLeft?: React.ReactNode;
   iconRight?: React.ReactNode;
-  icon?: boolean;
+  inputSize?: "default" | "icon";
 }
 
 export function Input({
@@ -20,7 +20,7 @@ export function Input({
   disabled = false,
   iconLeft,
   iconRight,
-  icon = false,
+  inputSize = "default",
   ...props
 }: Readonly<InputProps>) {
   return (
@@ -32,7 +32,7 @@ export function Input({
       )}
       <div
         className={clsx("input-wrapper", {
-          "input-wrapper--icon": icon,
+          "input-wrapper--icon": inputSize === "icon",
         })}
       >
         <input
@@ -42,7 +42,7 @@ export function Input({
           disabled={disabled}
           data-icon-left={iconLeft ? "true" : undefined}
           data-icon-right={iconRight ? "true" : undefined}
-          data-icon={icon ? "true" : undefined}
+          data-icon={inputSize === "icon" ? "true" : undefined}
           className={`input ${error ? "input--error" : ""} ${
             disabled ? "input--disabled" : ""
           }`}
