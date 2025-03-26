@@ -1,9 +1,6 @@
-import type { User } from "@/types";
 import { createContext, useEffect, useMemo, useState } from "react";
-import { mockUser } from "./mock/sidebar-mock";
 
 interface SidebarContext {
-  user: User | null;
   isResizing: boolean;
   isCollapsed: boolean;
   currentWidth: number;
@@ -27,7 +24,6 @@ const SIDEBAR_SIZES = {
 } as const;
 
 export const SidebarContext = createContext<SidebarContext>({
-  user: null,
   isResizing: false,
   isCollapsed: false,
   stopResizing: () => {},
@@ -46,7 +42,6 @@ export function SidebarProvider({
   const [currentWidth, setCurrentWidth] = useState<number>(
     SIDEBAR_SIZES.DEFAULT
   );
-  const user = mockUser;
 
   const startResizing = () => {
     setIsResizing(true);
@@ -88,7 +83,6 @@ export function SidebarProvider({
 
   const contextValue = useMemo(
     () => ({
-      user,
       isResizing,
       isCollapsed,
       currentWidth,
@@ -98,7 +92,7 @@ export function SidebarProvider({
       setCurrentWidth,
       sidebarSizes: SIDEBAR_SIZES,
     }),
-    [isCollapsed, currentWidth, isResizing, user]
+    [isCollapsed, currentWidth, isResizing]
   );
 
   return (
