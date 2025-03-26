@@ -31,7 +31,7 @@ export function App(props: Readonly<AppProps>) {
   return (
     <QueryClientProvider client={queryClient}>
       <Router initialPath={props.initialPath}>
-        <Sidebar />
+        <Sidebar profile={props.profile} />
         <Routes>
           <Route path="/" element={<Home profile={props.profile} />} />
           <Route path="/download-sources" element={<DownloadSources />} />

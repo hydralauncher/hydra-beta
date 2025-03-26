@@ -1,7 +1,7 @@
-import { Divider, Input, RouteAnchor } from "@/components/common";
+import { Divider, Input, RouteAnchor, UserProfile } from "@/components/common";
 import { api } from "@/services/api.service";
 import { useAuthStore } from "@/stores/auth.store";
-import type { UserGame } from "@/types";
+import type { User, UserGame } from "@/types";
 import {
   DownloadSimple,
   Gear,
@@ -15,6 +15,10 @@ import { useContext, useRef, useState } from "react";
 import { SidebarContext, SidebarProvider } from "./sidebar-context";
 import { SidebarSlider } from "./sidebar-slider";
 import "./sidebar.scss";
+
+export interface SidebarProps {
+  profile?: User | null;
+}
 
 function SidebarContainer({
   children,
@@ -30,6 +34,21 @@ function SidebarContainer({
       style={{ width: isCollapsed ? sidebarSizes.COLLAPSED : currentWidth }}
     >
       {children}
+    </div>
+  );
+}
+
+function SidebarProfile({ profile }: Readonly<SidebarProps>) {
+  const { isCollapsed } = useContext(SidebarContext);
+
+  return (
+    <div className="sidebar-profile">
+      <UserProfile
+        name={profile?.displayName ?? ""}
+        image={profile?.profileImageUrl ?? ""}
+        href={`/profile/${profile?.id}`}
+        collapsed={isCollapsed}
+      />
     </div>
   );
 }
@@ -153,10 +172,12 @@ function SidebarDivider() {
   );
 }
 
-export function Sidebar() {
+export function Sidebar(props: Readonly<SidebarProps>) {
   return (
     <SidebarProvider>
       <SidebarContainer>
+        <SidebarProfile profile={props.profile} />
+        <SidebarDivider />
         <SidebarRoutes />
         <SidebarDivider />
         <SidebarLibrary />
