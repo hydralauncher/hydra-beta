@@ -8,6 +8,7 @@ export interface InputProps
   error?: boolean;
   iconLeft?: React.ReactNode;
   iconRight?: React.ReactNode;
+  icon?: boolean;
 }
 
 export function Input({
@@ -19,6 +20,7 @@ export function Input({
   disabled = false,
   iconLeft,
   iconRight,
+  icon = false,
   ...props
 }: Readonly<InputProps>) {
   return (
@@ -28,7 +30,11 @@ export function Input({
           {label}
         </label>
       )}
-      <div className="input-wrapper">
+      <div
+        className={clsx("input-wrapper", {
+          "input-wrapper--icon": icon,
+        })}
+      >
         <input
           id="input"
           type={type}
@@ -36,6 +42,7 @@ export function Input({
           disabled={disabled}
           data-icon-left={iconLeft ? "true" : undefined}
           data-icon-right={iconRight ? "true" : undefined}
+          data-icon={icon ? "true" : undefined}
           className={`input ${error ? "input--error" : ""} ${
             disabled ? "input--disabled" : ""
           }`}
