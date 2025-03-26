@@ -20,9 +20,9 @@ interface SidebarContext {
 }
 
 const SIDEBAR_SIZES = {
-  MIN: 200,
+  MIN: 250,
   MAX: 400,
-  DEFAULT: 250,
+  DEFAULT: 300,
   COLLAPSED: 72,
 } as const;
 
