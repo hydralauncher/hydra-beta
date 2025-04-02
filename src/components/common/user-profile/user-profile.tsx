@@ -1,3 +1,4 @@
+import { Link } from "react-router";
 import "./user-profile.scss";
 
 export interface UserProfileProps {
@@ -26,7 +27,7 @@ export const UserProfile = ({
     .join("");
 
   return (
-    <a href={href}>
+    <Link to={href}>
       <div
         className={`user-profile ${collapsed ? "user-profile--collapsed" : ""}`}
       >
@@ -76,6 +77,6 @@ export const UserProfile = ({
           </div>
         )}
       </div>
-    </a>
+    </Link>
   );
 };

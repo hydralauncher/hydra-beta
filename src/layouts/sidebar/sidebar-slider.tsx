@@ -1,11 +1,10 @@
+import { useSidebar } from "@/hooks/use-sidebar";
 import clsx from "clsx";
-import { useContext } from "react";
-import { SidebarContext } from "./sidebar-context";
 import "./sidebar.scss";
 
 export function SidebarSlider() {
   const { startResizing, isResizing, currentWidth, sidebarSizes } =
-    useContext(SidebarContext);
+    useSidebar();
 
   return (
     <div // NOSONAR

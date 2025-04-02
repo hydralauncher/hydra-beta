@@ -1,4 +1,5 @@
 import { Tooltip } from "radix-ui";
+import { Link } from "react-router";
 import "./route-anchor.scss";
 
 export interface RouteAnchorProps
@@ -29,7 +30,7 @@ export const RouteAnchor = ({
           <div
             className={`state-wrapper ${disabled ? "state-wrapper--disabled" : ""} ${active ? "state-wrapper--active" : ""} ${collapsed ? "state-wrapper--collapsed" : ""}`}
           >
-            <a href={href} {...props}>
+            <Link to={href} {...props}>
               <div
                 className={`route-anchor ${collapsed ? "route-anchor--collapsed" : ""} ${active ? "route-anchor--active" : ""} ${!isGameIcon ? "route-anchor--extra-padding" : ""}`}
               >
@@ -52,7 +53,7 @@ export const RouteAnchor = ({
                   {label}
                 </div>
               </div>
-            </a>
+            </Link>
           </div>
         </Tooltip.Trigger>
         {collapsed && (

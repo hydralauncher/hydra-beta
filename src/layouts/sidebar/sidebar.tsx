@@ -1,4 +1,5 @@
 import { Divider, Input, RouteAnchor, UserProfile } from "@/components/common";
+import { useSidebar } from "@/hooks/use-sidebar";
 import { api } from "@/services/api.service";
 import { useAuthStore } from "@/stores/auth.store";
 import type { User, UserGame } from "@/types";
@@ -11,8 +12,7 @@ import {
 } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import clsx from "clsx";
-import { useContext, useRef, useState } from "react";
-import { SidebarContext, SidebarProvider } from "./sidebar-context";
+import { useRef, useState } from "react";
 import { SidebarSlider } from "./sidebar-slider";
 import "./sidebar.scss";
 
@@ -25,8 +25,7 @@ function SidebarContainer({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const { currentWidth, isCollapsed, sidebarSizes } =
-    useContext(SidebarContext);
+  const { currentWidth, isCollapsed, sidebarSizes } = useSidebar();
 
   return (
     <div
@@ -39,7 +38,7 @@ function SidebarContainer({
 }
 
 function SidebarProfile({ profile }: Readonly<SidebarProps>) {
-  const { isCollapsed } = useContext(SidebarContext);
+  const { isCollapsed } = useSidebar();
 
   return (
     <div className="sidebar-profile">
@@ -77,7 +76,7 @@ function SidebarRoutes() {
     },
   ];
 
-  const { isCollapsed } = useContext(SidebarContext);
+  const { isCollapsed } = useSidebar();
 
   return (
     <div className="sidebar-routes">
@@ -96,7 +95,7 @@ function SidebarRoutes() {
 
 function SidebarLibrary() {
   const { auth } = useAuthStore();
-  const { isCollapsed, setIsCollapsed } = useContext(SidebarContext);
+  const { isCollapsed, setIsCollapsed } = useSidebar();
   const [search, setSearch] = useState("");
 
   const searchbarRef = useRef<HTMLInputElement>(null);
@@ -159,7 +158,7 @@ function SidebarLibrary() {
 }
 
 function SidebarDivider() {
-  const { isCollapsed } = useContext(SidebarContext);
+  const { isCollapsed } = useSidebar();
 
   return (
     <div
@@ -174,7 +173,7 @@ function SidebarDivider() {
 
 export function Sidebar(props: Readonly<SidebarProps>) {
   return (
-    <SidebarProvider>
+    <>
       <SidebarContainer>
         <SidebarProfile profile={props.profile} />
         <SidebarDivider />
@@ -183,6 +182,6 @@ export function Sidebar(props: Readonly<SidebarProps>) {
         <SidebarLibrary />
       </SidebarContainer>
       <SidebarSlider />
-    </SidebarProvider>
+    </>
   );
 }
