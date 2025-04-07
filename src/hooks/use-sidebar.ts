@@ -17,7 +17,7 @@ export function useSidebar() {
     (e: MouseEvent) => {
       if (!isResizing) return;
 
-      if (e.clientX < SIDEBAR_SIZES.MIN / 2) {
+      if (e.clientX < SIDEBAR_SIZES.THRESHOLD) {
         setIsCollapsed(true);
       } else if (e.clientX > SIDEBAR_SIZES.MIN) {
         setIsCollapsed(false);

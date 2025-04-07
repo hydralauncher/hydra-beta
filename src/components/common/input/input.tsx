@@ -35,6 +35,7 @@ export function Input({
         </label>
       )}
       <button
+        type="button"
         onClick={onClick}
         className={clsx("input-wrapper", {
           "input-wrapper--icon": inputSize === "icon",

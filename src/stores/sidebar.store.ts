@@ -15,6 +15,7 @@ export interface SidebarStore {
     MAX: number;
     DEFAULT: number;
     COLLAPSED: number;
+    THRESHOLD: number;
   };
 }
 
@@ -23,6 +24,7 @@ export const SIDEBAR_SIZES = {
   MAX: 400,
   DEFAULT: 300,
   COLLAPSED: 72,
+  THRESHOLD: 125,
 } as const;
 
 export const useSidebarStore = create(
