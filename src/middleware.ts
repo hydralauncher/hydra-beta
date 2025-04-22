@@ -50,7 +50,9 @@ export const onRequest = defineMiddleware(async (context, next) => {
           }),
           {
             path: "/",
-            sameSite: "strict",
+            sameSite: "none",
+            httpOnly: true,
+            secure: true,
           }
         );
       }
