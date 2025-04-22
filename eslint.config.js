@@ -15,6 +15,6 @@ export default [
   pluginReact.configs.flat["jsx-runtime"],
   eslintConfigPrettier,
   {
-    ignores: ["storybook-static/**", ".astro/**", "src-tauri/**"],
+    ignores: ["storybook-static/**", ".astro/**", "src-tauri/**", "dist/**"],
   },
 ];
