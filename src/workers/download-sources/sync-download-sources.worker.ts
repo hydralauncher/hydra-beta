@@ -4,8 +4,8 @@ import {
   db,
   downloadSourcesTable,
   downloadsTable,
-} from "@/services/dexie.service";
-import { downloadSourceSchema } from "@/schemas";
+} from "../../services/dexie.service";
+import { downloadSourceSchema } from "../../schemas";
 import { getSteamGamesByLetter, addNewDownloads } from "./helpers";
 import { DownloadSourceStatus } from "./constants";
 

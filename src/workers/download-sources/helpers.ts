@@ -2,12 +2,12 @@ import {
   downloadsTable,
   downloadSourcesTable,
   steamGamesByLetterTable,
-} from "@/services/dexie.service";
+} from "../../services/dexie.service";
 
-import { downloadSourceSchema } from "@/schemas/download-source.schema";
+import { downloadSourceSchema } from "../../schemas/download-source.schema";
 import type { InferType } from "yup";
-import { formatDownloadOptionName } from "@/helpers/string-formatting";
-import type { Download, SteamGamesByLetter } from "@/types";
+import { formatDownloadOptionName } from "../../helpers/string-formatting";
+import type { Download, SteamGamesByLetter } from "../../types";
 
 export const getSteamGamesByLetter = async () => {
   const steamGames: SteamGamesByLetter[] =

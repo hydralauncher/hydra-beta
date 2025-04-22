@@ -30,7 +30,9 @@ export const GET: APIRoute = async ({ request, cookies, redirect }) => {
       }),
       {
         path: "/",
-        sameSite: "strict",
+        sameSite: "none",
+        httpOnly: true,
+        secure: true,
       }
     );
 

@@ -45,3 +45,4 @@ storybook-static/
 
 .vscode/
 .astro/
+dist/

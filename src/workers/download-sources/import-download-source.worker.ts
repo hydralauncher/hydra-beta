@@ -2,9 +2,9 @@ import {
   db,
   downloadsTable,
   downloadSourcesTable,
-} from "@/services/dexie.service";
+} from "../../services/dexie.service";
 
-import { downloadSourceSchema } from "@/schemas/download-source.schema";
+import { downloadSourceSchema } from "../../schemas/download-source.schema";
 import ky from "ky";
 import { DownloadSourceStatus, ImportDownloadSourceError } from "./constants";
 import type { InferType } from "yup";
