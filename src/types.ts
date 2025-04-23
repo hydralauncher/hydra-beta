@@ -109,3 +109,22 @@ export interface User {
   displayName: string;
   profileImageUrl: string;
 }
+
+export interface TrendingGame {
+  id: number;
+  documentId: string;
+  uri: string;
+  background: string;
+  logo: string;
+  description: string;
+  createdAt: string;
+  updatedAt: string;
+  publishedAt: string;
+  location: string;
+}
+
+export interface CatalogueGame {
+  title: string;
+  shop: GameShop;
+  objectId: string;
+}

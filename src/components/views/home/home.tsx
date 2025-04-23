@@ -1,76 +1,41 @@
-import { Button } from "@/components/common";
-import { IS_DESKTOP } from "@/constants";
-import { api } from "@/services";
-import { useAuthStore, type Auth } from "@/stores/auth.store";
-import type { User } from "@/types";
-import { useQuery } from "@tanstack/react-query";
-import { useCallback } from "react";
-import { Link } from "react-router";
+import { useHomeData } from "@/hooks/api/use-home-data";
+import type { TrendingGame, CatalogueGame } from "@/types";
 
-const AUTH_URL = "http://localhost:5173";
-const AUTH_REDIRECT_URL = "http://localhost:4321/api/auth";
-
-export interface HomeProps {
-  profile?: User | null;
-}
-
-export function Home(props: Readonly<HomeProps>) {
-  const { auth, setAuth, clearAuth } = useAuthStore();
-
-  const { data, refetch } = useQuery({
-    queryKey: ["me", auth?.accessToken],
-    queryFn: () => {
-      if (!auth) return null;
-      return api.get<User>("profile/me").json();
-    },
-    placeholderData: props.profile,
-  });
-
-  const openAuth = useCallback(async () => {
-    if (IS_DESKTOP) {
-      const { WebviewWindow } = await import("@tauri-apps/api/webviewWindow");
-
-      const webview = new WebviewWindow("auth", {
-        url: AUTH_URL,
-        width: 600,
-        height: 640,
-        parent: "main",
-        backgroundColor: "#1c1c1c",
-        maximizable: false,
-        resizable: false,
-        minimizable: false,
-      });
-
-      webview.once("auth-response", (event) => {
-        setAuth(event.payload as Auth);
-        webview.close();
-      });
-    } else {
-      const params = new URLSearchParams({
-        return_to: AUTH_REDIRECT_URL,
-      });
-
-      window.location.href = AUTH_URL + "?" + params.toString();
-    }
-  }, [setAuth]);
-
-  const logout = useCallback(() => {
-    clearAuth();
-    refetch();
-  }, [clearAuth, refetch]);
+export function Home() {
+  const { catalogueTrendingGames, catalogueHotGames, catalogueGamesToBeat } =
+    useHomeData();
 
   return (
-    <div>
-      <p>Logged in as {data?.displayName}</p>
-
-      {data ? (
-        <Button onClick={logout}>Logout</Button>
-      ) : (
-        <Button onClick={openAuth}>Login</Button>
-      )}
-
-      <Link to="/download-sources">Download Sources</Link>
-      <Link to={`/profile/${data?.id}`}>Profile</Link>
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        gap: "20px",
+        width: "100%",
+        padding: "32px",
+        overflow: "auto",
+      }}
+    >
+      <h1>Home</h1>
+      <div>
+        {catalogueTrendingGames.data?.map((game: TrendingGame) => (
+          <img src={game.logo} alt={game.description} />
+        ))}
+      </div>
+      <br />
+      <div>
+        <h1>Hot Games</h1>
+        {catalogueHotGames.data?.map((game: CatalogueGame) => (
+          <p>{game.title}</p>
+        ))}
+      </div>
+      <br />
+      <div>
+        <h1>Games to Beat</h1>
+        {catalogueGamesToBeat.data?.map((game: CatalogueGame) => (
+          <p>{game.title}</p>
+        ))}
+      </div>
     </div>
   );
 }
