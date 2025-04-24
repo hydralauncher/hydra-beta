@@ -57,7 +57,9 @@ export function useHomeData(): HomeData {
       const skip = 0;
 
       return api
-        .get<CatalogueGame[]>(`catalogue/achievements?take=${take}&skip=${skip}`)
+        .get<
+          CatalogueGame[]
+        >(`catalogue/achievements?take=${take}&skip=${skip}`)
         .json();
     },
   });

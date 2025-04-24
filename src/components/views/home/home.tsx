@@ -11,7 +11,7 @@ export function Home() {
   const { searchData: rolePlayingGames } = useSearchGames({
     take: 12,
     skip: 0,
-    tags: [122],
+    tags: [19, 122, 4172],
   });
 
   console.log("rolePlayingGames", rolePlayingGames);
@@ -19,7 +19,7 @@ export function Home() {
   const { searchData: fightingGames } = useSearchGames({
     take: 12,
     skip: 0,
-    tags: [1743],
+    tags: [1743, 1773, 3878],
   });
 
   console.log("fightingGames", fightingGames);
