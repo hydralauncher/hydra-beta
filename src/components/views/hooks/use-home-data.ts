@@ -53,7 +53,12 @@ export function useHomeData(): HomeData {
   } = useQuery({
     queryKey: ["catalogue-games-to-beat"],
     queryFn: () => {
-      return api.get<CatalogueGame[]>("catalogue/achievements").json();
+      const take = 12;
+      const skip = 0;
+
+      return api
+        .get<CatalogueGame[]>(`catalogue/achievements?take=${take}&skip=${skip}`)
+        .json();
     },
   });
 
