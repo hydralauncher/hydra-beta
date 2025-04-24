@@ -124,7 +124,19 @@ export interface TrendingGame {
 }
 
 export interface CatalogueGame {
+  id: string;
   title: string;
   shop: GameShop;
   objectId: string;
+  iconHash: string;
+  tags: string[];
+  genres: string[];
+  developer: string;
+  publisher: string;
+  installCount: number;
+  reviewScore: number;
+  achievementCount: number;
+  achievementsPointsTotal: number;
+  createdAt: Date;
+  updatedAt: Date;
 }

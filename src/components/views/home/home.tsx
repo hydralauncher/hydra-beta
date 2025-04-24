@@ -1,9 +1,22 @@
 import { useHomeData } from "../hooks/use-home-data";
+import { useSearchGames } from "../hooks/use-search-games";
 import type { TrendingGame, CatalogueGame } from "@/types";
 
 export function Home() {
   const { catalogueTrendingGames, catalogueHotGames, catalogueGamesToBeat } =
     useHomeData();
+
+  const { data: rolePlayingGames } = useSearchGames({
+    take: 12,
+    skip: 0,
+    tags: [122],
+  });
+
+  const { data: fightingGames } = useSearchGames({
+    take: 12,
+    skip: 0,
+    tags: [1743],
+  });
 
   return (
     <div
@@ -35,6 +48,16 @@ export function Home() {
         {catalogueGamesToBeat.data?.map((game: CatalogueGame) => (
           <p>{game.title}</p>
         ))}
+      </div>
+      <br />
+      <div>
+        <h1>RPG</h1>
+        {rolePlayingGames.data?.edges.map((game) => <p>{game.title}</p>)}
+      </div>
+      <br />
+      <div>
+        <h1>Fighting</h1>
+        {fightingGames.data?.edges.map((game) => <p>{game.title}</p>)}
       </div>
     </div>
   );
