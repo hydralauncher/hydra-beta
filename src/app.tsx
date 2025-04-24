@@ -33,7 +33,7 @@ export function App(props: Readonly<AppProps>) {
       <Router initialPath={props.initialPath}>
         <Sidebar />
         <Routes>
-          <Route path="/" element={<Home profile={props.profile} />} />
+          <Route path="/" element={<Home />} />
           <Route path="/download-sources" element={<DownloadSources />} />
           <Route
             path="/profile/:id"

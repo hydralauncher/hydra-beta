@@ -109,3 +109,34 @@ export interface User {
   displayName: string;
   profileImageUrl: string;
 }
+
+export interface TrendingGame {
+  id: number;
+  documentId: string;
+  uri: string;
+  background: string;
+  logo: string;
+  description: string;
+  createdAt: Date;
+  updatedAt: Date;
+  publishedAt: Date;
+  locale: string;
+}
+
+export interface CatalogueGame {
+  id: string;
+  title: string;
+  shop: GameShop;
+  objectId: string;
+  iconHash: string;
+  tags: string[];
+  genres: string[];
+  developer: string;
+  publisher: string;
+  installCount: number;
+  reviewScore: number;
+  achievementCount: number;
+  achievementsPointsTotal: number;
+  createdAt: Date;
+  updatedAt: Date;
+}
