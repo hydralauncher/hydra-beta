@@ -1,4 +1,4 @@
-import { useHomeData } from "@/hooks/api/use-home-data";
+import { useHomeData } from "../hooks/use-home-data";
 import type { TrendingGame, CatalogueGame } from "@/types";
 
 export function Home() {

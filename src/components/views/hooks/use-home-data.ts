@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { api } from "@/services";
 import type { TrendingGame, CatalogueGame } from "@/types";
 
-export const useHomeData = () => {
+export function useHomeData() {
   const {
     data: catalogueTrendingGamesData,
     isLoading: catalogueTrendingGamesLoading,
@@ -50,4 +50,4 @@ export const useHomeData = () => {
       isLoading: catalogueGamesToBeatLoading,
     },
   };
-};
+}
