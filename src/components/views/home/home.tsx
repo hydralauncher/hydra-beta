@@ -6,17 +6,23 @@ export function Home() {
   const { catalogueTrendingGames, catalogueHotGames, catalogueGamesToBeat } =
     useHomeData();
 
-  const { data: rolePlayingGames } = useSearchGames({
+  console.log("catalogueTrendingGames", catalogueTrendingGames);
+
+  const { searchData: rolePlayingGames } = useSearchGames({
     take: 12,
     skip: 0,
     tags: [122],
   });
 
-  const { data: fightingGames } = useSearchGames({
+  console.log("rolePlayingGames", rolePlayingGames);
+
+  const { searchData: fightingGames } = useSearchGames({
     take: 12,
     skip: 0,
     tags: [1743],
   });
+
+  console.log("fightingGames", fightingGames);
 
   return (
     <div
@@ -31,33 +37,62 @@ export function Home() {
     >
       <h1>Home</h1>
       <div>
+        {catalogueTrendingGames.isLoading && <p>loading trending games...</p>}
+        {catalogueTrendingGames.isError && (
+          <p>error loading trending games...</p>
+        )}
+
         {catalogueTrendingGames.data?.map((game: TrendingGame) => (
-          <img src={game.logo} alt={game.description} />
+          <img key={game.id} src={game.logo} alt={game.description} />
         ))}
       </div>
       <br />
       <div>
         <h1>Hot Games</h1>
+        {catalogueHotGames.isLoading && <p>loading hot games...</p>}
+        {catalogueHotGames.isError && <p>error loading hot games...</p>}
+
         {catalogueHotGames.data?.map((game: CatalogueGame) => (
-          <p>{game.title}</p>
+          <p key={game.title}>{game.title}</p>
         ))}
       </div>
       <br />
       <div>
         <h1>Games to Beat</h1>
+        {catalogueGamesToBeat.isLoading && <p>loading games to beat...</p>}
+        {catalogueGamesToBeat.isError && <p>error loading games to beat...</p>}
+
         {catalogueGamesToBeat.data?.map((game: CatalogueGame) => (
-          <p>{game.title}</p>
+          <p key={game.title}>{game.title}</p>
         ))}
       </div>
       <br />
       <div>
         <h1>RPG</h1>
-        {rolePlayingGames.data?.edges.map((game) => <p>{game.title}</p>)}
+        {rolePlayingGames.isLoading && <p>loading rpg games...</p>}
+        {rolePlayingGames.isError && <p>error loading rpg games...</p>}
+
+        {rolePlayingGames.isEmpty && !rolePlayingGames.isLoading && (
+          <p>no rpg games found...</p>
+        )}
+
+        {rolePlayingGames.data?.edges.map((game) => (
+          <p key={game.title}>{game.title}</p>
+        ))}
       </div>
       <br />
       <div>
         <h1>Fighting</h1>
-        {fightingGames.data?.edges.map((game) => <p>{game.title}</p>)}
+        {fightingGames.isLoading && <p>loading fighting games...</p>}
+        {fightingGames.isError && <p>error loading fighting games...</p>}
+
+        {fightingGames.isEmpty && !fightingGames.isLoading && (
+          <p>no fighting games found...</p>
+        )}
+
+        {fightingGames.data?.edges.map((game) => (
+          <p key={game.title}>{game.title}</p>
+        ))}
       </div>
     </div>
   );
