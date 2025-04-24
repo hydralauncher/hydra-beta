@@ -12,37 +12,59 @@ interface SearchGamesProps {
   developers?: string[];
 }
 
-interface SearchGamesResponse {
+interface SearchGamesResponseData {
   edges: CatalogueGame[];
   count: number;
 }
 
-export function useSearchGames(props: SearchGamesProps) {
-  const { data, isLoading } = useQuery({
+interface SearchGamesResult {
+  searchData: {
+    data: SearchGamesResponseData | undefined;
+    isLoading: boolean;
+    isError: boolean;
+    error: Error | null;
+    isEmpty: boolean;
+  };
+}
+
+export function useSearchGames(props: SearchGamesProps): SearchGamesResult {
+  const { data, isLoading, isError, error } = useQuery({
     queryKey: [
       "search-games",
       props.take,
       props.skip,
       props.title,
-      props.tags && JSON.stringify(props.tags),
-      props.genres && JSON.stringify(props.genres),
-      props.publishers && JSON.stringify(props.publishers),
-      props.developers && JSON.stringify(props.developers),
+      props.tags,
+      props.genres,
+      props.publishers,
+      props.developers,
     ],
-    queryFn: async () => {
+    queryFn: () => {
       const body = {
         take: props.take,
         skip: props.skip,
         title: props.title,
         tags: props.tags,
         genres: props.genres,
+        publishers: props.publishers,
+        developers: props.developers,
       };
 
       return api
-        .post<SearchGamesResponse>("catalogue/search", { json: body })
+        .post<SearchGamesResponseData>("catalogue/search", { json: body })
         .json();
     },
   });
 
-  return { data: { data, isLoading } };
+  const isEmpty = !data || data.edges.length === 0;
+
+  return {
+    searchData: {
+      data,
+      isLoading,
+      isError,
+      error,
+      isEmpty,
+    },
+  };
 }
