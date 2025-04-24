@@ -117,10 +117,10 @@ export interface TrendingGame {
   background: string;
   logo: string;
   description: string;
-  createdAt: string;
-  updatedAt: string;
-  publishedAt: string;
-  location: string;
+  createdAt: Date;
+  updatedAt: Date;
+  publishedAt: Date;
+  locale: string;
 }
 
 export interface CatalogueGame {
