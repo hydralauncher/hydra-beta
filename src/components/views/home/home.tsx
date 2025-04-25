@@ -1,76 +1,99 @@
-import { Button } from "@/components/common";
-import { IS_DESKTOP } from "@/constants";
-import { api } from "@/services";
-import { useAuthStore, type Auth } from "@/stores/auth.store";
-import type { User } from "@/types";
-import { useQuery } from "@tanstack/react-query";
-import { useCallback } from "react";
-import { Link } from "react-router";
+import { useHomeData } from "../hooks/use-home-data";
+import { useSearchGames } from "../hooks/use-search-games";
+import type { TrendingGame, CatalogueGame } from "@/types";
 
-const AUTH_URL = "http://localhost:5173";
-const AUTH_REDIRECT_URL = "http://localhost:4321/api/auth";
+export function Home() {
+  const { catalogueTrendingGames, catalogueHotGames, catalogueGamesToBeat } =
+    useHomeData();
 
-export interface HomeProps {
-  profile?: User | null;
-}
+  console.log("catalogueTrendingGames", catalogueTrendingGames);
 
-export function Home(props: Readonly<HomeProps>) {
-  const { auth, setAuth, clearAuth } = useAuthStore();
-
-  const { data, refetch } = useQuery({
-    queryKey: ["me", auth?.accessToken],
-    queryFn: () => {
-      if (!auth) return null;
-      return api.get<User>("profile/me").json();
-    },
-    placeholderData: props.profile,
+  const { searchData: rolePlayingGames } = useSearchGames({
+    take: 12,
+    skip: 0,
+    tags: [19, 122, 4172],
   });
 
-  const openAuth = useCallback(async () => {
-    if (IS_DESKTOP) {
-      const { WebviewWindow } = await import("@tauri-apps/api/webviewWindow");
+  console.log("rolePlayingGames", rolePlayingGames);
 
-      const webview = new WebviewWindow("auth", {
-        url: AUTH_URL,
-        width: 600,
-        height: 640,
-        parent: "main",
-        backgroundColor: "#1c1c1c",
-        maximizable: false,
-        resizable: false,
-        minimizable: false,
-      });
+  const { searchData: fightingGames } = useSearchGames({
+    take: 12,
+    skip: 0,
+    tags: [1743, 1773, 3878],
+  });
 
-      webview.once("auth-response", (event) => {
-        setAuth(event.payload as Auth);
-        webview.close();
-      });
-    } else {
-      const params = new URLSearchParams({
-        return_to: AUTH_REDIRECT_URL,
-      });
-
-      window.location.href = AUTH_URL + "?" + params.toString();
-    }
-  }, [setAuth]);
-
-  const logout = useCallback(() => {
-    clearAuth();
-    refetch();
-  }, [clearAuth, refetch]);
+  console.log("fightingGames", fightingGames);
 
   return (
-    <div>
-      <p>Logged in as {data?.displayName}</p>
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        gap: "20px",
+        width: "100%",
+        padding: "32px",
+        overflow: "auto",
+      }}
+    >
+      <h1>Home</h1>
+      <div>
+        {catalogueTrendingGames.isLoading && <p>loading trending games...</p>}
+        {catalogueTrendingGames.isError && (
+          <p>error loading trending games...</p>
+        )}
 
-      {data ? (
-        <Button onClick={logout}>Logout</Button>
-      ) : (
-        <Button onClick={openAuth}>Login</Button>
-      )}
+        {catalogueTrendingGames.data?.map((game: TrendingGame) => (
+          <img key={game.id} src={game.logo} alt={game.description} />
+        ))}
+      </div>
+      <br />
+      <div>
+        <h1>Hot Games</h1>
+        {catalogueHotGames.isLoading && <p>loading hot games...</p>}
+        {catalogueHotGames.isError && <p>error loading hot games...</p>}
 
-      <Link to="/download-sources">Download Sources</Link>
-      <Link to={`/profile/${data?.id}`}>Profile</Link>
+        {catalogueHotGames.data?.map((game: CatalogueGame) => (
+          <p key={game.title}>{game.title}</p>
+        ))}
+      </div>
+      <br />
+      <div>
+        <h1>Games to Beat</h1>
+        {catalogueGamesToBeat.isLoading && <p>loading games to beat...</p>}
+        {catalogueGamesToBeat.isError && <p>error loading games to beat...</p>}
+
+        {catalogueGamesToBeat.data?.map((game: CatalogueGame) => (
+          <p key={game.title}>{game.title}</p>
+        ))}
+      </div>
+      <br />
+      <div>
+        <h1>RPG</h1>
+        {rolePlayingGames.isLoading && <p>loading rpg games...</p>}
+        {rolePlayingGames.isError && <p>error loading rpg games...</p>}
+
+        {rolePlayingGames.isEmpty && !rolePlayingGames.isLoading && (
+          <p>no rpg games found...</p>
+        )}
+
+        {rolePlayingGames.data?.edges.map((game) => (
+          <p key={game.title}>{game.title}</p>
+        ))}
+      </div>
+      <br />
+      <div>
+        <h1>Fighting</h1>
+        {fightingGames.isLoading && <p>loading fighting games...</p>}
+        {fightingGames.isError && <p>error loading fighting games...</p>}
+
+        {fightingGames.isEmpty && !fightingGames.isLoading && (
+          <p>no fighting games found...</p>
+        )}
+
+        {fightingGames.data?.edges.map((game) => (
+          <p key={game.title}>{game.title}</p>
+        ))}
+      </div>
     </div>
   );
 }
