@@ -37,8 +37,8 @@ function SidebarRoutes() {
       icon: <House size={24} />,
     },
     {
-      path: "/catalog",
-      label: "Catalog",
+      path: "/catalogue",
+      label: "Catalogue",
       icon: <SquaresFour size={24} />,
     },
     {
