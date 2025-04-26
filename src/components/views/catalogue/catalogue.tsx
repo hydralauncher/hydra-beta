@@ -3,50 +3,7 @@ import { useSearchGames } from "../hooks/use-search-games";
 import { Input } from "@/components/common";
 import { useState, useEffect } from "react";
 import { Checkbox } from "@/components/common/checkbox/checkbox";
-
-const styles = {
-  container: {
-    display: "flex",
-    flexDirection: "row" as const,
-    gap: "1rem",
-    overflowY: "scroll" as const,
-    width: "100%",
-  },
-  filtersContainer: {
-    display: "flex",
-    flexDirection: "column" as const,
-    justifyContent: "space-between",
-    padding: "3rem",
-    gap: "1rem",
-  },
-  filterColumn: {
-    display: "flex",
-    flexDirection: "column" as const,
-    gap: "1rem",
-  },
-  filterList: {
-    listStyle: "none",
-    padding: 0,
-    border: "1px solid #fff",
-  },
-  filterItem: {
-    display: "flex",
-    alignItems: "center",
-    marginBottom: "8px",
-  },
-  searchContainer: {
-    display: "flex",
-    flexDirection: "column" as const,
-    gap: "1rem",
-    padding: "3rem",
-    width: "100%",
-  },
-  resultsContainer: {
-    display: "flex",
-    flexDirection: "column" as const,
-    gap: "1rem",
-  },
-};
+import "./catalogue.scss";
 
 function useFilterDebounce<T>(
   initialValue: T[]
@@ -124,11 +81,11 @@ export function Catalogue() {
     onToggle: (id: T, checked: boolean) => void;
   }) {
     return (
-      <div style={styles.filterColumn}>
+      <div className="catalogue__filter-column">
         <h2>{title}:</h2>
-        <ul style={styles.filterList}>
+        <ul className="catalogue__filter-list">
           {items.map((item) => (
-            <li key={`${item.id}`} style={styles.filterItem}>
+            <li key={`${item.id}`} className="catalogue__filter-item">
               <Checkbox
                 checked={selectedItems.includes(item.id)}
                 onChange={(checked) => onToggle(item.id, checked)}
@@ -156,15 +113,15 @@ export function Catalogue() {
     data?.developers.slice(0, 20).map((dev) => ({ id: dev, name: dev })) || [];
 
   return (
-    <div style={styles.container}>
-      <div style={styles.searchContainer}>
+    <div className="catalogue">
+      <div className="catalogue__search-container">
         <h2>game search:</h2>
         <Input
           value={searchInput}
           onChange={(e) => setSearchInput(e.target.value)}
         />
 
-        <div style={styles.resultsContainer}>
+        <div className="catalogue__results-container">
           <h2>search results:</h2>
           {searchData.isLoading && <p>Buscando...</p>}
           {searchData.isError && <p>Erro ao buscar jogos</p>}
@@ -182,7 +139,7 @@ export function Catalogue() {
         </div>
       </div>
 
-      <div style={styles.filtersContainer}>
+      <div className="catalogue__filters-container">
         <FilterSection<string>
           title="genres"
           items={genreItems}

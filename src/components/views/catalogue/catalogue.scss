@@ -1,0 +1,48 @@
+// catalogue.scss
+.catalogue {
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+    overflow-y: scroll;
+    width: 100%;
+  
+    &__search-container {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      padding: 3rem;
+      width: 100%;
+    }
+  
+    &__results-container {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+  
+    &__filters-container {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 3rem;
+      gap: 1rem;
+    }
+  
+    &__filter-column {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+  
+    &__filter-list {
+      list-style: none;
+      padding: 0;
+      border: 1px solid #fff;
+    }
+  
+    &__filter-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+  }
