@@ -167,6 +167,7 @@ export function Catalogue() {
           <FilterSection
             listData={data?.genres.en}
             onChange={handlePayloadInputs}
+            filterType={Filters.Genres}
           />
         </div>
 
@@ -174,6 +175,7 @@ export function Catalogue() {
           <FilterSection
             listData={data?.userTags.en}
             onChange={handlePayloadInputs}
+            filterType={Filters.UserTags}
           />
         </div>
 
@@ -181,6 +183,7 @@ export function Catalogue() {
           <FilterSection
             listData={data?.publishers}
             onChange={handlePayloadInputs}
+            filterType={Filters.Publishers}
           />
         </div>
 
@@ -188,6 +191,7 @@ export function Catalogue() {
           <FilterSection
             listData={data?.developers}
             onChange={handlePayloadInputs}
+            filterType={Filters.Developers}
           />
         </div>
       </div>
@@ -198,71 +202,75 @@ export function Catalogue() {
 function FilterSection({
   listData,
   onChange,
+  filterType,
 }: {
   listData: FilterSectionDataProps;
   onChange: (e: React.ChangeEvent<HTMLInputElement>, filter: Filters) => void;
+  filterType: Filters;
 }) {
   if (!listData) {
     return null;
   }
 
-  const isASimpleList = Array.isArray(listData);
-  const isARecord = !isASimpleList && typeof listData === "object";
+  const isArray = Array.isArray(listData);
+  const isRecord = !isArray && typeof listData === "object";
 
-  if (isASimpleList) {
-    return (
-      <div className="filter-section">
+  const calculateHeight = (items: readonly unknown[]) =>
+    28 * (items.length > 10 ? 10 : items.length);
+
+  return (
+    <div className="filter-section">
+      {isArray && (
         <List
-          data={listData || []}
-          height={28 * (listData.length > 10 ? 10 : listData.length)}
+          data={listData}
+          height={calculateHeight(listData)}
           itemHeight={28}
           itemKey={(item) => item}
         >
           {(item) => (
             <div className="filter-section-item">
               <input
-                id={item}
+                id={`${filterType}-${item}`}
                 type="checkbox"
                 value={item}
-                onChange={(e) => onChange(e, Filters.Genres)}
+                onChange={(e) => onChange(e, filterType)}
               />
-              <label className="filter-section-item__label" htmlFor={item}>
+              <label
+                className="filter-section-item__label"
+                htmlFor={`${filterType}-${item}`}
+              >
                 {item}
               </label>
             </div>
           )}
         </List>
-      </div>
-    );
-  }
+      )}
 
-  if (isARecord) {
-    return (
-      <div className="filter-section">
+      {isRecord && (
         <List
-          data={Object.keys(listData || {})}
-          height={
-            28 *
-            (Object.keys(listData || {}).length > 10
-              ? 10
-              : Object.keys(listData || {}).length)
-          }
+          data={Object.keys(listData)}
+          height={calculateHeight(Object.keys(listData))}
           itemHeight={28}
           itemKey={(item) => item}
         >
           {(item) => (
             <div className="filter-section-item">
               <input
-                id={item}
+                id={`${filterType}-${item}`}
                 type="checkbox"
                 value={listData[item]}
-                onChange={(e) => onChange(e, Filters.UserTags)}
+                onChange={(e) => onChange(e, filterType)}
               />
-              <label htmlFor={item}>{item}</label>
+              <label
+                className="filter-section-item__label"
+                htmlFor={`${filterType}-${item}`}
+              >
+                {item}
+              </label>
             </div>
           )}
         </List>
-      </div>
-    );
-  }
+      )}
+    </div>
+  );
 }
