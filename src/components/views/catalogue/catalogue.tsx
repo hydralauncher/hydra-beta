@@ -1,173 +1,268 @@
-import { useCatalogueData } from "../hooks/use-catalogue-data";
-import { useSearchGames } from "../hooks/use-search-games";
-import { Input } from "@/components/common";
-import { useState, useEffect } from "react";
-import { Checkbox } from "@/components/common/checkbox/checkbox";
+import List from "rc-virtual-list";
 import "./catalogue.scss";
+import { useState, useRef, useEffect, useCallback } from "react";
+import { FilterToggle, SearchBuilder } from "./search-builder";
+import debounce from "lodash/debounce";
+import {
+  useCatalogueData,
+  useSearchGames,
+  type SearchGamesProps,
+} from "../hooks";
+import type {
+  Developer,
+  Genre,
+  Publisher,
+  UserTag,
+} from "../hooks/use-catalogue-data";
 
-function useFilterDebounce<T>(
-  initialValue: T[]
-): [T[], T[], (value: T, checked: boolean) => void] {
-  const [selectedValues, setSelectedValues] = useState<T[]>(initialValue);
-  const [debouncedValues, setDebouncedValues] = useState<T[]>(initialValue);
+type FilterSectionDataProps =
+  | Genre
+  | UserTag
+  | Developer
+  | Publisher
+  | undefined;
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedValues(selectedValues);
-    }, 500);
-
-    return () => clearTimeout(timer);
-  }, [selectedValues]);
-
-  const handleToggle = (value: T, checked: boolean) => {
-    if (checked) {
-      setSelectedValues([...selectedValues, value]);
-    } else {
-      setSelectedValues(selectedValues.filter((v) => v !== value));
-    }
-  };
-
-  return [selectedValues, debouncedValues, handleToggle];
-}
-
-interface FilterItem<T> {
-  id: T;
-  name: string;
+enum Filters {
+  Title = "title",
+  Genres = "genres",
+  UserTags = "userTags",
+  Developers = "developers",
+  Publishers = "publishers",
 }
 
 export function Catalogue() {
-  const { data, isLoading, isError } = useCatalogueData();
-  const [searchInput, setSearchInput] = useState("");
-  const [debouncedSearch, setDebouncedSearch] = useState("");
-
-  const [selectedGenres, debouncedGenres, handleGenreToggle] =
-    useFilterDebounce<string>([]);
-  const [selectedTags, debouncedTags, handleTagToggle] =
-    useFilterDebounce<number>([]);
-  const [selectedPublishers, debouncedPublishers, handlePublisherToggle] =
-    useFilterDebounce<string>([]);
-  const [selectedDevelopers, debouncedDevelopers, handleDeveloperToggle] =
-    useFilterDebounce<string>([]);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedSearch(searchInput);
-    }, 500);
-
-    return () => clearTimeout(timer);
-  }, [searchInput]);
-
-  const { searchData } = useSearchGames({
-    title: debouncedSearch,
+  const [searchParams, setSearchParams] = useState<SearchGamesProps>({
     take: 32,
     skip: 0,
-    genres: debouncedGenres.length > 0 ? debouncedGenres : undefined,
-    tags: debouncedTags.length > 0 ? debouncedTags : undefined,
-    publishers:
-      debouncedPublishers.length > 0 ? debouncedPublishers : undefined,
-    developers:
-      debouncedDevelopers.length > 0 ? debouncedDevelopers : undefined,
+    title: "",
+    tags: [],
+    genres: [],
+    publishers: [],
+    developers: [],
   });
 
-  function FilterSection<T extends string | number>({
-    title,
-    items,
-    selectedItems,
-    onToggle,
-  }: {
-    title: string;
-    items: FilterItem<T>[];
-    selectedItems: T[];
-    onToggle: (id: T, checked: boolean) => void;
-  }) {
+  const { data } = useCatalogueData();
+  const { searchData } = useSearchGames(searchParams);
+
+  const searchBuilderRef = useRef(
+    new SearchBuilder({
+      take: 32,
+      skip: 0,
+    })
+  );
+
+  const [searchPayload, setSearchPayload] = useState(
+    searchBuilderRef.current.payload
+  );
+
+  const handlePayloadInputs = (
+    event: React.ChangeEvent<HTMLInputElement>,
+    filter: Filters
+  ) => {
+    const { value, checked } = event.target;
+
+    switch (filter) {
+      case Filters.Title:
+        searchBuilderRef.current.setTitle(value);
+        break;
+      case Filters.Genres:
+        new FilterToggle(
+          value,
+          checked,
+          (val) => searchBuilderRef.current.setGenres(val),
+          (val) => searchBuilderRef.current.removeGenre(val)
+        ).toggle();
+        break;
+      case Filters.UserTags:
+        new FilterToggle(
+          Number(value),
+          checked,
+          (val) => searchBuilderRef.current.setUserTags(val),
+          (val) => searchBuilderRef.current.removeUserTag(val)
+        ).toggle();
+        break;
+      case Filters.Developers:
+        new FilterToggle(
+          value,
+          checked,
+          (val) => searchBuilderRef.current.setDevelopers(val),
+          (val) => searchBuilderRef.current.removeDeveloper(val)
+        ).toggle();
+        break;
+      case Filters.Publishers:
+        new FilterToggle(
+          value,
+          checked,
+          (val) => searchBuilderRef.current.setPublishers(val),
+          (val) => searchBuilderRef.current.removePublisher(val)
+        ).toggle();
+        break;
+    }
+    setSearchPayload({ ...searchBuilderRef.current.payload });
+  };
+
+  const updateSearchParams = useCallback(() => {
+    const filters = searchPayload.filters;
+    const pagination = searchPayload.pagination;
+
+    setSearchParams({
+      take: pagination.take,
+      skip: pagination.skip,
+      title: filters.title,
+      tags: filters.tags,
+      genres: filters.genres,
+      publishers: filters.publishers,
+      developers: filters.developers,
+    });
+  }, [searchPayload]);
+
+  const debouncedUpdateSearchParams = useCallback(
+    debounce(updateSearchParams, 400),
+    [updateSearchParams]
+  );
+
+  useEffect(() => {
+    debouncedUpdateSearchParams();
+
+    return () => {
+      debouncedUpdateSearchParams.cancel();
+    };
+  }, [searchPayload, debouncedUpdateSearchParams]);
+
+  return (
+    <div className="catalogue-container">
+      <div className="catalogue-search">
+        <input
+          className="catalogue-search__input"
+          type="text"
+          placeholder="Search"
+          onChange={(e) => handlePayloadInputs(e, Filters.Title)}
+        />
+
+        <div className="search-content">
+          <div className="search-content__payload">
+            <h3>Payload:</h3>
+            <pre>{JSON.stringify(searchPayload, null, 2)}</pre>
+          </div>
+
+          <div className="search-content__results">
+            <h3>Results Title:</h3>
+            {searchData.isLoading ? (
+              <p>loading results...</p>
+            ) : (
+              <pre>
+                {JSON.stringify(
+                  searchData.data?.edges.map((edge) => edge.title) || [],
+                  null,
+                  2
+                )}
+              </pre>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <div className="catalogue-filters">
+        <div className="catalogue-filters__section">
+          <FilterSection
+            listData={data?.genres.en}
+            onChange={handlePayloadInputs}
+          />
+        </div>
+
+        <div className="catalogue-filters__section">
+          <FilterSection
+            listData={data?.userTags.en}
+            onChange={handlePayloadInputs}
+          />
+        </div>
+
+        <div className="catalogue-filters__section">
+          <FilterSection
+            listData={data?.publishers}
+            onChange={handlePayloadInputs}
+          />
+        </div>
+
+        <div className="catalogue-filters__section">
+          <FilterSection
+            listData={data?.developers}
+            onChange={handlePayloadInputs}
+          />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function FilterSection({
+  listData,
+  onChange,
+}: {
+  listData: FilterSectionDataProps;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>, filter: Filters) => void;
+}) {
+  if (!listData) {
+    return null;
+  }
+
+  const isASimpleList = Array.isArray(listData);
+  const isARecord = !isASimpleList && typeof listData === "object";
+
+  if (isASimpleList) {
     return (
-      <div className="catalogue__filter-column">
-        <h2>{title}:</h2>
-        <ul className="catalogue__filter-list">
-          {items.map((item) => (
-            <li key={`${item.id}`} className="catalogue__filter-item">
-              <Checkbox
-                checked={selectedItems.includes(item.id)}
-                onChange={(checked) => onToggle(item.id, checked)}
-                label={item.name}
+      <div className="filter-section">
+        <List
+          data={listData || []}
+          height={28 * (listData.length > 10 ? 10 : listData.length)}
+          itemHeight={28}
+          itemKey={(item) => item}
+        >
+          {(item) => (
+            <div className="filter-section-item">
+              <input
+                id={item}
+                type="checkbox"
+                value={item}
+                onChange={(e) => onChange(e, Filters.Genres)}
               />
-            </li>
-          ))}
-        </ul>
+              <label className="filter-section-item__label" htmlFor={item}>
+                {item}
+              </label>
+            </div>
+          )}
+        </List>
       </div>
     );
   }
 
-  if (isLoading) return <p>loading...</p>;
-  if (isError) return <p>error fetching data</p>;
-
-  const genreItems: FilterItem<string>[] =
-    data?.genres.en.slice(0, 20).map((genre) => ({ id: genre, name: genre })) ||
-    [];
-  const tagItems: FilterItem<number>[] = Object.entries(data?.userTags.en || {})
-    .slice(0, 20)
-    .map(([name, id]) => ({ id, name }));
-  const publisherItems: FilterItem<string>[] =
-    data?.publishers.slice(0, 20).map((pub) => ({ id: pub, name: pub })) || [];
-  const developerItems: FilterItem<string>[] =
-    data?.developers.slice(0, 20).map((dev) => ({ id: dev, name: dev })) || [];
-
-  return (
-    <div className="catalogue">
-      <div className="catalogue__search-container">
-        <h2>game search:</h2>
-        <Input
-          value={searchInput}
-          onChange={(e) => setSearchInput(e.target.value)}
-        />
-
-        <div className="catalogue__results-container">
-          <h2>search results:</h2>
-          {searchData.isLoading && <p>Buscando...</p>}
-          {searchData.isError && <p>Erro ao buscar jogos</p>}
-          {searchData.isEmpty && !searchData.isLoading && (
-            <p>Nenhum jogo encontrado</p>
+  if (isARecord) {
+    return (
+      <div className="filter-section">
+        <List
+          data={Object.keys(listData || {})}
+          height={
+            28 *
+            (Object.keys(listData || {}).length > 10
+              ? 10
+              : Object.keys(listData || {}).length)
+          }
+          itemHeight={28}
+          itemKey={(item) => item}
+        >
+          {(item) => (
+            <div className="filter-section-item">
+              <input
+                id={item}
+                type="checkbox"
+                value={listData[item]}
+                onChange={(e) => onChange(e, Filters.UserTags)}
+              />
+              <label htmlFor={item}>{item}</label>
+            </div>
           )}
-
-          {!searchData.isEmpty && !searchData.isLoading && (
-            <ol>
-              {searchData.data?.edges.map((game) => (
-                <li key={`${game.id || game.title}`}>{game.title}</li>
-              ))}
-            </ol>
-          )}
-        </div>
+        </List>
       </div>
-
-      <div className="catalogue__filters-container">
-        <FilterSection<string>
-          title="genres"
-          items={genreItems}
-          selectedItems={selectedGenres}
-          onToggle={handleGenreToggle}
-        />
-
-        <FilterSection<number>
-          title="user tags"
-          items={tagItems}
-          selectedItems={selectedTags}
-          onToggle={handleTagToggle}
-        />
-
-        <FilterSection<string>
-          title="publishers"
-          items={publisherItems}
-          selectedItems={selectedPublishers}
-          onToggle={handlePublisherToggle}
-        />
-
-        <FilterSection<string>
-          title="developers"
-          items={developerItems}
-          selectedItems={selectedDevelopers}
-          onToggle={handleDeveloperToggle}
-        />
-      </div>
-    </div>
-  );
+    );
+  }
 }
