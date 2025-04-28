@@ -40,7 +40,8 @@ async function fetchCatalogueData(): Promise<CatalogueData> {
 export function useCatalogueData() {
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ["catalogue"],
-    queryFn: () => fetchCatalogueData(),
+    queryFn: fetchCatalogueData,
+    staleTime: 1000 * 60 * 30,
   });
 
   return {
@@ -50,3 +51,10 @@ export function useCatalogueData() {
     error,
   };
 }
+
+type Genre = CatalogueData["genres"][keyof CatalogueData["genres"]];
+type UserTag = CatalogueData["userTags"][keyof CatalogueData["userTags"]];
+type Developer = CatalogueData["developers"];
+type Publisher = CatalogueData["publishers"];
+
+export type { Genre, UserTag, Developer, Publisher };

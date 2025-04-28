@@ -2,7 +2,7 @@ import { api } from "@/services/api.service";
 import type { CatalogueGame } from "@/types";
 import { useQuery } from "@tanstack/react-query";
 
-interface SearchGamesProps {
+export interface SearchGamesProps {
   take?: number;
   skip?: number;
   title?: string;
@@ -27,27 +27,27 @@ interface SearchGamesResult {
   };
 }
 
-export function useSearchGames(props: SearchGamesProps): SearchGamesResult {
+export function useSearchGames(props?: SearchGamesProps): SearchGamesResult {
   const { data, isLoading, isError, error } = useQuery({
     queryKey: [
       "search-games",
-      props.take,
-      props.skip,
-      props.title,
-      props.tags,
-      props.genres,
-      props.publishers,
-      props.developers,
+      props?.take,
+      props?.skip,
+      props?.title,
+      props?.tags,
+      props?.genres,
+      props?.publishers,
+      props?.developers,
     ],
     queryFn: () => {
       const body = {
-        take: props.take,
-        skip: props.skip,
-        title: props.title,
-        tags: props.tags,
-        genres: props.genres,
-        publishers: props.publishers,
-        developers: props.developers,
+        take: props?.take,
+        skip: props?.skip,
+        title: props?.title,
+        tags: props?.tags,
+        genres: props?.genres,
+        publishers: props?.publishers,
+        developers: props?.developers,
       };
 
       return api
