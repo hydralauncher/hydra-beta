@@ -4,33 +4,33 @@ import type { User } from "@/types";
 import { useParams } from "react-router";
 
 export interface ProfileProps {
-  profile?: User | null;
+  user?: User | null;
 }
 
 export function Profile(props: Readonly<ProfileProps>) {
   const { id } = useParams();
 
-  const { data: profile, isLoading } = useQuery({
-    queryKey: ["profile", id],
+  const { data: user, isLoading } = useQuery({
+    queryKey: ["user", id],
     queryFn: () => api.get<User | null>(`users/${id}`).json(),
-    placeholderData: props.profile,
+    placeholderData: props.user,
   });
 
-  if (isLoading || !profile) {
+  if (isLoading || !user) {
     return <div>Loading...</div>;
   }
 
   return (
     <div>
       <img
-        src={profile?.profileImageUrl}
-        alt={profile?.displayName}
+        src={user?.profileImageUrl}
+        alt={user?.displayName}
         width={50}
         height={50}
         style={{ objectFit: "cover" }}
       />
 
-      <h1>{profile?.displayName}</h1>
+      <h1>{user?.displayName}</h1>
     </div>
   );
 }

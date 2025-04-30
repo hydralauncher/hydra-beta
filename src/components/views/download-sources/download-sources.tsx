@@ -11,12 +11,16 @@ import RemoveDownloadSourceWorker from "@/workers/download-sources/remove-downlo
 import SyncDownloadSourcesWorker from "@/workers/download-sources/sync-download-sources.worker?worker";
 import { useMutation } from "@tanstack/react-query";
 
+interface FormValues {
+  url: string;
+}
+
 export function DownloadSources() {
   const [downloadSources, setDownloadSources] = useState<
     Required<DownloadSource>[]
   >([]);
 
-  const { register, handleSubmit } = useForm();
+  const { register, handleSubmit } = useForm<FormValues>();
 
   const { mutate: removeDownloadSource, isPending: isRemoving } = useMutation({
     mutationFn: (id: number) =>
@@ -34,9 +38,7 @@ export function DownloadSources() {
   });
 
   const { mutate: importDownloadSource, isPending: isImporting } = useMutation({
-    mutationFn: (
-      values: any // eslint-disable-line @typescript-eslint/no-explicit-any
-    ) =>
+    mutationFn: (values: FormValues) =>
       new Promise((resolve) => {
         const worker = new ImportDownloadSourceWorker();
 

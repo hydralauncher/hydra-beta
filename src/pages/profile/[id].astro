@@ -14,16 +14,16 @@ const getUser = async () => {
     headers.Authorization = `Bearer ${accessToken}`;
   }
 
-  return await api
+  return api
     .get<User>(`users/${id}`, {
       headers,
     })
     .json();
 };
 
-const profile = await getUser();
+const user = await getUser();
 ---
 
 <Layout>
-  <App client:load initialPath={`/profile/${id}`} profile={profile} />
+  <App client:load initialPath={`/profile/${id}`} user={user} />
 </Layout>

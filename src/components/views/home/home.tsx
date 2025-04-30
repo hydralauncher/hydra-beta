@@ -7,31 +7,25 @@ import { useQuery } from "@tanstack/react-query";
 import { useCallback } from "react";
 import { Link } from "react-router";
 
-const AUTH_URL = "http://localhost:5173";
-const AUTH_REDIRECT_URL = "http://localhost:4321/api/auth";
-
-export interface HomeProps {
-  profile?: User | null;
-}
-
-export function Home(props: Readonly<HomeProps>) {
+export function Home() {
   const { auth, setAuth, clearAuth } = useAuthStore();
 
-  const { data, refetch } = useQuery({
+  const { data, isLoading, refetch } = useQuery({
     queryKey: ["me", auth?.accessToken],
     queryFn: () => {
       if (!auth) return null;
       return api.get<User>("profile/me").json();
     },
-    placeholderData: props.profile,
   });
 
   const openAuth = useCallback(async () => {
+    const authUrl = import.meta.env.PUBLIC_AUTH_URL;
+
     if (IS_DESKTOP) {
       const { WebviewWindow } = await import("@tauri-apps/api/webviewWindow");
 
       const webview = new WebviewWindow("auth", {
-        url: AUTH_URL,
+        url: authUrl,
         width: 600,
         height: 640,
         parent: "main",
@@ -47,10 +41,10 @@ export function Home(props: Readonly<HomeProps>) {
       });
     } else {
       const params = new URLSearchParams({
-        return_to: AUTH_REDIRECT_URL,
+        return_to: window.location.origin + "/api/auth",
       });
 
-      window.location.href = AUTH_URL + "?" + params.toString();
+      window.location.href = authUrl + "?" + params.toString();
     }
   }, [setAuth]);
 
@@ -58,6 +52,10 @@ export function Home(props: Readonly<HomeProps>) {
     clearAuth();
     refetch();
   }, [clearAuth, refetch]);
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div>
