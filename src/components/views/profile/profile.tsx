@@ -23,14 +23,14 @@ export function Profile(props: Readonly<ProfileProps>) {
   return (
     <div>
       <img
-        src={user?.profileImageUrl}
-        alt={user?.displayName}
+        src={user.profileImageUrl}
+        alt={user.displayName}
         width={50}
         height={50}
         style={{ objectFit: "cover" }}
       />
 
-      <h1>{user?.displayName}</h1>
+      <h1>{user.displayName}</h1>
     </div>
   );
 }

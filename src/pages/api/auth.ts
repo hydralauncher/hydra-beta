@@ -7,7 +7,7 @@ export const GET: APIRoute = async ({ request, cookies, redirect }) => {
   const payload = searchParams.get("payload");
 
   if (!payload) {
-    return new Response(JSON.stringify({ error: "No payload" }), {
+    return new Response(JSON.stringify({ error: "no payload" }), {
       status: 400,
     });
   }
@@ -15,19 +15,19 @@ export const GET: APIRoute = async ({ request, cookies, redirect }) => {
   try {
     const auth = JSON.parse(atob(payload));
 
+    cookies.set("accessToken", auth.accessToken, {
+      path: "/",
+      httpOnly: true,
+    });
+
+    cookies.set("refreshToken", auth.refreshToken, {
+      path: "/",
+      httpOnly: true,
+    });
+
     cookies.set(
-      "auth",
-      JSON.stringify({
-        state: {
-          auth: {
-            ...auth,
-            tokenExpirationTimestamp: calculateTokenExpirationTimestamp(
-              auth.expiresIn
-            ),
-          },
-        },
-        version: 0,
-      }),
+      "tokenExpirationTimestamp",
+      calculateTokenExpirationTimestamp(auth.expiresIn).toString(),
       {
         path: "/",
       }
@@ -37,7 +37,7 @@ export const GET: APIRoute = async ({ request, cookies, redirect }) => {
   } catch (err) {
     console.error(err);
 
-    return new Response(JSON.stringify({ error: "Failed to parse payload" }), {
+    return new Response(JSON.stringify({ error: "failed to parse payload" }), {
       status: 400,
     });
   }

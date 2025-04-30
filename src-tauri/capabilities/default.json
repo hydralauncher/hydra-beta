@@ -9,14 +9,6 @@
     "core:webview:allow-create-webview-window",
     "log:allow-log",
     "log:default",
-    "core:window:allow-close",
-    {
-      "identifier": "http:default",
-      "allow": [
-        { "url": "https://*.hydralauncher.gg" },
-        { "url": "https://*.losbroxas.org" }
-      ],
-      "deny": []
-    }
+    "core:window:allow-close"
   ]
 }

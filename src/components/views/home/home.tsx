@@ -1,21 +1,19 @@
 import { Button } from "@/components/common";
 import { IS_DESKTOP } from "@/constants";
 import { api } from "@/services";
-import { useAuthStore, type Auth } from "@/stores/auth.store";
 import type { User } from "@/types";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useCallback } from "react";
 import { Link } from "react-router";
 
 export function Home() {
-  const { auth, setAuth, clearAuth } = useAuthStore();
-
   const { data, isLoading, refetch } = useQuery({
-    queryKey: ["me", auth?.accessToken],
-    queryFn: () => {
-      if (!auth) return null;
-      return api.get<User>("profile/me").json();
-    },
+    queryKey: ["me"],
+    queryFn: () => api.get<User>("profile/me").json(),
+  });
+
+  const { mutateAsync } = useMutation({
+    mutationFn: () => api.post("auth/logout"),
   });
 
   const openAuth = useCallback(async () => {
@@ -36,8 +34,14 @@ export function Home() {
       });
 
       webview.once("auth-response", (event) => {
-        setAuth(event.payload as Auth);
         webview.close();
+
+        const params = new URLSearchParams({
+          payload: event.payload as string,
+        });
+
+        window.location.href =
+          window.location.origin + "/api/auth?" + params.toString();
       });
     } else {
       const params = new URLSearchParams({
@@ -46,12 +50,12 @@ export function Home() {
 
       window.location.href = authUrl + "?" + params.toString();
     }
-  }, [setAuth]);
+  }, []);
 
-  const logout = useCallback(() => {
-    clearAuth();
+  const logout = useCallback(async () => {
+    await mutateAsync();
     refetch();
-  }, [clearAuth, refetch]);
+  }, [mutateAsync, refetch]);
 
   if (isLoading) {
     return <div>Loading...</div>;
