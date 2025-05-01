@@ -11,7 +11,8 @@
     "test": "vitest",
     "typecheck": "tsc --noEmit",
     "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+    "build-storybook": "storybook build",
+    "prepare": "husky"
   },
   "dependencies": {
     "@phosphor-icons/react": "^2.1.7",
