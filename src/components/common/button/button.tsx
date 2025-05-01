@@ -1,7 +1,6 @@
 import { Spinner } from "@phosphor-icons/react";
 import Link from "next/link";
 
-import "./button.scss";
 import clsx from "clsx";
 
 const variants = {
