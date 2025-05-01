@@ -1,0 +1,70 @@
+import { Meta } from "@storybook/blocks";
+
+<Meta title="Tracking" />
+
+## Known Bugs
+
+<div className="sb-checkbox-container">
+  <div className="sb-checkbox-item">
+    <input type="checkbox" checked={false} />{" "}
+    <p>Route anchor dont show ... when text is bigger than component</p>
+  </div>
+  <div className="sb-checkbox-item">
+    <input type="checkbox" checked={false} />{" "}
+    <p>Checkbox cant be checked in all block mode spaces</p>
+  </div>
+</div>
+
+## Changelog
+
+- #### 2025-03-01: Added tracking
+
+  ```
+  + Added divider component
+  + Added route anchor component
+  + Added user profile component
+  ```
+
+- #### 2025-02-28: Initial release
+
+  ```
+  + Added tracking
+  + Added changelog
+  + Added storybook theme
+  ```
+
+- #### 2025-02-28: Added components
+
+  ```
+  + Added source anchor component
+  + Added list card game component
+  + Added horizontal card game component
+  ```
+
+- #### 2025-02-27: Added components
+  ```
+  + Added Button component
+  + Added Input component
+  + Added Checkbox component
+  ```
+
+<style>
+  {`
+  .sb-checkbox-container {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .sb-checkbox-item {
+    display: flex;
+    align-items: center;
+    height: 2rem;
+    flex-direction: row;
+    gap: 0.75rem;
+  }
+
+  p {
+    margin: 0;
+  }
+  `}
+</style>

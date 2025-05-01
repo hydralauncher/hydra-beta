@@ -1,0 +1,7 @@
+{
+  "search.exclude": {
+    "public/assets": true
+  },
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.formatOnSave": true
+}
