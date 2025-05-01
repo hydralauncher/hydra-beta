@@ -1,10 +1,11 @@
 import { Button } from "@/components/common";
 import { IS_DESKTOP } from "@/constants";
-import { api } from "@/services";
+import { api, calculateTokenExpirationTimestamp } from "@/services";
 import type { User } from "@/types";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { useCallback } from "react";
-import { Link } from "react-router";
+import { useCallback, useEffect } from "react";
+import { Link, useSearchParams } from "react-router";
+import { setCookie } from "typescript-cookie";
 
 export function Home() {
   const { data, isLoading, refetch } = useQuery({
@@ -15,6 +16,52 @@ export function Home() {
   const { mutateAsync } = useMutation({
     mutationFn: () => api.post("auth/logout"),
   });
+
+  const { mutateAsync: createSession } = useMutation({
+    mutationFn: ({
+      accessToken,
+      refreshToken,
+    }: {
+      accessToken: string;
+      refreshToken: string;
+    }) =>
+      api.post("auth/session", {
+        json: { accessToken, refreshToken },
+      }),
+  });
+
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const authorizePayload = useCallback(
+    async (payload: string) => {
+      const { accessToken, refreshToken, expiresIn } = JSON.parse(
+        atob(payload)
+      );
+
+      return createSession({
+        accessToken,
+        refreshToken,
+      }).then(() => {
+        setCookie(
+          "tokenExpirationTimestamp",
+          calculateTokenExpirationTimestamp(expiresIn).toString()
+        );
+
+        refetch();
+      });
+    },
+    [createSession, refetch]
+  );
+
+  useEffect(() => {
+    const payload = searchParams.get("payload");
+
+    if (payload) {
+      authorizePayload(payload).then(() => {
+        setSearchParams({});
+      });
+    }
+  }, [searchParams, setSearchParams, authorizePayload]);
 
   const openAuth = useCallback(async () => {
     const authUrl = import.meta.env.PUBLIC_AUTH_URL;
@@ -36,21 +83,16 @@ export function Home() {
       webview.once("auth-response", (event) => {
         webview.close();
 
-        const params = new URLSearchParams({
-          payload: event.payload as string,
-        });
-
-        window.location.href =
-          window.location.origin + "/api/auth?" + params.toString();
+        authorizePayload(event.payload as string);
       });
     } else {
       const params = new URLSearchParams({
-        return_to: window.location.origin + "/api/auth",
+        return_to: window.location.origin,
       });
 
       window.location.href = authUrl + "?" + params.toString();
     }
-  }, []);
+  }, [authorizePayload]);
 
   const logout = useCallback(async () => {
     await mutateAsync();
