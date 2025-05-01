@@ -1,1 +1,3 @@
-npm test
+# cargo fix --manifest-path src-tauri/Cargo.toml
+bun format
+bun typecheck
