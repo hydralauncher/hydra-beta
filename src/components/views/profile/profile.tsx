@@ -7,7 +7,7 @@ export interface ProfileProps {
   user?: User | null;
 }
 
-export function Profile(props: Readonly<ProfileProps>) {
+export default function Profile(props: Readonly<ProfileProps>) {
   const { id } = useParams();
 
   const { data: user, isLoading } = useQuery({

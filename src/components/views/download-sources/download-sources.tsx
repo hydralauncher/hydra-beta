@@ -15,7 +15,7 @@ interface FormValues {
   url: string;
 }
 
-export function DownloadSources() {
+export default function DownloadSources() {
   const [downloadSources, setDownloadSources] = useState<
     Required<DownloadSource>[]
   >([]);

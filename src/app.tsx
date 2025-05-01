@@ -1,7 +1,7 @@
+import { lazy, Suspense } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, MemoryRouter, Route, Routes } from "react-router";
 
-import { DownloadSources, Home, Profile } from "@/components";
 import { Sidebar } from "@/layouts/sidebar/sidebar";
 import type { User } from "./types";
 
@@ -27,16 +27,27 @@ function Router({ children, initialPath }: Readonly<RouterProps>) {
   return <BrowserRouter>{children}</BrowserRouter>;
 }
 
+const Home = lazy(() => import("@/components/views/home/home"));
+const DownloadSources = lazy(
+  () => import("@/components/views/download-sources/download-sources")
+);
+const Profile = lazy(() => import("@/components/views/profile/profile"));
+
 export function App(props: Readonly<AppProps>) {
   return (
     <QueryClientProvider client={queryClient}>
       <Router initialPath={props.initialPath}>
         <Sidebar />
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/download-sources" element={<DownloadSources />} />
-          <Route path="/profile/:id" element={<Profile user={props.user} />} />
-        </Routes>
+        <Suspense fallback={<div>Loading...</div>}>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/download-sources" element={<DownloadSources />} />
+            <Route
+              path="/profile/:id"
+              element={<Profile user={props.user} />}
+            />
+          </Routes>
+        </Suspense>
       </Router>
     </QueryClientProvider>
   );

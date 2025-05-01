@@ -7,7 +7,7 @@ import { useCallback, useEffect } from "react";
 import { Link, useSearchParams } from "react-router";
 import { setCookie } from "typescript-cookie";
 
-export function Home() {
+export default function Home() {
   const { data, isLoading, refetch } = useQuery({
     queryKey: ["me"],
     queryFn: () => api.get<User>("profile/me").json(),
