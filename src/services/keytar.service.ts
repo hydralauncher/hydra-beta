@@ -1,8 +1,12 @@
 import { IS_DESKTOP } from "@/constants";
 
-// TODO: Add environment prefix to service
+const SERVICE =
+  process.env.NEXT_PUBLIC_ENVIRONMENT === "staging"
+    ? "staging_hydralauncher"
+    : "hydralauncher";
+
 export class Keytar {
-  private readonly service = "hydralauncher";
+  private readonly service = SERVICE;
 
   constructor(private readonly account: "access-token" | "refresh-token") {}
 

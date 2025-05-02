@@ -7,7 +7,7 @@ interface ProfileProps {
   user: User | null;
 }
 
-export default function Profile({ user }: ProfileProps) {
+export default function Profile({ user }: Readonly<ProfileProps>) {
   if (!user) {
     return <div>User not found.</div>;
   }
