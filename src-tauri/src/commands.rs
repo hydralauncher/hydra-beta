@@ -19,11 +19,16 @@ fn get_leveldb_connection() -> DB {
 }
 
 #[command]
-pub fn get_legacy_auth() -> Auth {
+pub fn get_legacy_auth() -> Option<Auth> {
     let mut db = get_leveldb_connection();
 
-    let auth = db.get(b"auth").unwrap();
-    let auth: Auth = serde_json::from_slice(&auth).unwrap();
+    let auth = match db.get(b"auth") {
+        Some(auth_data) => match serde_json::from_slice(&auth_data) {
+            Ok(parsed) => Some(parsed),
+            Err(_) => None,
+        },
+        None => None,
+    };
 
     db.close().unwrap();
 
