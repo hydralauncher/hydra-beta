@@ -6,7 +6,6 @@
   "build": {
     "beforeDevCommand": "bun run dev",
     "devUrl": "http://localhost:4321",
-    "beforeBuildCommand": "bun run build",
     "frontendDist": "https://beta.hydralauncher.gg"
   },
   "app": {
