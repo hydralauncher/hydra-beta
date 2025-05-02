@@ -4,10 +4,11 @@ import {
   db,
   downloadSourcesTable,
   downloadsTable,
-} from "../../services/dexie.service";
-import { downloadSourceSchema } from "../../schemas";
-import { getSteamGamesByLetter, addNewDownloads } from "./helpers";
+} from "@/services/dexie.service";
+import { downloadSourceSchema } from "@/schemas/download-source.schema";
+import { addNewDownloads } from "./helpers";
 import { DownloadSourceStatus } from "./constants";
+import { getSteamGamesByLetter } from "@/services";
 
 self.onmessage = async () => {
   try {

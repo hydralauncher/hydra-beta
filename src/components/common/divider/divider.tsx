@@ -1,5 +1,3 @@
-import "./divider.scss";
-
 export interface DividerProps {
   orientation?: "horizontal" | "vertical";
   color?: string;

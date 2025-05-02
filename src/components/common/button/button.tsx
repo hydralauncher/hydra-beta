@@ -1,7 +1,6 @@
 import { Spinner } from "@phosphor-icons/react";
-import { Link } from "react-router";
+import Link from "next/link";
 
-import "./button.scss";
 import clsx from "clsx";
 
 const variants = {
@@ -81,7 +80,7 @@ export function Button({
 
   return (
     <Link
-      to={href ?? ""}
+      href={href ?? ""}
       target={target}
       aria-label={size === "icon" ? ariaLabel : undefined}
       className={clsx("button", variants[variant], sizes[size], {

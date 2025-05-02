@@ -1,7 +1,6 @@
 import clsx from "clsx";
 import { useContext } from "react";
 import { SidebarContext } from "./sidebar-context";
-import "./sidebar.scss";
 
 export function SidebarSlider() {
   const { startResizing, isResizing, currentWidth, sidebarSizes } =

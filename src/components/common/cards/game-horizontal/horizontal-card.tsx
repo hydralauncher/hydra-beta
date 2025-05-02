@@ -1,4 +1,4 @@
-import "./horizontal-card.scss";
+import Image from "next/image";
 
 interface HorizontalCardProps {
   image: string;
@@ -16,7 +16,7 @@ export function HorizontalCard({
   return (
     <div className="horizontal-card">
       <div className="horizontal-card__image">
-        <img src={image} width={268} height={136} alt={title} />
+        <Image src={image} width={268} height={136} alt={title} />
       </div>
       <div className="horizontal-card__content">
         <div className="horizontal-card__content__info">

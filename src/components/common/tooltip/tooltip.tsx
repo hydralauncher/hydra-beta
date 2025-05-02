@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import "./tooltip.scss";
 
 export interface TooltipProps {
   children: React.ReactNode;

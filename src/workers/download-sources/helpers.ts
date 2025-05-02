@@ -1,28 +1,9 @@
-import {
-  downloadsTable,
-  downloadSourcesTable,
-  steamGamesByLetterTable,
-} from "../../services/dexie.service";
+import { downloadsTable, downloadSourcesTable } from "@/services/dexie.service";
 
-import { downloadSourceSchema } from "../../schemas/download-source.schema";
+import { downloadSourceSchema } from "@/schemas/download-source.schema";
 import type { InferType } from "yup";
-import { formatDownloadOptionName } from "../../helpers/string-formatting";
-import type { Download, SteamGamesByLetter } from "../../types";
-
-export const getSteamGamesByLetter = async () => {
-  const steamGames: SteamGamesByLetter[] =
-    await steamGamesByLetterTable.toArray();
-
-  return steamGames.reduce(
-    (acc, game) => {
-      return {
-        ...acc,
-        [game.letter]: game.games,
-      };
-    },
-    {} as Record<string, SteamGamesByLetter["games"]>
-  );
-};
+import { formatDownloadOptionName } from "@/helpers/string-formatting";
+import type { Download, SteamGamesByLetter } from "@/types";
 
 export const addNewDownloads = async (
   downloadSource: { id: number; name: string },

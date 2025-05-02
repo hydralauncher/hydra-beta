@@ -1,3 +1,15 @@
+@forward "./_button.scss";
+@forward "./_checkbox.scss";
+@forward "./_divider.scss";
+@forward "./_input.scss";
+@forward "./_route-anchor.scss";
+@forward "./_source-anchor.scss";
+@forward "./_tooltip.scss";
+@forward "./_user-profile.scss";
+@forward "./_horizontal-card.scss";
+@forward "./_list-card.scss";
+@forward "./_sidebar.scss";
+
 :root {
   --primary: rgba(255, 255, 255, 1);
   --secondary: rgba(255, 255, 255, 0.05);
@@ -79,7 +91,7 @@ a {
   text-decoration: none;
 }
 
-.app-container {
+#__next {
   display: flex;
   max-width: 100vw;
   max-height: 100vh;

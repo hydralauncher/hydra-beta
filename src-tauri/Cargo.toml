@@ -28,4 +28,4 @@ tauri-plugin-cli = "2"
 dirs = "5.0"
 clippy = "*"
 rusty-leveldb = "*"
-
+keytar = "*"

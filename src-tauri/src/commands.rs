@@ -19,13 +19,45 @@ fn get_leveldb_connection() -> DB {
 }
 
 #[command]
-pub fn get_auth() -> Auth {
+pub fn get_legacy_auth() -> Option<Auth> {
     let mut db = get_leveldb_connection();
 
-    let auth = db.get(b"auth").unwrap();
-    let auth: Auth = serde_json::from_slice(&auth).unwrap();
+    let auth = match db.get(b"auth") {
+        Some(auth_data) => match serde_json::from_slice(&auth_data) {
+            Ok(parsed) => Some(parsed),
+            Err(_) => None,
+        },
+        None => None,
+    };
 
     db.close().unwrap();
 
     auth
+}
+
+#[command]
+pub fn delete_legacy_auth() -> Result<(), String> {
+    let mut db = get_leveldb_connection();
+
+    db.delete(b"auth").unwrap();
+
+    Ok(())
+}
+
+#[command]
+pub fn save_password(service: String, account: String, password: String) -> Result<(), String> {
+    keytar::set_password(&service, &account, &password).map_err(|e| e.to_string())
+}
+
+#[command]
+pub fn get_password(service: String, account: String) -> Result<String, String> {
+    match keytar::get_password(&service, &account) {
+        Ok(password) => Ok(password.password),
+        Err(e) => Err(e.to_string()),
+    }
+}
+
+#[command]
+pub fn delete_password(service: String, account: String) -> Result<bool, String> {
+    keytar::delete_password(&service, &account).map_err(|e| e.to_string())
 }

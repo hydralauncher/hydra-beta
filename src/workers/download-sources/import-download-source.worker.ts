@@ -2,13 +2,14 @@ import {
   db,
   downloadsTable,
   downloadSourcesTable,
-} from "../../services/dexie.service";
+} from "@/services/dexie.service";
 
-import { downloadSourceSchema } from "../../schemas/download-source.schema";
+import { downloadSourceSchema } from "@/schemas/download-source.schema";
 import ky from "ky";
 import { DownloadSourceStatus, ImportDownloadSourceError } from "./constants";
 import type { InferType } from "yup";
-import { addNewDownloads, getSteamGamesByLetter } from "./helpers";
+import { addNewDownloads } from "./helpers";
+import { getSteamGamesByLetter } from "@/services/download-sources.service";
 
 self.onmessage = async (event: MessageEvent<string>) => {
   try {

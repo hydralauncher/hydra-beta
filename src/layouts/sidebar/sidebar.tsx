@@ -9,7 +9,6 @@ import clsx from "clsx";
 import { useContext } from "react";
 import { SidebarContext, SidebarProvider } from "./sidebar-context";
 import { SidebarSlider } from "./sidebar-slider";
-import "./sidebar.scss";
 
 function SidebarContainer({
   children,

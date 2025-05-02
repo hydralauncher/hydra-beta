@@ -6,22 +6,28 @@ import { Button, Input } from "@/components/common";
 import { useForm } from "react-hook-form";
 import { Trash } from "@phosphor-icons/react";
 
-import ImportDownloadSourceWorker from "@/workers/download-sources/import-download-source.worker?worker";
-import RemoveDownloadSourceWorker from "@/workers/download-sources/remove-download-source.worker?worker";
-import SyncDownloadSourcesWorker from "@/workers/download-sources/sync-download-sources.worker?worker";
 import { useMutation } from "@tanstack/react-query";
 
-export function DownloadSources() {
+interface FormValues {
+  url: string;
+}
+
+export default function DownloadSources() {
   const [downloadSources, setDownloadSources] = useState<
     Required<DownloadSource>[]
   >([]);
 
-  const { register, handleSubmit } = useForm();
+  const { register, handleSubmit } = useForm<FormValues>();
 
   const { mutate: removeDownloadSource, isPending: isRemoving } = useMutation({
     mutationFn: (id: number) =>
       new Promise((resolve) => {
-        const worker = new RemoveDownloadSourceWorker();
+        const worker = new Worker(
+          new URL(
+            "@/workers/download-sources/remove-download-source.worker.ts",
+            import.meta.url
+          )
+        );
 
         worker.postMessage(id);
 
@@ -34,11 +40,14 @@ export function DownloadSources() {
   });
 
   const { mutate: importDownloadSource, isPending: isImporting } = useMutation({
-    mutationFn: (
-      values: any // eslint-disable-line @typescript-eslint/no-explicit-any
-    ) =>
+    mutationFn: (values: FormValues) =>
       new Promise((resolve) => {
-        const worker = new ImportDownloadSourceWorker();
+        const worker = new Worker(
+          new URL(
+            "@/workers/download-sources/import-download-source.worker.ts",
+            import.meta.url
+          )
+        );
 
         worker.postMessage(values.url);
 
@@ -53,7 +62,12 @@ export function DownloadSources() {
   const { mutate: syncDownloadSources, isPending: isSyncing } = useMutation({
     mutationFn: () =>
       new Promise((resolve) => {
-        const worker = new SyncDownloadSourcesWorker();
+        const worker = new Worker(
+          new URL(
+            "@/workers/download-sources/sync-download-sources.worker.ts",
+            import.meta.url
+          )
+        );
 
         worker.postMessage(true);
 

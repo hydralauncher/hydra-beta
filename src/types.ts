@@ -40,12 +40,12 @@ export interface HowLongToBeatEntry extends DexieModel {
 
 export interface SteamGamesByLetter extends DexieModel {
   letter: string;
-  games: { id: string; name: string }[];
+  games: { id: number; name: string }[];
 }
 
 export type SteamGamesByLetterResponse = Record<
   string,
-  { id: string; name: string }[]
+  { id: number; name: string }[]
 >;
 
 export interface SteamGenre {
@@ -108,4 +108,10 @@ export interface User {
   id: string;
   displayName: string;
   profileImageUrl: string;
+}
+
+export interface Auth {
+  accessToken: string;
+  refreshToken: string;
+  tokenExpirationTimestamp: number;
 }

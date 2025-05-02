@@ -1,4 +1,4 @@
-import "./user-profile.scss";
+import Image from "next/image";
 
 export interface UserProfileProps {
   image?: string;
@@ -32,7 +32,7 @@ export const UserProfile = ({
       >
         <div className="user-profile__image-wrapper">
           {image ? (
-            <img
+            <Image
               src={image}
               alt="User"
               className="user-profile__image"
@@ -47,7 +47,7 @@ export const UserProfile = ({
           )}
           {collapsed && playingStatus && (
             <div className="user-profile__status-icon--collapsed">
-              <img
+              <Image
                 src={playingStatus.icon}
                 alt={playingStatus.label}
                 width={16}
@@ -61,7 +61,7 @@ export const UserProfile = ({
             <div className="user-profile__info__name">{name}</div>
             {playingStatus && (
               <div className="user-profile__info__status">
-                <img
+                <Image
                   src={playingStatus.icon}
                   alt={playingStatus.label}
                   width={16}

@@ -1,5 +1,11 @@
 import type { User } from "@/types";
-import { createContext, useEffect, useMemo, useState } from "react";
+import {
+  createContext,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { mockUser } from "./mock/sidebar-mock";
 
 interface SidebarContext {
@@ -58,21 +64,24 @@ export function SidebarProvider({
     document.body.classList.remove("sidebar-resizing");
   };
 
-  const handleResize = (e: MouseEvent) => {
-    if (!isResizing) return;
+  const handleResize = useCallback(
+    (e: MouseEvent) => {
+      if (!isResizing) return;
 
-    if (e.clientX < SIDEBAR_SIZES.MIN / 2) {
-      setIsCollapsed(true);
-    } else if (e.clientX > SIDEBAR_SIZES.MIN) {
-      setIsCollapsed(false);
-    }
+      if (e.clientX < SIDEBAR_SIZES.MIN / 2) {
+        setIsCollapsed(true);
+      } else if (e.clientX > SIDEBAR_SIZES.MIN) {
+        setIsCollapsed(false);
+      }
 
-    const newWidth = Math.min(
-      Math.max(e.clientX, SIDEBAR_SIZES.MIN),
-      SIDEBAR_SIZES.MAX
-    );
-    setCurrentWidth(newWidth);
-  };
+      const newWidth = Math.min(
+        Math.max(e.clientX, SIDEBAR_SIZES.MIN),
+        SIDEBAR_SIZES.MAX
+      );
+      setCurrentWidth(newWidth);
+    },
+    [isResizing]
+  );
 
   useEffect(() => {
     if (!isResizing) return;
@@ -84,7 +93,7 @@ export function SidebarProvider({
       document.removeEventListener("mousemove", handleResize);
       document.removeEventListener("mouseup", stopResizing);
     };
-  }, [isResizing]);
+  }, [isResizing, handleResize]);
 
   const contextValue = useMemo(
     () => ({

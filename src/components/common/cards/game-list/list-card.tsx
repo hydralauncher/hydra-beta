@@ -1,6 +1,5 @@
 import { SourceAnchor } from "@/components/common";
-import "./list-card.scss";
-
+import Image from "next/image";
 export interface ListCardProps
   extends React.AnchorHTMLAttributes<HTMLAnchorElement> {
   title: string;
@@ -24,7 +23,7 @@ export function ListCard({
     <a href={href} {...props}>
       <div className="list-card">
         <div className="list-card__image">
-          <img src={image} alt="Game List Card" width={200} height={100} />
+          <Image src={image} alt="Game List Card" width={200} height={100} />
         </div>
         <div className="list-card__content">
           <div className="list-card__content__info">
