@@ -1,5 +1,3 @@
-import "./source-anchor.scss";
-
 export interface SourceAnchorProps
   extends React.AnchorHTMLAttributes<HTMLAnchorElement> {
   title: string;

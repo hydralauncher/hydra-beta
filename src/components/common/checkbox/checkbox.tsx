@@ -2,8 +2,6 @@ import { Check } from "@phosphor-icons/react";
 import React from "react";
 import clsx from "clsx";
 
-import "./checkbox.scss";
-
 export interface CheckboxProps {
   id?: string;
   label?: string;

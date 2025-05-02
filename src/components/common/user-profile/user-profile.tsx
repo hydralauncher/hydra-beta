@@ -1,5 +1,4 @@
 import Image from "next/image";
-import "./user-profile.scss";
 
 export interface UserProfileProps {
   image?: string;

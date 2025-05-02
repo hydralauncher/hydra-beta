@@ -1,6 +1,5 @@
 import { Tooltip } from "radix-ui";
-import "./route-anchor.scss";
-
+import Image from "next/image";
 export interface RouteAnchorProps
   extends React.AnchorHTMLAttributes<HTMLAnchorElement> {
   label: string;
@@ -37,7 +36,7 @@ export const RouteAnchor = ({
                   className={`route-anchor__icon ${isGameIcon ? "route-anchor__icon--large-size" : "route-anchor__icon--small-size"}`}
                 >
                   {isGameIcon ? (
-                    <img src={icon} alt={label} width={32} height={32} />
+                    <Image src={icon} alt={label} width={32} height={32} />
                   ) : (
                     icon
                   )}

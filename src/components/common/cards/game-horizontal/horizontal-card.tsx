@@ -1,5 +1,4 @@
 import Image from "next/image";
-import "./horizontal-card.scss";
 
 interface HorizontalCardProps {
   image: string;
