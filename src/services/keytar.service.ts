@@ -1,12 +1,10 @@
 import { IS_DESKTOP } from "@/constants";
 
-const SERVICE =
-  process.env.NEXT_PUBLIC_ENVIRONMENT === "staging"
-    ? "staging_hydralauncher"
-    : "hydralauncher";
-
 export class Keytar {
-  private readonly service = SERVICE;
+  private readonly service =
+    process.env.NEXT_PUBLIC_ENVIRONMENT === "staging"
+      ? "staging_hydralauncher"
+      : "hydralauncher";
 
   constructor(private readonly account: "access-token" | "refresh-token") {}
 
