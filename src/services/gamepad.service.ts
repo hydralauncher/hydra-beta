@@ -1,4 +1,4 @@
-import { GamepadButtonType } from "@/types";
+import { GamepadAxisType, GamepadButtonType } from "@/types";
 import { getGamepadLayout } from "@/helpers/gamepad-layout";
 
 export interface ButtonRawState {
@@ -7,7 +7,13 @@ export interface ButtonRawState {
   lastUpdated: Date;
 }
 
+export interface AxisRawState {
+  value: number;
+  lastUpdated: Date;
+}
+
 type GamepadRawButtons = Map<GamepadButtonType, ButtonRawState>;
+type GamepadRawAxes = Map<GamepadAxisType, AxisRawState>;
 type GamepadRegistry = Map<number, globalThis.Gamepad>;
 type ButtonPressCallbacks = Map<GamepadButtonType, Set<() => void>>;
 
@@ -15,6 +21,7 @@ export interface GamepadRawState {
   name: string;
   layout: string;
   buttons: GamepadRawButtons;
+  axes: GamepadRawAxes;
 }
 
 export class GamepadService {
@@ -23,6 +30,7 @@ export class GamepadService {
   private gamepads: GamepadRegistry = new Map();
   private isPolling = false;
   private animationFrameId: number | null = null;
+  private deadzone = 0.1;
 
   private gamepadStates: Map<number, GamepadRawState> = new Map();
   private lastActiveGamepad: number | null = null;
@@ -120,6 +128,28 @@ export class GamepadService {
     return true;
   }
 
+  private updateAxisState(
+    gamepadState: GamepadRawState,
+    type: GamepadAxisType,
+    axisState: number,
+    gamepadIndex: number,
+    now: Date
+  ): boolean {
+    const prevState = gamepadState.axes.get(type);
+
+    if (prevState?.value === axisState) return false;
+
+    gamepadState.axes.set(type, {
+      value: axisState,
+      lastUpdated: now,
+    });
+
+    if (axisState !== 0 && gamepadIndex !== this.lastActiveGamepad)
+      this.lastActiveGamepad = gamepadIndex;
+
+    return true;
+  }
+
   private triggerButtonPressCallbacks(type: GamepadButtonType): void {
     const callbacks = this.buttonPressCallbacks.get(type);
     if (callbacks) {
@@ -160,6 +190,7 @@ export class GamepadService {
         name: gamepad.id,
         layout: layout.name,
         buttons: new Map(),
+        axes: new Map(),
       });
 
       if (this.lastActiveGamepad === null) {
@@ -177,6 +208,23 @@ export class GamepadService {
       if (!buttonState) continue;
 
       this.updateButtonState(gamepadState, type, buttonState, index, now);
+    }
+
+    for (const mapping of layout.axes) {
+      const { index: axisIndex, type } = mapping;
+      let axisState = gamepad.axes[axisIndex];
+
+      if (!axisState) continue;
+
+      if (mapping.invert) {
+        axisState = -axisState;
+      }
+
+      if (Math.abs(axisState) < this.deadzone) {
+        axisState = 0;
+      }
+
+      this.updateAxisState(gamepadState, type, axisState, index, now);
     }
   }
 
@@ -210,6 +258,7 @@ export class GamepadService {
         name: state.name,
         layout: state.layout,
         buttons: new Map(state.buttons),
+        axes: new Map(state.axes),
       };
     }
 
@@ -219,6 +268,7 @@ export class GamepadService {
         name: state.name,
         layout: state.layout,
         buttons: new Map(state.buttons),
+        axes: new Map(state.axes),
       });
     });
 
