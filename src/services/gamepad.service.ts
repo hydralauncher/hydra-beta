@@ -65,6 +65,7 @@ export class GamepadService {
     const gamepad = event.gamepad;
 
     this.gamepads.delete(gamepad.index);
+    this.gamepadStates.delete(gamepad.index);
 
     if (this.gamepads.size === 0) {
       this.stopPolling();
