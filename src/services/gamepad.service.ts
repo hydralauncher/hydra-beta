@@ -78,47 +78,58 @@ export class GamepadService {
       if (!gamepad) continue;
 
       this.gamepads.set(gamepad.index, gamepad);
-
-      const gamepadLayout = getGamepadLayout(gamepad);
-
-      if (!this.gamepadStates.has(gamepad.index)) {
-        this.gamepadStates.set(gamepad.index, {
-          name: gamepad.id,
-          layout: gamepadLayout.name,
-          buttons: new Map(),
-        });
-      }
-
-      const gamepadState = this.gamepadStates.get(gamepad.index);
-
-      if (!gamepadState) continue;
-
-      const now = new Date();
-
-      for (const mapping of gamepadLayout.buttons) {
-        const { index, type } = mapping;
-
-        const buttonState = gamepad.buttons[index];
-
-        if (!buttonState) continue;
-
-        const prevState = gamepadState.buttons.get(type);
-        const stateChanged =
-          !prevState ||
-          prevState.pressed !== buttonState.pressed ||
-          prevState.value !== buttonState.value;
-
-        if (!stateChanged) continue;
-
-        gamepadState.buttons.set(type, {
-          pressed: buttonState.pressed,
-          value: buttonState.value,
-          lastUpdated: now,
-        });
-      }
+      this.updateGamepadState(gamepad.index, gamepad);
     }
 
     this.animationFrameId = requestAnimationFrame(() => this.pollGamepads());
+  }
+
+  private updateButtonState(
+    gamepadState: GamepadRawState,
+    type: GamepadButtonType,
+    buttonState: GamepadButton,
+    now: Date
+  ): boolean {
+    const prevState = gamepadState.buttons.get(type);
+
+    if (
+      prevState?.pressed === buttonState.pressed &&
+      prevState?.value === buttonState.value
+    )
+      return false;
+
+    gamepadState.buttons.set(type, {
+      pressed: buttonState.pressed,
+      value: buttonState.value,
+      lastUpdated: now,
+    });
+
+    return true;
+  }
+
+  private updateGamepadState(index: number, gamepad: Gamepad) {
+    const layout = getGamepadLayout(gamepad);
+    const now = new Date();
+
+    if (!this.gamepadStates.has(index)) {
+      this.gamepadStates.set(index, {
+        name: gamepad.id,
+        layout: layout.name,
+        buttons: new Map(),
+      });
+    }
+
+    const gamepadState = this.gamepadStates.get(index);
+    if (!gamepadState) return;
+
+    for (const mapping of layout.buttons) {
+      const { index: buttonIndex, type } = mapping;
+      const buttonState = gamepad.buttons[buttonIndex];
+
+      if (!buttonState) continue;
+
+      this.updateButtonState(gamepadState, type, buttonState, now);
+    }
   }
 
   private startPolling() {
