@@ -43,14 +43,11 @@ export class GamepadService {
   }
 
   private setupListeners() {
-    window.addEventListener(
-      "gamepadconnected",
-      this.handleGamepadConnected.bind(this)
-    );
+    window.addEventListener("gamepadconnected", this.handleGamepadConnected);
 
     window.addEventListener(
       "gamepaddisconnected",
-      this.handleGamepadDisconnected.bind(this)
+      this.handleGamepadDisconnected
     );
   }
 
@@ -96,6 +93,8 @@ export class GamepadService {
 
       if (!gamepadState) continue;
 
+      const now = new Date();
+
       for (const mapping of gamepadLayout.buttons) {
         const { index, type } = mapping;
 
@@ -114,7 +113,7 @@ export class GamepadService {
         gamepadState.buttons.set(type, {
           pressed: buttonState.pressed,
           value: buttonState.value,
-          lastUpdated: new Date(),
+          lastUpdated: now,
         });
       }
     }
@@ -141,10 +140,9 @@ export class GamepadService {
     this.isPolling = false;
   }
 
-  public getCurrentState(): Map<number, GamepadRawState>;
   public getCurrentState(
     index?: number
-  ): GamepadRawState | null | Map<number, GamepadRawState> {
+  ): GamepadRawState | Map<number, GamepadRawState> | null {
     if (index !== undefined) {
       const state = this.gamepadStates.get(index);
       if (!state) return null;
@@ -157,9 +155,8 @@ export class GamepadService {
     }
 
     const states = new Map<number, GamepadRawState>();
-
-    this.gamepadStates.forEach((state, index) => {
-      states.set(index, {
+    this.gamepadStates.forEach((state, idx) => {
+      states.set(idx, {
         name: state.name,
         layout: state.layout,
         buttons: new Map(state.buttons),
@@ -171,13 +168,10 @@ export class GamepadService {
 
   public dispose(): void {
     this.stopPolling();
-    window.removeEventListener(
-      "gamepadconnected",
-      this.handleGamepadConnected.bind(this)
-    );
+    window.removeEventListener("gamepadconnected", this.handleGamepadConnected);
     window.removeEventListener(
       "gamepaddisconnected",
-      this.handleGamepadDisconnected.bind(this)
+      this.handleGamepadDisconnected
     );
     this.gamepads.clear();
   }
