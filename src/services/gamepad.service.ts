@@ -1,9 +1,18 @@
 type GamepadRegistry = Map<number, globalThis.Gamepad>;
 
-export class Gamepad {
+export class GamepadService {
+  private static instance: GamepadService;
+
   private gamepads: GamepadRegistry = new Map();
   private isPolling = false;
   private animationFrameId: number | null = null;
+
+  public static getInstance(): GamepadService {
+    if (!GamepadService.instance) {
+      GamepadService.instance = new GamepadService();
+    }
+    return GamepadService.instance;
+  }
 
   constructor() {
     if (!this.isWindowAvailable()) return;
@@ -81,22 +90,6 @@ export class Gamepad {
 
     this.isPolling = false;
   }
-
-  public getConnectedGamepads(): globalThis.Gamepad[] {
-    return Array.from(this.gamepads.values());
-  }
-
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
-  //
 
   public dispose(): void {
     this.stopPolling();
