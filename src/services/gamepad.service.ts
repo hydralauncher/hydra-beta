@@ -120,9 +120,7 @@ export class GamepadService {
     return true;
   }
 
-  private triggerButtonPressCallbacks(
-    type: GamepadButtonType
-  ): void {
+  private triggerButtonPressCallbacks(type: GamepadButtonType): void {
     const callbacks = this.buttonPressCallbacks.get(type);
     if (callbacks) {
       callbacks.forEach((callback) => {
