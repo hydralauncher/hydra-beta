@@ -1,9 +1,17 @@
 import { create } from "zustand";
 import { GamepadRawState, GamepadService, ButtonRawState } from "@/services";
 
+interface GamepadInfo {
+  index: number;
+  name: string;
+  layout: string;
+}
+
 export interface GamepadStore {
   states: Map<number, GamepadRawState>;
-  connectedIds: number[];
+  connectedGamepads: GamepadInfo[];
+  activeGamepad: GamepadInfo | null;
+  hasGamepadConnected: boolean;
   lastUpdate: number;
   initialized: boolean;
   polling: boolean;
@@ -13,6 +21,7 @@ export interface GamepadStore {
   sync: () => void;
   startPolling: () => void;
   stopPolling: () => void;
+  getActiveGamepad: () => GamepadInfo | null;
   logState: () => void;
   cleanup: () => void;
 }
@@ -25,7 +34,9 @@ export const useGamepadStore = create<GamepadStore>((set, get) => {
 
   return {
     states: new Map(),
-    connectedIds: [],
+    connectedGamepads: [],
+    activeGamepad: null,
+    hasGamepadConnected: false,
     lastUpdate: 0,
     initialized: false,
     polling: false,
@@ -49,8 +60,14 @@ export const useGamepadStore = create<GamepadStore>((set, get) => {
 
       set({
         states: rawStates,
-        connectedIds: Array.from(rawStates.keys()),
         lastUpdate: Date.now(),
+        activeGamepad: get().getActiveGamepad(),
+        hasGamepadConnected: rawStates.size > 0,
+        connectedGamepads: Array.from(rawStates.keys()).map((idx) => ({
+          index: idx,
+          name: rawStates.get(idx)?.name ?? "",
+          layout: rawStates.get(idx)?.layout ?? "",
+        })),
       });
 
       get().logState();
@@ -75,13 +92,24 @@ export const useGamepadStore = create<GamepadStore>((set, get) => {
       set({ polling: false });
     },
 
+    getActiveGamepad: () => {
+      const activeGamepad = get().activeGamepad;
+      if (!activeGamepad) return null;
+
+      return {
+        index: activeGamepad.index,
+        name: activeGamepad.name,
+        layout: activeGamepad.layout,
+      };
+    },
+
     logState: () => {
-      const { states, connectedIds } = get();
+      const { states, connectedGamepads } = get();
 
       if (!get().debug || states.size === 0) return;
 
       const stateSnapshot = JSON.stringify({
-        ids: connectedIds,
+        gamepads: connectedGamepads,
         buttons: Array.from(states.entries()).map(([id, state]) => ({
           id,
           buttonValues: Array.from(state.buttons.entries()).map(
@@ -129,7 +157,9 @@ export const useGamepadStore = create<GamepadStore>((set, get) => {
 
       set({
         states: new Map(),
-        connectedIds: [],
+        connectedGamepads: [],
+        hasGamepadConnected: false,
+        activeGamepad: null,
         initialized: false,
       });
     },
