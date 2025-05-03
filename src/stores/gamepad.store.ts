@@ -93,20 +93,20 @@ export const useGamepadStore = create<GamepadStore>((set, get) => {
     },
 
     getActiveGamepad: () => {
-        if (!service) return null;
-        
-        const activeGamepadIndex = service.getLastActiveGamepad();
-        if (activeGamepadIndex === null) return null;
-        
-        const state = get().states.get(activeGamepadIndex);
-        if (!state) return null;
-        
-        return {
-          index: activeGamepadIndex,
-          name: state.name,
-          layout: state.layout
-        };
-      },
+      if (!service) return null;
+
+      const activeGamepadIndex = service.getLastActiveGamepad();
+      if (activeGamepadIndex === null) return null;
+
+      const state = get().states.get(activeGamepadIndex);
+      if (!state) return null;
+
+      return {
+        index: activeGamepadIndex,
+        name: state.name,
+        layout: state.layout,
+      };
+    },
 
     logState: () => {
       const { states, connectedGamepads } = get();
