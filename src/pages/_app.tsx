@@ -7,6 +7,7 @@ import { IS_DESKTOP } from "@/constants";
 import { Keytar } from "@/services";
 import type { Auth } from "@/types";
 import { setCookie } from "typescript-cookie";
+import { useGamepadStore } from "@/stores/gamepad.store";
 
 const queryClient = new QueryClient();
 
@@ -43,9 +44,35 @@ export default function App({ Component, pageProps }: AppProps) {
     importLegacyAuth();
   }, [importLegacyAuth]);
 
+  const {
+    initialize,
+    startPolling,
+    cleanup,
+    hasGamepadConnected,
+    activeGamepad,
+  } = useGamepadStore();
+
+  useEffect(() => {
+    initialize();
+    startPolling();
+
+    return () => {
+      cleanup();
+    };
+  }, [initialize, startPolling, cleanup]);
+
   return (
     <QueryClientProvider client={queryClient}>
       <Sidebar />
+      {hasGamepadConnected ? (
+        <div style={{ display: "flex", flexDirection: "column" }}>
+          <p>gamepad name:{activeGamepad?.name}</p>
+          <br />
+          <p>gamepad layout:{activeGamepad?.layout}</p>
+        </div>
+      ) : (
+        <p>No Gamepad Connected</p>
+      )}
       <Component {...pageProps} />
     </QueryClientProvider>
   );
