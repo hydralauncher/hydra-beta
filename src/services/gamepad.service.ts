@@ -141,6 +141,34 @@ export class GamepadService {
     this.isPolling = false;
   }
 
+  public getCurrentState(): Map<number, GamepadRawState>;
+  public getCurrentState(
+    index?: number
+  ): GamepadRawState | null | Map<number, GamepadRawState> {
+    if (index !== undefined) {
+      const state = this.gamepadStates.get(index);
+      if (!state) return null;
+
+      return {
+        name: state.name,
+        layout: state.layout,
+        buttons: new Map(state.buttons),
+      };
+    }
+
+    const states = new Map<number, GamepadRawState>();
+
+    this.gamepadStates.forEach((state, index) => {
+      states.set(index, {
+        name: state.name,
+        layout: state.layout,
+        buttons: new Map(state.buttons),
+      });
+    });
+
+    return states;
+  }
+
   public dispose(): void {
     this.stopPolling();
     window.removeEventListener(
