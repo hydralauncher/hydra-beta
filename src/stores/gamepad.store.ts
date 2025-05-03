@@ -22,6 +22,7 @@ export interface GamepadStore {
   startPolling: () => void;
   stopPolling: () => void;
   getActiveGamepad: () => GamepadInfo | null;
+  getService: () => GamepadService | null;
   logState: () => void;
   cleanup: () => void;
 }
@@ -150,6 +151,10 @@ export const useGamepadStore = create<GamepadStore>((set, get) => {
       });
 
       console.log("Gamepad States:", statesObj);
+    },
+
+    getService: () => {
+      return service;
     },
 
     cleanup: () => {

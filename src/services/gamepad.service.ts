@@ -9,6 +9,7 @@ export interface ButtonRawState {
 
 type GamepadRawButtons = Map<GamepadButtonType, ButtonRawState>;
 type GamepadRegistry = Map<number, globalThis.Gamepad>;
+type ButtonPressCallbacks = Map<GamepadButtonType, Set<() => void>>;
 
 export interface GamepadRawState {
   name: string;
@@ -25,6 +26,8 @@ export class GamepadService {
 
   private gamepadStates: Map<number, GamepadRawState> = new Map();
   private lastActiveGamepad: number | null = null;
+
+  private buttonPressCallbacks: ButtonPressCallbacks = new Map();
 
   public static getInstance(): GamepadService {
     if (!GamepadService.instance) {
@@ -110,7 +113,44 @@ export class GamepadService {
     if (buttonState.pressed && gamepadIndex !== this.lastActiveGamepad)
       this.lastActiveGamepad = gamepadIndex;
 
+    if (buttonState.pressed && (!prevState || !prevState.pressed)) {
+      this.triggerButtonPressCallbacks(type);
+    }
+
     return true;
+  }
+
+  private triggerButtonPressCallbacks(
+    type: GamepadButtonType
+  ): void {
+    const callbacks = this.buttonPressCallbacks.get(type);
+    if (callbacks) {
+      callbacks.forEach((callback) => {
+        callback();
+      });
+    }
+  }
+
+  public onButtonPress(
+    type: GamepadButtonType,
+    callback: () => void
+  ): () => void {
+    if (!this.buttonPressCallbacks.has(type)) {
+      this.buttonPressCallbacks.set(type, new Set());
+    }
+
+    const callbacks = this.buttonPressCallbacks.get(type);
+    callbacks?.add(callback);
+
+    return () => {
+      const callbackSet = this.buttonPressCallbacks.get(type);
+      if (callbackSet) {
+        callbackSet.delete(callback);
+        if (callbackSet.size === 0) {
+          this.buttonPressCallbacks.delete(type);
+        }
+      }
+    };
   }
 
   private updateGamepadState(index: number, gamepad: Gamepad) {
@@ -199,5 +239,6 @@ export class GamepadService {
       this.handleGamepadDisconnected
     );
     this.gamepads.clear();
+    this.buttonPressCallbacks.clear();
   }
 }
