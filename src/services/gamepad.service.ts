@@ -123,6 +123,10 @@ export class GamepadService {
         layout: layout.name,
         buttons: new Map(),
       });
+
+      if (this.lastActiveGamepad === null) {
+        this.lastActiveGamepad = index;
+      }
     }
 
     const gamepadState = this.gamepadStates.get(index);
