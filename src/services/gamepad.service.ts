@@ -1,7 +1,7 @@
 import { GamepadButtonType } from "@/types";
 import { getGamepadLayout } from "@/helpers/gamepad-layout";
 
-interface ButtonRawState {
+export interface ButtonRawState {
   pressed: boolean;
   value: number;
   lastUpdated: Date;
