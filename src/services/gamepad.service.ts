@@ -24,6 +24,7 @@ export class GamepadService {
   private animationFrameId: number | null = null;
 
   private gamepadStates: Map<number, GamepadRawState> = new Map();
+  private lastActiveGamepad: number | null = null;
 
   public static getInstance(): GamepadService {
     if (!GamepadService.instance) {
@@ -89,6 +90,7 @@ export class GamepadService {
     gamepadState: GamepadRawState,
     type: GamepadButtonType,
     buttonState: GamepadButton,
+    gamepadIndex: number,
     now: Date
   ): boolean {
     const prevState = gamepadState.buttons.get(type);
@@ -104,6 +106,9 @@ export class GamepadService {
       value: buttonState.value,
       lastUpdated: now,
     });
+
+    if (buttonState.pressed && gamepadIndex !== this.lastActiveGamepad)
+      this.lastActiveGamepad = gamepadIndex;
 
     return true;
   }
@@ -129,7 +134,7 @@ export class GamepadService {
 
       if (!buttonState) continue;
 
-      this.updateButtonState(gamepadState, type, buttonState, now);
+      this.updateButtonState(gamepadState, type, buttonState, index, now);
     }
   }
 
@@ -176,6 +181,10 @@ export class GamepadService {
     });
 
     return states;
+  }
+
+  public getLastActiveGamepad(): number | null {
+    return this.lastActiveGamepad;
   }
 
   public dispose(): void {
