@@ -1,4 +1,20 @@
+import { GamepadButtonType } from "@/types";
+import { getGamepadLayout } from "@/helpers/gamepad-layout";
+
+interface ButtonRawState {
+  pressed: boolean;
+  value: number;
+  lastUpdated: Date;
+}
+
+type GamepadRawButtons = Map<GamepadButtonType, ButtonRawState>;
 type GamepadRegistry = Map<number, globalThis.Gamepad>;
+
+export interface GamepadRawState {
+  name: string;
+  layout: string;
+  buttons: GamepadRawButtons;
+}
 
 export class GamepadService {
   private static instance: GamepadService;
@@ -6,6 +22,8 @@ export class GamepadService {
   private gamepads: GamepadRegistry = new Map();
   private isPolling = false;
   private animationFrameId: number | null = null;
+
+  private gamepadStates: Map<number, GamepadRawState> = new Map();
 
   public static getInstance(): GamepadService {
     if (!GamepadService.instance) {
@@ -60,13 +78,45 @@ export class GamepadService {
     const gamepads = navigator.getGamepads();
 
     for (const gamepad of gamepads) {
-      if (!gamepad) {
-        continue;
-      }
+      if (!gamepad) continue;
 
       this.gamepads.set(gamepad.index, gamepad);
 
-      // TODO: processar inputs dps
+      const gamepadLayout = getGamepadLayout(gamepad);
+
+      if (!this.gamepadStates.has(gamepad.index)) {
+        this.gamepadStates.set(gamepad.index, {
+          name: gamepad.id,
+          layout: gamepadLayout.name,
+          buttons: new Map(),
+        });
+      }
+
+      const gamepadState = this.gamepadStates.get(gamepad.index);
+
+      if (!gamepadState) continue;
+
+      for (const mapping of gamepadLayout.buttons) {
+        const { index, type } = mapping;
+
+        const buttonState = gamepad.buttons[index];
+
+        if (!buttonState) continue;
+
+        const prevState = gamepadState.buttons.get(type);
+        const stateChanged =
+          !prevState ||
+          prevState.pressed !== buttonState.pressed ||
+          prevState.value !== buttonState.value;
+
+        if (!stateChanged) continue;
+
+        gamepadState.buttons.set(type, {
+          pressed: buttonState.pressed,
+          value: buttonState.value,
+          lastUpdated: new Date(),
+        });
+      }
     }
 
     this.animationFrameId = requestAnimationFrame(() => this.pollGamepads());
