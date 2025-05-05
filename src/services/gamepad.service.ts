@@ -43,19 +43,19 @@ type StickMoveCallbacks = Map<
 export class GamepadService {
   private static instance: GamepadService;
 
-  private sticksDeadzone = 0.1;
-  private sticksDirectionThreshold = 0.5;
-  private sticksInitialRepeatDelay = 400;
-  private sticksRepeatInterval = 150;
+  private readonly sticksDeadzone = 0.1;
+  private readonly sticksDirectionThreshold = 0.5;
+  private readonly sticksInitialRepeatDelay = 400;
+  private readonly sticksRepeatInterval = 150;
 
   private isPolling = false;
   private animationFrameId: number | null = null;
-  private gamepads: GamepadRegistry = new Map();
-  private gamepadStates = new Map<number, GamepadRawState>();
   private lastActiveGamepad: number | null = null;
 
-  private buttonPressCallbacks: ButtonPressCallbacks = new Map();
-  private stickMoveCallbacks: StickMoveCallbacks = new Map();
+  private readonly gamepads: GamepadRegistry = new Map();
+  private readonly gamepadStates = new Map<number, GamepadRawState>();
+  private readonly buttonPressCallbacks: ButtonPressCallbacks = new Map();
+  private readonly stickMoveCallbacks: StickMoveCallbacks = new Map();
 
   private leftStickState: GamepadStickState = this.createInitialStickState();
   private rightStickState: GamepadStickState = this.createInitialStickState();
@@ -98,7 +98,7 @@ export class GamepadService {
     };
   }
 
-  private handleNewGamepadConnection = (event: GamepadEvent) => {
+  private readonly handleNewGamepadConnection = (event: GamepadEvent) => {
     const gamepad = event.gamepad;
 
     this.gamepads.set(gamepad.index, gamepad);
@@ -108,7 +108,7 @@ export class GamepadService {
     }
   };
 
-  private handleGamepadDisconnection = (event: GamepadEvent) => {
+  private readonly handleGamepadDisconnection = (event: GamepadEvent) => {
     const gamepad = event.gamepad;
 
     this.gamepads.delete(gamepad.index);
@@ -177,7 +177,7 @@ export class GamepadService {
     if (buttonState.pressed && index !== this.lastActiveGamepad)
       this.lastActiveGamepad = index;
 
-    if (buttonState.pressed && (!prevState || !prevState.pressed)) {
+    if (buttonState.pressed && !prevState?.pressed) {
       this.triggerButtonPressCallbacks(type);
     }
   }
@@ -236,7 +236,7 @@ export class GamepadService {
   }
 
   private updateGamepadState(index: number, gamepad: Gamepad) {
-    const layout = getGamepadLayout(gamepad); // TODO: create a new method to implement layout caching
+    const layout = getGamepadLayout(gamepad); // TODO: create a new method to implement layout caching 
     const now = Date.now();
 
     if (!this.gamepadStates.has(index)) {
@@ -247,9 +247,7 @@ export class GamepadService {
         axes: new Map(),
       });
 
-      if (this.lastActiveGamepad === null) {
-        this.lastActiveGamepad = index;
-      }
+      this.lastActiveGamepad ??= index;
     }
 
     const gamepadState = this.gamepadStates.get(index)!;
@@ -525,7 +523,7 @@ export class GamepadService {
 }
 
 class Vector2D {
-  private deadzone = 0.1;
+  private readonly deadzone = 0.1;
 
   constructor(
     public x: number,
