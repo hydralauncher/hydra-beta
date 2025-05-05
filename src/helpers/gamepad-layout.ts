@@ -1,13 +1,20 @@
-import { GamepadButtonType } from "@/types";
+import { GamepadAxisType, GamepadButtonType } from "@/types";
 
 export interface GamepadButtonMapping {
   index: number;
   type: GamepadButtonType;
 }
 
+export interface GamepadAxisMapping {
+  index: number;
+  type: GamepadAxisType;
+  invert?: boolean;
+}
+
 export interface GamepadLayout {
   name: string;
   buttons: GamepadButtonMapping[];
+  axes: GamepadAxisMapping[];
   idPatterns: RegExp[];
 }
 
@@ -33,6 +40,12 @@ const GAMEPAD_LAYOUTS: GamepadLayout[] = [
       { index: 14, type: GamepadButtonType.DPAD_LEFT },
       { index: 15, type: GamepadButtonType.DPAD_RIGHT },
       { index: 16, type: GamepadButtonType.HOME },
+    ],
+    axes: [
+      { index: 0, type: GamepadAxisType.LEFT_STICK_X },
+      { index: 1, type: GamepadAxisType.LEFT_STICK_Y },
+      { index: 2, type: GamepadAxisType.RIGHT_STICK_X },
+      { index: 3, type: GamepadAxisType.RIGHT_STICK_Y },
     ],
   },
 ];

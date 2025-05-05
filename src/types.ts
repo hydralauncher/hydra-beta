@@ -142,3 +142,13 @@ export enum GamepadAxisType {
   RIGHT_STICK_X = "rightStickX",
   RIGHT_STICK_Y = "rightStickY",
 }
+
+export enum GamepadAxisDirection {
+  LEFT = "left",
+  RIGHT = "right",
+  UP = "up",
+  DOWN = "down",
+  NONE = "none",
+}
+
+export type GamepadStickSide = "left" | "right";

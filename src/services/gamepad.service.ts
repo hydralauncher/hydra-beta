@@ -1,41 +1,64 @@
-import { GamepadAxisType, GamepadButtonType } from "@/types";
 import { getGamepadLayout } from "@/helpers/gamepad-layout";
+import {
+  GamepadAxisType,
+  GamepadButtonType,
+  GamepadAxisDirection,
+  GamepadStickSide,
+} from "@/types";
 
 export interface ButtonRawState {
   pressed: boolean;
   value: number;
-  lastUpdated: Date;
+  lastUpdated: number;
 }
 
 export interface AxisRawState {
   value: number;
-  lastUpdated: Date;
+  lastUpdated: number;
 }
-
-type GamepadRawButtons = Map<GamepadButtonType, ButtonRawState>;
-type GamepadRawAxes = Map<GamepadAxisType, AxisRawState>;
-type GamepadRegistry = Map<number, globalThis.Gamepad>;
-type ButtonPressCallbacks = Map<GamepadButtonType, Set<() => void>>;
 
 export interface GamepadRawState {
   name: string;
   layout: string;
-  buttons: GamepadRawButtons;
-  axes: GamepadRawAxes;
+  buttons: Map<GamepadButtonType, ButtonRawState>;
+  axes: Map<GamepadAxisType, AxisRawState>;
 }
+
+interface GamepadStickState {
+  position: Vector2D;
+  direction: GamepadAxisDirection | null;
+  repeatTimer: number | null;
+  lastMoveTime: number;
+}
+
+type GamepadRegistry = Map<number, globalThis.Gamepad>;
+type ButtonPressCallback = () => void;
+type StickMoveCallback = () => void;
+type ButtonPressCallbacks = Map<GamepadButtonType, Set<ButtonPressCallback>>;
+type StickMoveCallbacks = Map<
+  GamepadStickSide,
+  Map<GamepadAxisDirection, Set<StickMoveCallback>>
+>;
 
 export class GamepadService {
   private static instance: GamepadService;
 
-  private gamepads: GamepadRegistry = new Map();
+  private sticksDeadzone = 0.1;
+  private sticksDirectionThreshold = 0.5;
+  private sticksInitialRepeatDelay = 400;
+  private sticksRepeatInterval = 150;
+
   private isPolling = false;
   private animationFrameId: number | null = null;
-  private deadzone = 0.1;
-
-  private gamepadStates: Map<number, GamepadRawState> = new Map();
+  private gamepads: GamepadRegistry = new Map();
+  private gamepadStates = new Map<number, GamepadRawState>();
   private lastActiveGamepad: number | null = null;
 
   private buttonPressCallbacks: ButtonPressCallbacks = new Map();
+  private stickMoveCallbacks: StickMoveCallbacks = new Map();
+
+  private leftStickState: GamepadStickState = this.createInitialStickState();
+  private rightStickState: GamepadStickState = this.createInitialStickState();
 
   public static getInstance(): GamepadService {
     if (!GamepadService.instance) {
@@ -55,15 +78,27 @@ export class GamepadService {
   }
 
   private setupListeners() {
-    window.addEventListener("gamepadconnected", this.handleGamepadConnected);
+    window.addEventListener(
+      "gamepadconnected",
+      this.handleNewGamepadConnection
+    );
 
     window.addEventListener(
       "gamepaddisconnected",
-      this.handleGamepadDisconnected
+      this.handleGamepadDisconnection
     );
   }
 
-  private handleGamepadConnected = (event: GamepadEvent) => {
+  private createInitialStickState(): GamepadStickState {
+    return {
+      position: new Vector2D(0, 0),
+      direction: null,
+      repeatTimer: null,
+      lastMoveTime: Date.now(),
+    };
+  }
+
+  private handleNewGamepadConnection = (event: GamepadEvent) => {
     const gamepad = event.gamepad;
 
     this.gamepads.set(gamepad.index, gamepad);
@@ -73,11 +108,13 @@ export class GamepadService {
     }
   };
 
-  private handleGamepadDisconnected = (event: GamepadEvent) => {
+  private handleGamepadDisconnection = (event: GamepadEvent) => {
     const gamepad = event.gamepad;
 
     this.gamepads.delete(gamepad.index);
     this.gamepadStates.delete(gamepad.index);
+
+    this.clearAllTimers();
 
     if (this.gamepads.size === 0) {
       this.stopPolling();
@@ -97,20 +134,39 @@ export class GamepadService {
     this.animationFrameId = requestAnimationFrame(() => this.pollGamepads());
   }
 
+  private startPolling() {
+    if (this.isPolling) return;
+
+    this.isPolling = true;
+    this.pollGamepads();
+  }
+
+  private stopPolling() {
+    if (!this.isPolling) return;
+
+    if (this.animationFrameId !== null) {
+      cancelAnimationFrame(this.animationFrameId);
+      this.animationFrameId = null;
+    }
+
+    this.isPolling = false;
+    this.clearAllTimers();
+  }
+
   private updateButtonState(
     gamepadState: GamepadRawState,
     type: GamepadButtonType,
     buttonState: GamepadButton,
-    gamepadIndex: number,
-    now: Date
-  ): boolean {
+    index: number,
+    now: number
+  ) {
     const prevState = gamepadState.buttons.get(type);
 
     if (
       prevState?.pressed === buttonState.pressed &&
       prevState?.value === buttonState.value
     )
-      return false;
+      return;
 
     gamepadState.buttons.set(type, {
       pressed: buttonState.pressed,
@@ -118,14 +174,12 @@ export class GamepadService {
       lastUpdated: now,
     });
 
-    if (buttonState.pressed && gamepadIndex !== this.lastActiveGamepad)
-      this.lastActiveGamepad = gamepadIndex;
+    if (buttonState.pressed && index !== this.lastActiveGamepad)
+      this.lastActiveGamepad = index;
 
     if (buttonState.pressed && (!prevState || !prevState.pressed)) {
       this.triggerButtonPressCallbacks(type);
     }
-
-    return true;
   }
 
   private updateAxisState(
@@ -133,7 +187,7 @@ export class GamepadService {
     type: GamepadAxisType,
     axisState: number,
     gamepadIndex: number,
-    now: Date
+    now: number
   ): boolean {
     const prevState = gamepadState.axes.get(type);
 
@@ -167,23 +221,23 @@ export class GamepadService {
       this.buttonPressCallbacks.set(type, new Set());
     }
 
-    const callbacks = this.buttonPressCallbacks.get(type);
-    callbacks?.add(callback);
+    const callbacks = this.buttonPressCallbacks.get(type)!;
+    callbacks.add(callback);
 
     return () => {
       const callbackSet = this.buttonPressCallbacks.get(type);
-      if (callbackSet) {
-        callbackSet.delete(callback);
-        if (callbackSet.size === 0) {
-          this.buttonPressCallbacks.delete(type);
-        }
+      if (!callbackSet) return;
+
+      callbackSet.delete(callback);
+      if (callbackSet.size === 0) {
+        this.buttonPressCallbacks.delete(type);
       }
     };
   }
 
   private updateGamepadState(index: number, gamepad: Gamepad) {
-    const layout = getGamepadLayout(gamepad);
-    const now = new Date();
+    const layout = getGamepadLayout(gamepad); // TODO: create a new method to implement layout caching
+    const now = Date.now();
 
     if (!this.gamepadStates.has(index)) {
       this.gamepadStates.set(index, {
@@ -198,53 +252,192 @@ export class GamepadService {
       }
     }
 
-    const gamepadState = this.gamepadStates.get(index);
-    if (!gamepadState) return;
+    const gamepadState = this.gamepadStates.get(index)!;
+    const gamepadIndex = index;
 
     for (const mapping of layout.buttons) {
-      const { index: buttonIndex, type } = mapping;
-      const buttonState = gamepad.buttons[buttonIndex];
+      const { index, type } = mapping;
+      const buttonState = gamepad.buttons[index];
 
       if (!buttonState) continue;
 
-      this.updateButtonState(gamepadState, type, buttonState, index, now);
+      this.updateButtonState(
+        gamepadState,
+        type,
+        buttonState,
+        gamepadIndex,
+        now
+      );
     }
 
-    for (const mapping of layout.axes) {
-      const { index: axisIndex, type } = mapping;
-      let axisState = gamepad.axes[axisIndex];
+    const leftStickPosition = { x: 0, y: 0 };
+    const rightStickPosition = { x: 0, y: 0 };
 
-      if (!axisState) continue;
+    for (const mapping of layout.axes) {
+      const { index, type } = mapping;
+      let axisState = gamepad.axes[index];
+
+      if (axisState === undefined) continue;
 
       if (mapping.invert) {
         axisState = -axisState;
       }
 
-      if (Math.abs(axisState) < this.deadzone) {
+      if (Math.abs(axisState) < this.sticksDeadzone) {
         axisState = 0;
       }
 
-      this.updateAxisState(gamepadState, type, axisState, index, now);
+      gamepadState.axes.set(type, {
+        value: axisState,
+        lastUpdated: now,
+      });
+
+      switch (type) {
+        case GamepadAxisType.LEFT_STICK_X:
+          leftStickPosition.x = axisState;
+          break;
+        case GamepadAxisType.LEFT_STICK_Y:
+          leftStickPosition.y = axisState;
+          break;
+        case GamepadAxisType.RIGHT_STICK_X:
+          rightStickPosition.x = axisState;
+          break;
+        case GamepadAxisType.RIGHT_STICK_Y:
+          rightStickPosition.y = axisState;
+          break;
+      }
+
+      if (axisState !== 0 && gamepadIndex !== this.lastActiveGamepad) {
+        this.lastActiveGamepad = gamepadIndex;
+      }
+    }
+
+    this.updateStickState(
+      "left",
+      new Vector2D(leftStickPosition.x, leftStickPosition.y),
+      now
+    );
+    this.updateStickState(
+      "right",
+      new Vector2D(rightStickPosition.x, rightStickPosition.y),
+      now
+    );
+  }
+
+  private updateStickState(
+    side: GamepadStickSide,
+    position: Vector2D,
+    now: number
+  ) {
+    const stickState =
+      side === "left" ? this.leftStickState : this.rightStickState;
+
+    const prevDirection = stickState.direction;
+
+    stickState.position = position;
+    stickState.lastMoveTime = now;
+
+    const magnitude = position.magnitude();
+
+    const newDirection =
+      magnitude > this.sticksDirectionThreshold
+        ? position.dominantDirection()
+        : null;
+
+    if (newDirection === prevDirection) return;
+
+    if (stickState.repeatTimer !== null) {
+      window.clearTimeout(stickState.repeatTimer);
+      stickState.repeatTimer = null;
+    }
+
+    stickState.direction = newDirection;
+
+    if (newDirection) {
+      this.triggerStickCallbacks(side, newDirection);
+      this.setupStickRepeat(side, newDirection);
     }
   }
 
-  private startPolling() {
-    if (this.isPolling) return;
+  private setupStickRepeat(
+    side: GamepadStickSide,
+    direction: GamepadAxisDirection
+  ) {
+    const stickState =
+      side === "left" ? this.leftStickState : this.rightStickState;
 
-    this.isPolling = true;
-
-    this.pollGamepads();
+    stickState.repeatTimer = window.setTimeout(() => {
+      if (stickState.direction === direction) {
+        this.triggerStickCallbacks(side, direction);
+        this.repeatStickCallback(side, direction);
+      } else {
+        stickState.repeatTimer = null;
+      }
+    }, this.sticksInitialRepeatDelay);
   }
 
-  private stopPolling() {
-    if (!this.isPolling) return;
+  private repeatStickCallback(
+    side: GamepadStickSide,
+    direction: GamepadAxisDirection
+  ) {
+    const stickState =
+      side === "left" ? this.leftStickState : this.rightStickState;
 
-    if (this.animationFrameId !== null) {
-      cancelAnimationFrame(this.animationFrameId);
-      this.animationFrameId = null;
+    const repeat = () => {
+      if (stickState.direction !== direction) {
+        stickState.repeatTimer = null;
+        return;
+      }
+
+      this.triggerStickCallbacks(side, direction);
+
+      stickState.repeatTimer = window.setTimeout(
+        repeat,
+        this.sticksRepeatInterval
+      );
+    };
+
+    stickState.repeatTimer = window.setTimeout(
+      repeat,
+      this.sticksInitialRepeatDelay
+    );
+  }
+
+  private clearStickTimer(stickState: GamepadStickState) {
+    if (stickState.repeatTimer !== null) {
+      window.clearTimeout(stickState.repeatTimer);
+      stickState.repeatTimer = null;
     }
+  }
 
-    this.isPolling = false;
+  private clearAllTimers() {
+    this.clearStickTimer(this.leftStickState);
+    this.clearStickTimer(this.rightStickState);
+
+    this.leftStickState = this.createInitialStickState();
+    this.rightStickState = this.createInitialStickState();
+  }
+
+  private triggerStickCallbacks(
+    side: GamepadStickSide,
+    direction: GamepadAxisDirection
+  ) {
+    const sideCallbacks = this.stickMoveCallbacks.get(side);
+    if (!sideCallbacks) return;
+
+    const callbacks = sideCallbacks.get(direction);
+    if (!callbacks) return;
+
+    callbacks.forEach((callback) => {
+      try {
+        callback();
+      } catch (error) {
+        console.error(
+          `Error in stick move callback for ${side} ${direction}:`,
+          error
+        );
+      }
+    });
   }
 
   public getCurrentState(
@@ -279,14 +472,101 @@ export class GamepadService {
     return this.lastActiveGamepad;
   }
 
+  public onStickMove(
+    side: GamepadStickSide,
+    direction: GamepadAxisDirection,
+    callback: () => void
+  ): () => void {
+    if (!this.stickMoveCallbacks.has(side)) {
+      this.stickMoveCallbacks.set(side, new Map());
+    }
+
+    const sideCallbacks = this.stickMoveCallbacks.get(side)!;
+
+    if (!sideCallbacks.has(direction)) {
+      sideCallbacks.set(direction, new Set());
+    }
+
+    const callbacks = sideCallbacks.get(direction)!;
+    callbacks.add(callback);
+
+    return () => {
+      const sideMap = this.stickMoveCallbacks.get(side);
+      if (sideMap) {
+        const callbackSet = sideMap.get(direction);
+        if (callbackSet) {
+          callbackSet.delete(callback);
+          if (callbackSet.size === 0) {
+            sideMap.delete(direction);
+            if (sideMap.size === 0) {
+              this.stickMoveCallbacks.delete(side);
+            }
+          }
+        }
+      }
+    };
+  }
+
   public dispose(): void {
     this.stopPolling();
-    window.removeEventListener("gamepadconnected", this.handleGamepadConnected);
+    window.removeEventListener(
+      "gamepadconnected",
+      this.handleNewGamepadConnection
+    );
     window.removeEventListener(
       "gamepaddisconnected",
-      this.handleGamepadDisconnected
+      this.handleGamepadDisconnection
     );
     this.gamepads.clear();
     this.buttonPressCallbacks.clear();
+    this.stickMoveCallbacks.clear();
+    this.clearAllTimers();
+  }
+}
+
+class Vector2D {
+  private deadzone = 0.1;
+
+  constructor(
+    public x: number,
+    public y: number
+  ) {}
+
+  magnitude(): number {
+    return Math.sqrt(this.x * this.x + this.y * this.y);
+  }
+
+  normalize(): Vector2D {
+    const magnitude = this.magnitude();
+    if (magnitude === 0) return new Vector2D(0, 0);
+
+    return new Vector2D(this.x / magnitude, this.y / magnitude);
+  }
+
+  scale(scalar: number): Vector2D {
+    return new Vector2D(this.x * scalar, this.y * scalar);
+  }
+
+  dominantDirection(): GamepadAxisDirection | null {
+    const magnitude = this.magnitude();
+
+    if (magnitude < this.deadzone) return null;
+
+    const normalized = this.normalize();
+
+    const projections = {
+      [GamepadAxisDirection.UP]: -normalized.y,
+      [GamepadAxisDirection.DOWN]: normalized.y,
+      [GamepadAxisDirection.LEFT]: -normalized.x,
+      [GamepadAxisDirection.RIGHT]: normalized.x,
+    };
+
+    return Object.entries(projections).reduce(
+      (max, [direction, projection]) =>
+        projection > max.projection
+          ? { direction: direction as GamepadAxisDirection, projection }
+          : max,
+      { direction: null as GamepadAxisDirection | null, projection: -Infinity }
+    ).direction;
   }
 }
