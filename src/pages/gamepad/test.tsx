@@ -7,6 +7,8 @@ import {
   GamepadAxisDirection,
 } from "@/types";
 
+// 100% VIBE CODING, PRA ENTENDER COMO ISSO DE FATO FUNCIONA LEIA /src/pages/gamepad/example.tsx
+
 export default function GamepadTestPage() {
   const gamepad = useGamepad();
   const [rowIndex, setRowIndex] = useState(0);
