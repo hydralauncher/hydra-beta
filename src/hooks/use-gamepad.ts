@@ -8,7 +8,7 @@ import { useGamepadStore } from "@/stores/gamepad.store";
 import { useEffect, useRef } from "react";
 import { GamepadService } from "@/services";
 
-export interface useGamepadReturn {
+export interface UseGamepadReturn {
   isButtonPressed: (button: GamepadButtonType) => boolean;
   getButtonValue: (button: GamepadButtonType) => number;
   getAxisValue: (axis: GamepadAxisType) => number;
@@ -25,7 +25,7 @@ export interface useGamepadReturn {
   ) => () => void;
 }
 
-export function useGamepad(): useGamepadReturn {
+export function useGamepad(): UseGamepadReturn {
   const { states, hasGamepadConnected, getActiveGamepad } = useGamepadStore();
   const callbackRefs = useRef<Map<string, () => void>>(new Map());
 
@@ -47,7 +47,7 @@ export function useGamepad(): useGamepadReturn {
     const state = states.get(activeGamepad.index);
     if (!state) return null;
 
-    return state.buttons.get(button) || null;
+    return state.buttons.get(button) ?? null;
   };
 
   const getAxisState = (axis: GamepadAxisType) => {
@@ -59,7 +59,7 @@ export function useGamepad(): useGamepadReturn {
     const state = states.get(activeGamepad.index);
     if (!state) return null;
 
-    return state.axes.get(axis) || null;
+    return state.axes.get(axis) ?? null;
   };
 
   const isButtonPressed = (button: GamepadButtonType) => {

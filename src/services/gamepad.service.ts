@@ -236,7 +236,7 @@ export class GamepadService {
   }
 
   private updateGamepadState(index: number, gamepad: Gamepad) {
-    const layout = getGamepadLayout(gamepad); // TODO: create a new method to implement layout caching 
+    const layout = getGamepadLayout(gamepad); // TODO: create a new method to implement layout caching
     const now = Date.now();
 
     if (!this.gamepadStates.has(index)) {
