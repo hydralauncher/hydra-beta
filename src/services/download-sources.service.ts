@@ -1,6 +1,8 @@
 import type { SteamGamesByLetterResponse } from "@/types";
+import ky from "ky";
 
-export const getSteamGamesByLetter = async () =>
-  import("@/assets/steam-games-by-letter.json").then(
-    (module) => module.default as SteamGamesByLetterResponse
-  );
+export const getSteamGamesByLetter = async () => {
+  return ky
+    .get("/assets/steam-games-by-letter.json")
+    .json() as Promise<SteamGamesByLetterResponse>;
+};

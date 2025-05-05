@@ -1,11 +1,17 @@
 import type { NextConfig } from "next";
+import bundleAnalyzer from "@next/bundle-analyzer";
+
+const withBundleAnalyzer = bundleAnalyzer({
+  enabled: process.env.ANALYZE === "true",
+});
 
 const nextConfig: NextConfig = {
   /* config options here */
   reactStrictMode: true,
+  output: "standalone",
   images: {
     remotePatterns: [new URL("https://cdn.losbroxas.org/**")],
   },
 };
 
-export default nextConfig;
+export default withBundleAnalyzer(nextConfig);
