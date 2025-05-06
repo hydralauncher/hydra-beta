@@ -8,7 +8,6 @@ const withBundleAnalyzer = bundleAnalyzer({
 const nextConfig: NextConfig = {
   /* config options here */
   reactStrictMode: true,
-  output: "standalone",
   images: {
     remotePatterns: [new URL("https://cdn.losbroxas.org/**")],
   },

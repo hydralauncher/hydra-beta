@@ -131,7 +131,6 @@ export default function Home() {
       )}
 
       <Link href="/download-sources">Download Sources</Link>
-      <Link href="/gamepad/test">Gamepad test</Link>
       <Link href={`/profile/${data?.id}`}>Profile</Link>
     </div>
   );
