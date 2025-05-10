@@ -153,6 +153,8 @@ export default function GamepadTestPage() {
       GamepadButtonType.RIGHT_BUMPER,
       GamepadButtonType.START,
       GamepadButtonType.BACK,
+      GamepadButtonType.HOME,
+      GamepadButtonType.TRACKPAD,
     ];
 
     const unsubFunctions = buttonTypes.map((type) =>
@@ -264,6 +266,7 @@ export default function GamepadTestPage() {
       GamepadButtonType.START,
       GamepadButtonType.BACK,
       GamepadButtonType.HOME,
+      GamepadButtonType.TRACKPAD,
     ],
   };
 
