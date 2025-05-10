@@ -145,6 +145,18 @@ export default function GamepadTestPage() {
       }
     );
 
+    const unsubButtonY = gamepad.onButtonPressed(
+      GamepadButtonType.BUTTON_Y,
+      () => {
+        gamepad.vibrate({
+          duration: 800,
+          weakMagnitude: 0.8,
+          strongMagnitude: 0.8,
+        });
+        setLastButton("BUTTON_Y");
+      }
+    );
+
     // Monitore outros botões para visualização
     const buttonTypes = [
       GamepadButtonType.BUTTON_X,
@@ -174,6 +186,7 @@ export default function GamepadTestPage() {
       unsubLeftStickRight();
       unsubButtonA();
       unsubButtonB();
+      unsubButtonY();
       unsubFunctions.forEach((unsub) => unsub());
     };
   }, [gamepad, rowIndex, colIndex, menuGrid]);
