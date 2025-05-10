@@ -153,3 +153,10 @@ export enum GamepadAxisDirection {
 }
 
 export type GamepadStickSide = "left" | "right";
+
+export interface GamepadVibrationOptions {
+  duration?: number;
+  weakMagnitude?: number;
+  strongMagnitude?: number;
+  gamepadIndex?: number;
+}

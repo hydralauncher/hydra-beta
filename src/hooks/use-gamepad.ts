@@ -3,6 +3,7 @@ import {
   GamepadAxisDirection,
   GamepadStickSide,
   GamepadAxisType,
+  GamepadVibrationOptions,
 } from "@/types";
 import { useGamepadStore } from "@/stores/gamepad.store";
 import { useEffect, useRef } from "react";
@@ -12,6 +13,7 @@ export interface UseGamepadReturn {
   isButtonPressed: (button: GamepadButtonType) => boolean;
   getButtonValue: (button: GamepadButtonType) => number;
   getAxisValue: (axis: GamepadAxisType) => number;
+  vibrate: (options: GamepadVibrationOptions) => void;
 
   onButtonPressed: (
     button: GamepadButtonType,
@@ -119,11 +121,29 @@ export function useGamepad(): UseGamepadReturn {
     };
   };
 
+  const vibrate = (options: GamepadVibrationOptions = {}) => {
+    const gamepadService = GamepadService.getInstance();
+    const {
+      duration = 200,
+      weakMagnitude = 0.5,
+      strongMagnitude = 0.5,
+      gamepadIndex = getActiveGamepad()?.index ?? -1,
+    } = options;
+
+    gamepadService.vibrate(
+      duration,
+      weakMagnitude,
+      strongMagnitude,
+      gamepadIndex
+    );
+  };
+
   return {
     isButtonPressed,
     getButtonValue,
     getAxisValue,
     onButtonPressed,
     onStickMove,
+    vibrate,
   };
 }

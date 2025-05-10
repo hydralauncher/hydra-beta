@@ -506,6 +506,28 @@ export class GamepadService {
     };
   }
 
+  public vibrate(
+    duration: number,
+    weakMagnitude: number,
+    strongMagnitude: number,
+    gamepadIndex: number
+  ): void {
+    const activeGamepad = this.gamepads.get(gamepadIndex);
+
+    if (!activeGamepad?.vibrationActuator) return;
+
+    try {
+      activeGamepad.vibrationActuator.playEffect("dual-rumble", {
+        startDelay: 0,
+        duration: duration,
+        weakMagnitude: Math.max(0, Math.min(1, weakMagnitude)),
+        strongMagnitude: Math.max(0, Math.min(1, strongMagnitude)),
+      });
+    } catch (error) {
+      console.error("Error ao tentar vibrar o controle:", error);
+    }
+  }
+
   public dispose(): void {
     this.stopPolling();
     window.removeEventListener(
