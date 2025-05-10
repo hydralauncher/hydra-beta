@@ -1,4 +1,4 @@
-import { getGamepadLayout } from "@/helpers/gamepad-layout";
+import { GamepadLayout, getGamepadLayout } from "@/helpers/gamepad-layout";
 import {
   GamepadAxisType,
   GamepadButtonType,
@@ -56,6 +56,7 @@ export class GamepadService {
   private readonly gamepadStates = new Map<number, GamepadRawState>();
   private readonly buttonPressCallbacks: ButtonPressCallbacks = new Map();
   private readonly stickMoveCallbacks: StickMoveCallbacks = new Map();
+  private readonly layoutCache = new Map<string, GamepadLayout>();
 
   private leftStickState: GamepadStickState = this.createInitialStickState();
   private rightStickState: GamepadStickState = this.createInitialStickState();
@@ -236,7 +237,7 @@ export class GamepadService {
   }
 
   private updateGamepadState(index: number, gamepad: Gamepad) {
-    const layout = getGamepadLayout(gamepad); // TODO: create a new method to implement layout caching
+    const layout = this.getNewLayoutOrCached(gamepad);
     const now = Date.now();
 
     if (!this.gamepadStates.has(index)) {
@@ -519,6 +520,16 @@ export class GamepadService {
     this.buttonPressCallbacks.clear();
     this.stickMoveCallbacks.clear();
     this.clearAllTimers();
+  }
+
+  private getNewLayoutOrCached(gamepad: Gamepad) {
+    if (!this.layoutCache.has(gamepad.id)) {
+      const layout = getGamepadLayout(gamepad);
+      this.layoutCache.set(gamepad.id, layout);
+      return layout;
+    }
+
+    return this.layoutCache.get(gamepad.id)!;
   }
 }
 

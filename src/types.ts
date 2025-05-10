@@ -134,6 +134,7 @@ export enum GamepadButtonType {
   BACK = "back",
   START = "start",
   HOME = "home",
+  TRACKPAD = "trackpad",
 }
 
 export enum GamepadAxisType {
