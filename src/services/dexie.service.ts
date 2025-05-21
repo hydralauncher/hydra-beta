@@ -6,7 +6,7 @@ import type {
   HowLongToBeatEntry,
 } from "@/types";
 
-class DexieService extends Dexie {
+export class DexieService extends Dexie {
   private static instance: Promise<DexieService> | null = null;
 
   private static readonly dbName = "Hydra";
@@ -50,5 +50,3 @@ class DexieService extends Dexie {
     return DexieService.instance;
   }
 }
-
-export const HydraDexieDB = DexieService.getInstance();

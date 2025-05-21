@@ -11,7 +11,7 @@ import { IS_DESKTOP } from "@/constants";
 import { Keytar, api } from "@/services";
 import type { Auth, CatalogueGameModel } from "@/types";
 import { setCookie } from "typescript-cookie";
-import { HydraDexieDB } from "@/services/dexie.service";
+import { DexieService } from "@/services/dexie.service";
 
 const queryClient = new QueryClient();
 
@@ -27,7 +27,7 @@ function GameSyncProvider({
     if (!profileGames) return;
 
     try {
-      const DexieDB = await HydraDexieDB;
+      const DexieDB = await DexieService.getInstance();
 
       await DexieDB.transaction("rw", DexieDB.games, async () => {
         const localGames = await DexieDB.games.toArray();
