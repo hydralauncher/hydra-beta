@@ -1,15 +1,54 @@
-import { Dexie } from "dexie";
+import { Dexie, Table } from "dexie";
+import type {
+  CatalogueGameModel,
+  Download,
+  DownloadSource,
+  HowLongToBeatEntry,
+} from "@/types";
 
-export const db = new Dexie("Hydra");
+class DexieService extends Dexie {
+  private static instance: Promise<DexieService> | null = null;
 
-db.version(1).stores({
-  downloads: `++id, title, uris, fileSize, uploadDate, downloadSourceId, objectIds, createdAt, updatedAt`,
-  downloadSources: `++id, url, name, objectIds, downloadCount, status, fingerprint, createdAt, updatedAt`,
-  howLongToBeatEntries: `++id, categories, [shop+objectId], createdAt, updatedAt`,
-});
+  private static readonly dbName = "Hydra";
+  private static readonly dbVersion = 2;
 
-export const downloadSourcesTable = db.table("downloadSources");
-export const downloadsTable = db.table("downloads");
-export const howLongToBeatEntriesTable = db.table("howLongToBeatEntries");
+  games!: Table<CatalogueGameModel>;
+  downloads!: Table<Download>;
+  downloadSources!: Table<DownloadSource>;
+  howLongToBeatEntries!: Table<HowLongToBeatEntry>;
 
-db.open();
+  private static readonly tables = {
+    games:
+      "++id, title, shop, objectId, iconHash, tags, genres, developer, publisher, installCount, reviewScore, achievementCount, achievementsPointsTotal, createdAt, updatedAt",
+    downloads:
+      "++id, title, uris, fileSize, uploadDate, downloadSourceId, objectIds, createdAt, updatedAt",
+    downloadSources:
+      "++id, url, name, objectIds, downloadCount, status, fingerprint, createdAt, updatedAt",
+    howLongToBeatEntries:
+      "++id, categories, [shop+objectId], createdAt, updatedAt",
+  };
+
+  private constructor() {
+    super(DexieService.dbName);
+    this.version(DexieService.dbVersion).stores(DexieService.tables);
+  }
+
+  private async initialize(): Promise<void> {
+    try {
+      await this.open();
+    } catch (error) {
+      console.error("Error opening Dexie database:", error);
+    }
+  }
+
+  public static getInstance(): Promise<DexieService> {
+    if (!DexieService.instance) {
+      const instance = new DexieService();
+      DexieService.instance = instance.initialize().then(() => instance);
+    }
+
+    return DexieService.instance;
+  }
+}
+
+export const HydraDexieDB = DexieService.getInstance();
