@@ -1,14 +1,88 @@
 import "@/styles/globals.scss";
 import type { AppProps } from "next/app";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import {
+  QueryClient,
+  QueryClientProvider,
+  useQuery,
+} from "@tanstack/react-query";
 import { Sidebar } from "@/layouts/sidebar/sidebar";
 import { useCallback, useEffect } from "react";
 import { IS_DESKTOP } from "@/constants";
-import { Keytar } from "@/services";
-import type { Auth } from "@/types";
+import { Keytar, api } from "@/services";
+import type { Auth, CatalogueGameModel } from "@/types";
 import { setCookie } from "typescript-cookie";
+import { HydraDexieDB } from "@/services/dexie.service";
 
 const queryClient = new QueryClient();
+
+function GameSyncProvider({
+  children,
+}: Readonly<{ children: React.ReactNode }>) {
+  const { data: profileGames } = useQuery<CatalogueGameModel[]>({
+    queryKey: ["profile-games"],
+    queryFn: () => api.get("profile/games", { credentials: "include" }).json(),
+  });
+
+  const syncProfileLibrary = useCallback(async () => {
+    if (!profileGames) return;
+
+    try {
+      const DexieDB = await HydraDexieDB;
+
+      await DexieDB.transaction("rw", DexieDB.games, async () => {
+        const localGames = await DexieDB.games.toArray();
+        const addedGameList = [];
+        const updatedGameList = [];
+        const remoteGameIds = new Set();
+
+        const localGamesMap = new Map(
+          localGames.map((game) => [
+            game.objectId,
+            { id: game.id, updatedAt: game.updatedAt },
+          ])
+        );
+
+        for (const remoteGame of profileGames) {
+          remoteGameIds.add(remoteGame.objectId);
+
+          const localGame = localGamesMap.get(remoteGame.objectId);
+
+          if (!localGame) {
+            addedGameList.push(remoteGame);
+          } else if (
+            new Date(remoteGame.updatedAt).getTime() >
+            new Date(localGame.updatedAt).getTime()
+          ) {
+            remoteGame.id = localGame.id;
+            updatedGameList.push(remoteGame);
+          }
+        }
+
+        // eu nao sei como eh no launcher prod, mas vou assumir que devo remover os jogos que nao estao mais na api
+        const gameIdsToRemove = localGames
+          .filter((game) => !remoteGameIds.has(game.objectId))
+          .map((game) => game.id);
+
+        if (addedGameList.length > 0)
+          await DexieDB.games.bulkAdd(addedGameList);
+
+        if (updatedGameList.length > 0)
+          await DexieDB.games.bulkPut(updatedGameList);
+
+        if (gameIdsToRemove.length > 0)
+          await DexieDB.games.bulkDelete(gameIdsToRemove);
+      });
+    } catch (error) {
+      console.error("Erro ao sincronizar jogos:", error);
+    }
+  }, [profileGames]);
+
+  useEffect(() => {
+    syncProfileLibrary();
+  }, [profileGames, syncProfileLibrary]);
+
+  return <>{children}</>;
+}
 
 export default function App({ Component, pageProps }: AppProps) {
   const importLegacyAuth = useCallback(async () => {
@@ -45,8 +119,10 @@ export default function App({ Component, pageProps }: AppProps) {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <Sidebar />
-      <Component {...pageProps} />
+      <GameSyncProvider>
+        <Sidebar />
+        <Component {...pageProps} />
+      </GameSyncProvider>
     </QueryClientProvider>
   );
 }
