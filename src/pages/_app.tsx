@@ -26,11 +26,13 @@ function GameSyncProvider({
   const syncProfileLibrary = useCallback(async () => {
     if (!profileGames) return;
 
-    try {
-      const DexieDB = await DexieService.getInstance();
+    console.log("profileGames", profileGames);
 
-      await DexieDB.transaction("rw", DexieDB.games, async () => {
-        const localGames = await DexieDB.games.toArray();
+    try {
+      const db = DexieService.getInstance();
+
+      await db.transaction("rw", db.games, async () => {
+        const localGames = await db.games.toArray();
         const addedGameList = [];
         const updatedGameList = [];
         const remoteGameIds = new Set();
@@ -64,13 +66,13 @@ function GameSyncProvider({
           .map((game) => game.id);
 
         if (addedGameList.length > 0)
-          await DexieDB.games.bulkAdd(addedGameList);
+          await db.games.bulkAdd(addedGameList);
 
         if (updatedGameList.length > 0)
-          await DexieDB.games.bulkPut(updatedGameList);
+          await db.games.bulkPut(updatedGameList);
 
         if (gameIdsToRemove.length > 0)
-          await DexieDB.games.bulkDelete(gameIdsToRemove);
+          await db.games.bulkDelete(gameIdsToRemove);
       });
     } catch (error) {
       console.error("Erro ao sincronizar jogos:", error);

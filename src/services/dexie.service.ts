@@ -7,7 +7,7 @@ import type {
 } from "@/types";
 
 export class DexieService extends Dexie {
-  private static instance: Promise<DexieService> | null = null;
+  private static instance: DexieService;
 
   private static readonly dbName = "Hydra";
   private static readonly dbVersion = 2;
@@ -33,18 +33,15 @@ export class DexieService extends Dexie {
     this.version(DexieService.dbVersion).stores(DexieService.tables);
   }
 
-  private async initialize(): Promise<void> {
-    try {
-      await this.open();
-    } catch (error) {
-      console.error("Error opening Dexie database:", error);
-    }
+  private initialize() {
+    this.open();
   }
 
-  public static getInstance(): Promise<DexieService> {
+  public static getInstance(): DexieService {
     if (!DexieService.instance) {
       const instance = new DexieService();
-      DexieService.instance = instance.initialize().then(() => instance);
+      instance.initialize();
+      DexieService.instance = instance;
     }
 
     return DexieService.instance;
