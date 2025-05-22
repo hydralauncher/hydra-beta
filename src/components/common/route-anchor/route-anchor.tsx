@@ -1,5 +1,6 @@
-import { Tooltip } from "radix-ui";
+import { Tooltip } from "../tooltip/tooltip";
 import Image from "next/image";
+import Link from "next/link";
 export interface RouteAnchorProps
   extends React.AnchorHTMLAttributes<HTMLAnchorElement> {
   label: string;
@@ -21,51 +22,42 @@ export const RouteAnchor = ({
 }: RouteAnchorProps) => {
   const isGameIcon = typeof icon === "string";
 
-  return (
-    <Tooltip.Provider>
-      <Tooltip.Root delayDuration={100}>
-        <Tooltip.Trigger asChild>
+  const anchorContent = (
+    <div
+      className={`state-wrapper ${disabled ? "state-wrapper--disabled" : ""} ${active ? "state-wrapper--active" : ""} ${collapsed ? "state-wrapper--collapsed" : ""}`}
+    >
+      <Link href={href} {...props}>
+        <div
+          className={`route-anchor ${collapsed ? "route-anchor--collapsed" : ""} ${active ? "route-anchor--active" : ""} ${!isGameIcon ? "route-anchor--extra-padding" : ""}`}
+        >
           <div
-            className={`state-wrapper ${disabled ? "state-wrapper--disabled" : ""} ${active ? "state-wrapper--active" : ""} ${collapsed ? "state-wrapper--collapsed" : ""}`}
+            className={`route-anchor__icon ${isGameIcon ? "route-anchor__icon--large-size" : "route-anchor__icon--small-size"}`}
           >
-            <a href={href} {...props}>
-              <div
-                className={`route-anchor ${collapsed ? "route-anchor--collapsed" : ""} ${active ? "route-anchor--active" : ""} ${!isGameIcon ? "route-anchor--extra-padding" : ""}`}
-              >
-                <div
-                  className={`route-anchor__icon ${isGameIcon ? "route-anchor__icon--large-size" : "route-anchor__icon--small-size"}`}
-                >
-                  {isGameIcon ? (
-                    <Image src={icon} alt={label} width={32} height={32} />
-                  ) : (
-                    icon
-                  )}
-                </div>
-                <div
-                  className={
-                    collapsed
-                      ? "route-anchor__label--collapsed"
-                      : "route-anchor__label"
-                  }
-                >
-                  {label}
-                </div>
-              </div>
-            </a>
+            {isGameIcon ? (
+              <Image src={icon} alt={label} width={32} height={32} />
+            ) : (
+              icon
+            )}
           </div>
-        </Tooltip.Trigger>
-        {collapsed && (
-          <Tooltip.Portal>
-            <Tooltip.Content
-              className="tooltip-content"
-              side="right"
-              sideOffset={8}
-            >
-              <p className="tooltip-content__label">{label}</p>
-            </Tooltip.Content>
-          </Tooltip.Portal>
-        )}
-      </Tooltip.Root>
-    </Tooltip.Provider>
+          <div
+            className={
+              collapsed
+                ? "route-anchor__label--collapsed"
+                : "route-anchor__label"
+            }
+          >
+            {label}
+          </div>
+        </div>
+      </Link>
+    </div>
+  );
+
+  return collapsed ? (
+    <Tooltip content={label} position="right" showArrow={false}>
+      {anchorContent}
+    </Tooltip>
+  ) : (
+    anchorContent
   );
 };
