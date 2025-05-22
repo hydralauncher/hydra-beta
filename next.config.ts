@@ -10,8 +10,8 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   images: {
     remotePatterns: [
-      new URL("https://cdn.losbroxas.org/**"),
-      new URL("https://shared.steamstatic.com/**"),
+      { hostname: "cdn.losbroxas.org", pathname: "/**" },
+      { hostname: "shared.steamstatic.com", pathname: "/**" },
     ],
   },
 };

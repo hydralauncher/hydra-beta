@@ -13,13 +13,19 @@ export const levelStorage = {
       return null;
     }
 
-    if (IS_DESKTOP) {
-      const value = await invoke<T>("get_leveldb_item", { key });
-      return value;
-    }
+    try {
+      if (IS_DESKTOP) {
+        const value = await invoke<T>("get_leveldb_item", { key });
+        return value;
+      }
 
-    const value = await getLevelInstance<T>().get(key);
-    return value as T;
+      const value = await getLevelInstance<T>().get(key);
+      return value as T;
+    } catch (error) {
+      console.error(error);
+
+      return null;
+    }
   },
   setItem: async <T>(key: string, value: T) => {
     if (!IS_BROWSER) {

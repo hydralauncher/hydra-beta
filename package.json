@@ -20,7 +20,6 @@
     "@tanstack/react-query": "^5.74.11",
     "@tauri-apps/api": "^2.5.0",
     "@tauri-apps/plugin-log": "^2.4.0",
-    "classic-level": "^3.0.0",
     "clsx": "^2.1.1",
     "dexie": "^4.0.11",
     "embla-carousel-react": "^8.6.0",

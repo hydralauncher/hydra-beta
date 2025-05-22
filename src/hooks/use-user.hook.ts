@@ -1,11 +1,17 @@
 import { api } from "@/services";
-import { useAuthStore, useUserStore, type User } from "@/stores";
+import {
+  useAuthStore,
+  useLibraryStore,
+  useUserStore,
+  type User,
+} from "@/stores";
 import { useQuery } from "@tanstack/react-query";
 import { useCallback, useEffect } from "react";
 
 export function useUser() {
   const { user, setUser, clearUser } = useUserStore();
   const { clearAuth } = useAuthStore();
+  const { clearLibrary } = useLibraryStore();
 
   const { data, refetch } = useQuery<User | null>({
     queryKey: ["me"],
@@ -19,7 +25,8 @@ export function useUser() {
     await api.post("auth/logout", { credentials: "include" }).json();
     clearUser();
     clearAuth();
-  }, [clearAuth, clearUser]);
+    clearLibrary();
+  }, [clearAuth, clearLibrary, clearUser]);
 
   useEffect(() => {
     if (data) {
