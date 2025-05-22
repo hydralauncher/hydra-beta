@@ -1,6 +1,6 @@
 import { useLibraryStore } from "@/stores/library.store";
 import { useSidebarStore } from "@/stores/sidebar.store";
-import { MagnifyingGlass } from "@phosphor-icons/react";
+import { FunnelSimple, MagnifyingGlass } from "@phosphor-icons/react";
 import { useMemo } from "react";
 import {
   RouteAnchor,
@@ -8,6 +8,7 @@ import {
   Input,
   ScrollArea,
   UserProfile,
+  Button,
 } from "@/components";
 import { useUserStore } from "@/stores/user.store";
 
@@ -49,12 +50,18 @@ function SidebarLibrary() {
 
   return (
     <div className="library-container">
-      <Input
-        placeholder="Search"
-        iconLeft={<MagnifyingGlass size={24} />}
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-      />
+      <div className="library-container__header">
+        <Input
+          placeholder="Search"
+          iconLeft={<MagnifyingGlass size={24} />}
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+
+        <Button variant="rounded" size="icon">
+          <FunnelSimple size={24} className="library-container__header__icon" />
+        </Button>
+      </div>
 
       <ScrollArea>
         <ul className="library-list">
