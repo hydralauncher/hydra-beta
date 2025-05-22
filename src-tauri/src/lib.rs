@@ -1,6 +1,6 @@
-mod commands;
+mod level;
 
-use commands::{delete_legacy_auth, delete_password, get_legacy_auth, get_password, save_password};
+use level::{delete_leveldb_item, get_leveldb_item, set_leveldb_item};
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -8,11 +8,9 @@ pub fn run() {
         .plugin(tauri_plugin_http::init())
         .plugin(tauri_plugin_log::Builder::new().build())
         .invoke_handler(tauri::generate_handler![
-            get_legacy_auth,
-            delete_legacy_auth,
-            save_password,
-            get_password,
-            delete_password
+            get_leveldb_item,
+            set_leveldb_item,
+            delete_leveldb_item
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

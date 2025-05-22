@@ -9,6 +9,7 @@ import clsx from "clsx";
 import { useContext } from "react";
 import { SidebarContext, SidebarProvider } from "./sidebar-context";
 import { SidebarSlider } from "./sidebar-slider";
+import { useLibrary } from "@/hooks";
 
 function SidebarContainer({
   children,
@@ -52,6 +53,8 @@ function SidebarRoutes() {
     },
   ];
 
+  const { library } = useLibrary();
+
   const { isCollapsed } = useContext(SidebarContext);
 
   return (
@@ -65,6 +68,10 @@ function SidebarRoutes() {
           collapsed={isCollapsed}
         />
       ))}
+
+      {library.map((game) => (
+        <p key={game.id}>{game.title}</p>
+      ))}
     </div>
   );
 }
@@ -73,13 +80,13 @@ function SidebarDivider() {
   const { isCollapsed } = useContext(SidebarContext);
 
   return (
-    <div
+    <aside
       className={clsx("sidebar-divider", {
         "sidebar-divider--collapsed": isCollapsed,
       })}
     >
       <Divider />
-    </div>
+    </aside>
   );
 }
 

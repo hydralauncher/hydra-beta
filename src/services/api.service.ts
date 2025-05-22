@@ -1,8 +1,6 @@
-import ky, { BeforeRequestHook } from "ky";
-import { getCookie, setCookie } from "typescript-cookie";
-
 import { IS_BROWSER, IS_DESKTOP } from "@/constants";
-import { Keytar } from "./keytar.service";
+import { useAuthStore } from "@/stores";
+import ky, { BeforeRequestHook } from "ky";
 
 export const ACCESS_TOKEN_EXPIRATION_OFFSET_IN_MS = 1000 * 60 * 5;
 
@@ -12,33 +10,21 @@ export const calculateTokenExpirationTimestamp = (expiresIn: number) => {
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
-const accessTokenKeytar = new Keytar("access-token");
-const refreshTokenKeytar = new Keytar("refresh-token");
-
-const getRefreshTokenBody = async () => {
-  if (IS_DESKTOP) {
-    const accessToken = await accessTokenKeytar.getPassword();
-    const refreshToken = await refreshTokenKeytar.getPassword();
-
-    return { accessToken, refreshToken };
-  }
-
-  return null;
-};
-
 const refreshToken: BeforeRequestHook = async (request) => {
   if (IS_BROWSER) {
-    const tokenExpirationTimestamp = getCookie("tokenExpirationTimestamp");
+    const { tokenExpirationTimestamp, setTokenExpirationTimestamp, ...auth } =
+      useAuthStore.getState();
 
     if (tokenExpirationTimestamp) {
-      if (
+      const isTokenExpired =
         Number(tokenExpirationTimestamp) <
-        Date.now() - ACCESS_TOKEN_EXPIRATION_OFFSET_IN_MS
-      ) {
+        Date.now() - ACCESS_TOKEN_EXPIRATION_OFFSET_IN_MS;
+
+      if (isTokenExpired) {
         const { expiresIn, accessToken, refreshToken } = await ky
           .post(`${API_URL}/auth/refresh`, {
             credentials: "include",
-            json: await getRefreshTokenBody(),
+            json: IS_DESKTOP ? { refreshToken: auth.refreshToken } : undefined,
           })
           .json<{
             expiresIn: number;
@@ -46,23 +32,18 @@ const refreshToken: BeforeRequestHook = async (request) => {
             refreshToken: string;
           }>();
 
-        setCookie(
-          "tokenExpirationTimestamp",
-          calculateTokenExpirationTimestamp(expiresIn).toString()
+        setTokenExpirationTimestamp(
+          calculateTokenExpirationTimestamp(expiresIn)
         );
 
         if (IS_DESKTOP) {
-          await Promise.all([
-            accessTokenKeytar.savePassword(accessToken),
-            refreshTokenKeytar.savePassword(refreshToken),
-          ]);
+          auth.setAccessToken(accessToken);
+          auth.setRefreshToken(refreshToken);
+
+          request.headers.set("Authorization", `Bearer ${accessToken}`);
         }
-
-        request.headers.set("Authorization", `Bearer ${accessToken}`);
       } else if (IS_DESKTOP) {
-        const accessToken = await accessTokenKeytar.getPassword();
-
-        request.headers.set("Authorization", `Bearer ${accessToken}`);
+        request.headers.set("Authorization", `Bearer ${auth.accessToken}`);
       }
     }
   }
