@@ -12,6 +12,7 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       { hostname: "cdn.losbroxas.org", pathname: "/**" },
       { hostname: "shared.steamstatic.com", pathname: "/**" },
+      { hostname: "cdn.cloudflare.steamstatic.com", pathname: "/**" },
     ],
   },
 };
