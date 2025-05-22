@@ -1,11 +1,19 @@
 import type { NextConfig } from "next";
+import bundleAnalyzer from "@next/bundle-analyzer";
+
+const withBundleAnalyzer = bundleAnalyzer({
+  enabled: process.env.ANALYZE === "true",
+});
 
 const nextConfig: NextConfig = {
   /* config options here */
   reactStrictMode: true,
   images: {
-    remotePatterns: [new URL("https://cdn.losbroxas.org/**")],
+    remotePatterns: [
+      { hostname: "cdn.losbroxas.org", pathname: "/**" },
+      { hostname: "shared.steamstatic.com", pathname: "/**" },
+    ],
   },
 };
 
-export default nextConfig;
+export default withBundleAnalyzer(nextConfig);

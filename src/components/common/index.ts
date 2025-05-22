@@ -16,3 +16,4 @@ export {
   SourceAnchor,
   type SourceAnchorProps,
 } from "./source-anchor/source-anchor";
+export { Typography, type TypographyProps } from "./typography/typography";

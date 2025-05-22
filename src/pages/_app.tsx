@@ -2,55 +2,21 @@ import "@/styles/globals.scss";
 import type { AppProps } from "next/app";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Sidebar } from "@/layouts/sidebar/sidebar";
-import { useCallback, useEffect } from "react";
-import { IS_DESKTOP } from "@/constants";
-import { Keytar } from "@/services";
-import type { Auth } from "@/types";
-import { setCookie } from "typescript-cookie";
 import { useGamepadStore } from "@/stores/gamepad.store";
+import { Space_Grotesk } from "next/font/google";
+import { useEffect } from "react";
+
+const spaceGrotesk = Space_Grotesk({
+  subsets: ["latin"],
+  variable: "--font-space-grotesk",
+  weight: ["300", "400", "500", "600", "700"],
+  display: "swap",
+});
 
 const queryClient = new QueryClient();
 
 export default function App({ Component, pageProps }: AppProps) {
-  const importLegacyAuth = useCallback(async () => {
-    if (IS_DESKTOP) {
-      const accessTokenKeytar = new Keytar("access-token");
-      const refreshTokenKeytar = new Keytar("refresh-token");
-
-      if (await refreshTokenKeytar.getPassword()) {
-        return;
-      }
-
-      import("@tauri-apps/api/core").then(async ({ invoke }) => {
-        const auth = await invoke<Auth | null>("get_legacy_auth");
-
-        if (!auth) {
-          return;
-        }
-
-        const { accessToken, refreshToken, tokenExpirationTimestamp } = auth;
-
-        await Promise.all([
-          accessTokenKeytar.savePassword(accessToken),
-          refreshTokenKeytar.savePassword(refreshToken),
-        ]);
-
-        setCookie("tokenExpirationTimestamp", tokenExpirationTimestamp);
-      });
-    }
-  }, []);
-
-  useEffect(() => {
-    importLegacyAuth();
-  }, [importLegacyAuth]);
-
-  const {
-    initialize,
-    startPolling,
-    cleanup,
-    hasGamepadConnected,
-    activeGamepad,
-  } = useGamepadStore();
+  const { initialize, startPolling, cleanup } = useGamepadStore();
 
   useEffect(() => {
     initialize();
@@ -63,17 +29,14 @@ export default function App({ Component, pageProps }: AppProps) {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <Sidebar />
-      {hasGamepadConnected ? (
-        <div style={{ display: "flex", flexDirection: "column" }}>
-          <p>gamepad name:{activeGamepad?.name}</p>
-          <br />
-          <p>gamepad layout:{activeGamepad?.layout}</p>
-        </div>
-      ) : (
-        <p>No Gamepad Connected</p>
-      )}
-      <Component {...pageProps} />
+      <main
+        className={spaceGrotesk.className}
+        style={{ display: "flex", flex: 1 }}
+      >
+        <Sidebar />
+
+        <Component {...pageProps} />
+      </main>
     </QueryClientProvider>
   );
 }
