@@ -6,6 +6,7 @@ import clsx from "clsx";
 const variants = {
   primary: "button--primary",
   secondary: "button--secondary",
+  rounded: "button--rounded",
   danger: "button--danger",
   link: "button--link",
 };
@@ -27,6 +28,7 @@ export interface ButtonProps
   href?: string;
   iconPosition?: "left" | "right";
   target?: "_blank" | "_self" | "_parent" | "_top";
+  className?: string;
 }
 
 export function Button({
