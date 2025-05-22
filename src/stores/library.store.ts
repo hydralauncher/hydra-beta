@@ -5,6 +5,7 @@ import { levelStorage } from "./level-storage";
 export interface Game {
   id: string;
   title: string;
+  iconUrl: string;
 }
 
 export interface LibraryState {
