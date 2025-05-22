@@ -17,3 +17,8 @@ export {
   type SourceAnchorProps,
 } from "./source-anchor/source-anchor";
 export { Typography, type TypographyProps } from "./typography/typography";
+export { Overlay, type OverlayProps } from "./overlay/overlay";
+export {
+  ImageLightbox,
+  type ImageLightboxProps,
+} from "./image-lightbox/image-lightbox";

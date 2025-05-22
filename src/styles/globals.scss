@@ -10,6 +10,9 @@
 @forward "./_list-card.scss";
 @forward "./_sidebar.scss";
 @forward "./_typography.scss";
+@forward "./_game-page.scss";
+@forward "./_overlay.scss";
+@forward "./_image-lightbox.scss";
 
 :root {
   --primary: rgba(255, 255, 255, 1);
@@ -82,9 +85,6 @@ body {
   box-sizing: border-box;
   padding: 0;
   margin: 0;
-  user-select: none;
-  -webkit-user-select: none;
-  -moz-user-select: none;
 }
 
 a {

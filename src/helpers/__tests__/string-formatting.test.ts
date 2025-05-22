@@ -10,6 +10,7 @@ import {
   removeAccents,
   formatName,
   formatDownloadOptionName,
+  toSlug,
 } from "../string-formatting";
 
 describe("string formatting functions", () => {
@@ -121,6 +122,18 @@ describe("string formatting functions", () => {
 
     it("should not modify strings without non-breaking spaces", () => {
       expect(replaceNbspWithSpace("Game Name")).toBe("Game Name");
+    });
+  });
+
+  describe("toSlug", () => {
+    it("should convert a string to a slug", () => {
+      expect(toSlug("Game Name")).toBe("game-name");
+    });
+
+    it("should handle special characters", () => {
+      expect(toSlug("Game Name with Special Characters!@#$%^&*()")).toBe(
+        "game-name-with-special-characters"
+      );
     });
   });
 });

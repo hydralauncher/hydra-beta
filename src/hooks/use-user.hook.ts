@@ -22,10 +22,13 @@ export function useUser() {
   });
 
   const logout = useCallback(async () => {
-    await api.post("auth/logout", { credentials: "include" }).json();
-    clearUser();
-    clearAuth();
-    clearLibrary();
+    try {
+      await api.post("auth/logout", { credentials: "include" }).json();
+    } finally {
+      clearUser();
+      clearAuth();
+      clearLibrary();
+    }
   }, [clearAuth, clearLibrary, clearUser]);
 
   useEffect(() => {

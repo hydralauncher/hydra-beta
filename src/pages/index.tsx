@@ -112,6 +112,7 @@ export default function Home() {
         <Button onClick={openAuth}>Login</Button>
       )}
 
+      <Link href="/game/268910">Cuphead</Link>
       <Link href="/download-sources">Download Sources</Link>
       <Link href={`/profile/${user?.id}`}>Profile</Link>
     </div>

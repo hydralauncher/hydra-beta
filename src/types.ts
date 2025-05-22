@@ -1,46 +1,9 @@
-import { DownloadSourceStatus } from "./workers/download-sources/constants";
-
 export type GameShop = "steam";
-
-export interface DexieModel {
-  id?: number;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-export interface Download extends DexieModel {
-  title: string;
-  uris: string[];
-  fileSize: string;
-  uploadDate: string;
-  downloadSourceId: number;
-  objectIds: string[];
-}
-
-export interface DownloadSource extends DexieModel {
-  url: string;
-  name: string;
-  objectIds: string[];
-  downloadCount: number;
-  status: DownloadSourceStatus;
-  fingerprint: string;
-}
 
 export interface HowLongToBeatCategory {
   title: string;
   duration: string;
   accuracy: string;
-}
-
-export interface HowLongToBeatEntry extends DexieModel {
-  objectId: string;
-  categories: HowLongToBeatCategory[];
-  shop: GameShop;
-}
-
-export interface SteamGamesByLetter extends DexieModel {
-  letter: string;
-  games: { id: number; name: string }[];
 }
 
 export type SteamGamesByLetterResponse = Record<
@@ -50,7 +13,7 @@ export type SteamGamesByLetterResponse = Record<
 
 export interface SteamGenre {
   id: string;
-  name: string;
+  description: string;
 }
 
 export interface SteamScreenshot {
@@ -79,10 +42,16 @@ export interface SteamAppDetails {
   detailed_description: string;
   about_the_game: string;
   short_description: string;
+  legal_notice: string;
+  developers: string[];
   publishers: string[];
   genres: SteamGenre[];
   movies?: SteamMovies[];
   screenshots?: SteamScreenshot[];
+  categories: {
+    id: number;
+    description: string;
+  }[];
   pc_requirements: {
     minimum: string;
     recommended: string;

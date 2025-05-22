@@ -1,128 +1,82 @@
-import { useEffect, useState } from "react";
-
-import type { DownloadSource } from "@/types";
-import { downloadSourcesTable } from "@/services/dexie.service";
-import { Button, Input } from "@/components/common";
-import { useForm } from "react-hook-form";
-import { Trash } from "@phosphor-icons/react";
-
+import { Button, Input, Typography } from "@/components";
+import { useDownloadSourcesStore } from "@/stores/download-sources.store";
+import { ArrowsClockwise, PlusCircle, Trash } from "@phosphor-icons/react";
 import { useMutation } from "@tanstack/react-query";
 
-interface FormValues {
+export interface DownloadSourceProps {
+  name: string;
   url: string;
 }
 
+function DownloadSource({ name, url }: DownloadSourceProps) {
+  const { removeDownloadSource } = useDownloadSourcesStore();
+
+  const { mutate: remove } = useMutation({
+    mutationFn: async () => removeDownloadSource(name),
+  });
+
+  return (
+    <div style={{ backgroundColor: "#0E0E0E", borderRadius: 8, padding: 16 }}>
+      <Typography variant="h5">{name}</Typography>
+      <Typography>1.082 download options</Typography>
+
+      <div
+        style={{
+          display: "flex",
+          gap: 8,
+          alignItems: "center",
+        }}
+      >
+        <Input readOnly value={url} />
+        <Button
+          icon={<Trash size={16} />}
+          variant="danger"
+          onClick={() => remove()}
+        >
+          Remove
+        </Button>
+      </div>
+    </div>
+  );
+}
+
 export default function DownloadSources() {
-  const [downloadSources, setDownloadSources] = useState<
-    Required<DownloadSource>[]
-  >([]);
-
-  const { register, handleSubmit } = useForm<FormValues>();
-
-  const { mutate: removeDownloadSource, isPending: isRemoving } = useMutation({
-    mutationFn: (id: number) =>
-      new Promise((resolve) => {
-        const worker = new Worker(
-          new URL(
-            "@/workers/download-sources/remove-download-source.worker.ts",
-            import.meta.url
-          )
-        );
-
-        worker.postMessage(id);
-
-        worker.onmessage = () => {
-          downloadSourcesTable.toArray().then(setDownloadSources);
-          worker.terminate();
-          resolve(true);
-        };
-      }),
-  });
-
-  const { mutate: importDownloadSource, isPending: isImporting } = useMutation({
-    mutationFn: (values: FormValues) =>
-      new Promise((resolve) => {
-        const worker = new Worker(
-          new URL(
-            "@/workers/download-sources/import-download-source.worker.ts",
-            import.meta.url
-          )
-        );
-
-        worker.postMessage(values.url);
-
-        worker.onmessage = () => {
-          downloadSourcesTable.toArray().then(setDownloadSources);
-          worker.terminate();
-          resolve(true);
-        };
-      }),
-  });
-
-  const { mutate: syncDownloadSources, isPending: isSyncing } = useMutation({
-    mutationFn: () =>
-      new Promise((resolve) => {
-        const worker = new Worker(
-          new URL(
-            "@/workers/download-sources/sync-download-sources.worker.ts",
-            import.meta.url
-          )
-        );
-
-        worker.postMessage(true);
-
-        worker.onmessage = (event) => {
-          downloadSourcesTable.toArray().then(setDownloadSources);
-
-          if (event.data.done) {
-            resolve(true);
-            worker.terminate();
-          }
-        };
-      }),
-  });
-
-  useEffect(() => {
-    downloadSourcesTable.toArray().then(setDownloadSources);
-  }, []);
+  const { downloadSources, clearDownloadSources } = useDownloadSourcesStore();
 
   return (
     <div>
-      <form onSubmit={handleSubmit((values) => importDownloadSource(values))}>
-        <Input type="text" {...register("url")} />
-        <Button type="submit" loading={isImporting}>
-          Import
+      <Typography variant="h4">Download Sources</Typography>
+      <Typography>
+        Hydra will fetch the download links from these sources. The source URL
+        must be a direct link to a .json file containing the download the links.
+      </Typography>
+
+      <div>
+        <Button icon={<ArrowsClockwise size={16} />} variant="secondary">
+          Sync All
         </Button>
-      </form>
 
-      <Button
-        type="button"
-        onClick={() => syncDownloadSources()}
-        loading={isSyncing}
-      >
-        Sync
-      </Button>
+        <Button icon={<PlusCircle size={16} />} variant="secondary">
+          Add New
+        </Button>
 
-      <ul>
-        {downloadSources.map((downloadSource) => (
-          <li key={downloadSource.id}>
-            <p>{downloadSource.name}</p>
-            <p>{downloadSource.status}</p>
-            <p>{downloadSource.downloadCount}</p>
+        <Button
+          icon={<Trash size={16} />}
+          variant="danger"
+          onClick={() => clearDownloadSources()}
+          disabled={downloadSources.length === 0}
+        >
+          Clear All
+        </Button>
+      </div>
 
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={() => removeDownloadSource(downloadSource.id)}
-              size="small"
-              loading={isRemoving}
-              icon={<Trash size={16} />}
-            >
-              Remove
-            </Button>
-          </li>
-        ))}
-      </ul>
+      {downloadSources.map((downloadSource) => (
+        <DownloadSource
+          key={downloadSource.name}
+          name={downloadSource.name}
+          url={downloadSource.url}
+        />
+      ))}
     </div>
   );
 }
