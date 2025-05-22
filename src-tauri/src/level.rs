@@ -3,7 +3,9 @@ use tauri::command;
 
 fn get_leveldb_connection() -> DB {
     let config_dir = dirs::config_dir().unwrap();
-    let app_data_dir = config_dir.join("hydralauncher").join("hydra-beta-db-staging");
+    let app_data_dir = config_dir
+        .join("hydralauncher")
+        .join("hydra-beta-db-staging");
     DB::open(app_data_dir, Options::default()).unwrap()
 }
 
