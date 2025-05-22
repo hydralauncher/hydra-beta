@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 
 export interface TooltipProps {
   children: React.ReactNode;
@@ -16,23 +16,7 @@ export function Tooltip({
   showArrow = true,
 }: Readonly<TooltipProps>) {
   const [isHovering, setIsHovering] = useState(false);
-  const [isVisible, setIsVisible] = useState(false);
   const tooltipRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (isHovering) {
-      setIsVisible(true);
-      return;
-    }
-
-    const element = tooltipRef.current;
-    if (!element) return;
-
-    const hideTooltip = () => !isHovering && setIsVisible(false);
-    element.addEventListener("transitionend", hideTooltip);
-
-    return () => element.removeEventListener("transitionend", hideTooltip);
-  }, [isHovering]);
 
   return (
     <div
@@ -43,7 +27,7 @@ export function Tooltip({
       aria-hidden={!isHovering}
     >
       {children}
-      {(isVisible || isHovering) && (
+      {isHovering && (
         <div
           ref={tooltipRef}
           className={`tooltip__content tooltip__content--${position}`}

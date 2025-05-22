@@ -4,13 +4,6 @@
   width: fit-content;
   height: fit-content;
 
-  &:hover {
-    .tooltip__content {
-      opacity: 1;
-      visibility: visible;
-    }
-  }
-
   &__content {
     position: absolute;
     background-color: var(--secondary);
@@ -26,8 +19,6 @@
     font-weight: 400;
     line-height: normal;
     z-index: 100;
-    opacity: 0;
-    transition: opacity 0.2s ease-in-out;
 
     &--top {
       bottom: calc(100% + attr(data-offset px));
