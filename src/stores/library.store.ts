@@ -6,6 +6,8 @@ export interface Game {
   id: string;
   title: string;
   iconUrl: string;
+  isFavorite: boolean;
+  playTimeInMilliseconds: number;
 }
 
 export interface LibraryState {

@@ -50,12 +50,15 @@ export const RouteAnchor = ({
             }
           >
             {label}
-            
           </div>
 
           {isFavorite && (
             <div className="route-anchor__favorite">
-              <Star size={16} weight="fill" className="route-anchor__favorite__icon" />
+              <Star
+                size={16}
+                weight="fill"
+                className="route-anchor__favorite__icon"
+              />
             </div>
           )}
         </div>
