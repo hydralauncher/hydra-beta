@@ -1,4 +1,4 @@
-import { Star } from "@phosphor-icons/react";
+import { HeartStraight } from "@phosphor-icons/react";
 import { Tooltip } from "../tooltip/tooltip";
 import Image from "next/image";
 import Link from "next/link";
@@ -60,8 +60,8 @@ export const RouteAnchor = ({
 
             {isFavorite && !collapsed && (
               <div className="route-anchor__favorite">
-                <Star
-                  size={16}
+                <HeartStraight
+                  size={18}
                   weight="fill"
                   className="route-anchor__favorite__icon"
                 />
