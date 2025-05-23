@@ -9,6 +9,8 @@ export interface Game {
   iconUrl: string;
   objectId: string;
   shop: GameShop;
+  isFavorite: boolean;
+  playTimeInMilliseconds: number;
 }
 
 export interface LibraryState {

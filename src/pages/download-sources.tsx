@@ -74,6 +74,11 @@ export default function DownloadSources() {
   return (
     <div>
       <Modal visible={isModalOpen} onClose={() => setIsModalOpen(false)}>
+        <Typography variant="h5">Import Download Source</Typography>
+        <Typography style={{ color: "rgba(255, 255, 255, 0.5)" }}>
+          Insert the URL of the .json file
+        </Typography>
+
         <form onSubmit={handleSubmit((values) => importDownloadSource(values))}>
           <Input type="text" {...register("url")} />
           <Button type="submit" loading={isImporting}>

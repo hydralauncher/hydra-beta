@@ -1,3 +1,4 @@
+import { Star } from "@phosphor-icons/react";
 import { Tooltip } from "../tooltip/tooltip";
 import Image from "next/image";
 import Link from "next/link";
@@ -9,6 +10,7 @@ export interface RouteAnchorProps
   href: string;
   active?: boolean;
   disabled?: boolean;
+  isFavorite?: boolean;
 }
 
 export const RouteAnchor = ({
@@ -18,6 +20,7 @@ export const RouteAnchor = ({
   collapsed = false,
   active = false,
   disabled = false,
+  isFavorite = false,
   ...props
 }: RouteAnchorProps) => {
   const isGameIcon = typeof icon === "string";
@@ -48,6 +51,16 @@ export const RouteAnchor = ({
           >
             {label}
           </div>
+
+          {isFavorite && (
+            <div className="route-anchor__favorite">
+              <Star
+                size={16}
+                weight="fill"
+                className="route-anchor__favorite__icon"
+              />
+            </div>
+          )}
         </div>
       </Link>
     </div>

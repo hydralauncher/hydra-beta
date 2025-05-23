@@ -1,4 +1,5 @@
 import clsx from "clsx";
+import { Typography } from "../typography/typography";
 
 export interface InputProps
   extends React.InputHTMLAttributes<HTMLInputElement> {
@@ -29,9 +30,9 @@ export function Input({
   return (
     <div className="input-container">
       {label && (
-        <label htmlFor="input" className="input-label">
+        <Typography variant="label" htmlFor="input" className="input-label">
           {label}
-        </label>
+        </Typography>
       )}
       <button
         type="button"

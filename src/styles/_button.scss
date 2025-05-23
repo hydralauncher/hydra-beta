@@ -18,6 +18,8 @@
   gap: calc(var(--spacing-unit) * 8);
   position: relative;
   transition: background-color 0.2s ease-in-out;
+  flex-shrink: 0;
+  cursor: pointer;
 
   &--primary {
     color: var(--background);
@@ -40,6 +42,22 @@
 
     &:hover {
       background-color: var(--secondary-hover);
+    }
+
+    &:focus-visible {
+      outline: 1px solid var(--primary);
+      outline-offset: 2px;
+    }
+  }
+
+  &--rounded {
+    color: var(--text);
+    background-color: transparent;
+    border-radius: calc(var(--spacing-unit) * 2);
+    border: 1px solid var(--secondary-border);
+
+    &:hover {
+      background-color: var(--secondary);
     }
 
     &:focus-visible {

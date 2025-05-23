@@ -1,8 +1,7 @@
-import { Users, Bell, Copy } from "@phosphor-icons/react";
+import { Users, Bell, Copy, Check } from "@phosphor-icons/react";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
-
 export interface UserProfileProps {
   image: string;
   name: string;
@@ -33,7 +32,7 @@ interface UserProfileActionsProps {
 function UserProfileActions({
   friendsCount,
 }: Readonly<UserProfileActionsProps>) {
-  const [isHoveringNotification, setIsHoveringNotification] = useState(false);
+  const [isHovering, setIsHovering] = useState(false);
 
   return (
     <div className="user-profile__actions">
@@ -50,10 +49,10 @@ function UserProfileActions({
 
       <button
         className="user-profile__actions__notification"
-        onMouseEnter={() => setIsHoveringNotification(true)}
-        onMouseLeave={() => setIsHoveringNotification(false)}
+        onMouseEnter={() => setIsHovering(true)}
+        onMouseLeave={() => setIsHovering(false)}
       >
-        <Bell size={20} weight={isHoveringNotification ? "fill" : "regular"} />
+        <Bell size={20} weight={isHovering ? "fill" : "regular"} />
       </button>
     </div>
   );
@@ -64,6 +63,15 @@ function UserProfileContent({
   name,
   friendCode,
 }: Readonly<UserProfileContentProps>) {
+  const [isCopied, setIsCopied] = useState(false);
+
+  const handleCopy = () => {
+    setIsCopied(true);
+    setTimeout(() => {
+      setIsCopied(false);
+    }, 2000);
+  };
+
   return (
     <div className="user-profile-content">
       <Image
@@ -76,15 +84,23 @@ function UserProfileContent({
 
       <div className="user-profile-content__info">
         <p className="user-profile-content__info__name">{name}</p>
-        <p className="user-profile-content__info__friend-code">
-          <Copy
-            size={16}
-            className="user-profile-content__info__friend-code__icon"
-          />
-          <span className="user-profile-content__info__friend-code__text">
-            {friendCode}
-          </span>
-        </p>
+        <button
+          className="user-profile-content__info__friend-code"
+          onClick={handleCopy}
+        >
+          {friendCode}
+          {isCopied ? (
+            <Check
+              size={14}
+              className="user-profile-content__info__friend-code__icon"
+            />
+          ) : (
+            <Copy
+              size={14}
+              className="user-profile-content__info__friend-code__icon"
+            />
+          )}
+        </button>
       </div>
     </div>
   );

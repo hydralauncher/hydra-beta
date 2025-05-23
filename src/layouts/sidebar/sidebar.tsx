@@ -1,16 +1,17 @@
-import { useSidebarStore } from "@/stores/sidebar.store";
-import { MagnifyingGlass } from "@phosphor-icons/react";
 import { useMemo } from "react";
+import { useSidebarStore } from "@/stores/sidebar.store";
+import { FunnelSimple, MagnifyingGlass } from "@phosphor-icons/react";
+import { useLibrary } from "@/hooks/use-library.hook";
+import { useUser } from "@/hooks/use-user.hook";
 import {
   RouteAnchor,
   Divider,
   Input,
   ScrollArea,
   UserProfile,
+  Button,
 } from "@/components";
-import { useUserStore } from "@/stores/user.store";
 import { toSlug } from "@/helpers";
-import { useLibrary } from "@/hooks";
 
 function SidebarRouter() {
   const { routes } = useSidebarStore();
@@ -31,31 +32,45 @@ function SidebarRouter() {
 
 function SidebarLibrary() {
   const { library } = useLibrary();
+  console.log(library);
   const { searchTerm, setSearchTerm } = useSidebarStore();
 
   const filteredLibrary = useMemo(() => {
     const term = searchTerm.trim().toLowerCase();
-    if (!term) return library;
+    if (!term) {
+      return [...library].sort(
+        (a, b) =>
+          (b.playTimeInMilliseconds ?? 0) - (a.playTimeInMilliseconds ?? 0)
+      );
+    }
 
     return library
-      .filter((game) => game.title.toLowerCase().includes(term))
+      .filter(({ title }) => title.toLowerCase().includes(term))
       .sort((a, b) => {
-        const aStarts = a.title.toLowerCase().startsWith(term);
-        const bStarts = b.title.toLowerCase().startsWith(term);
+        const aTitle = a.title.toLowerCase();
+        const bTitle = b.title.toLowerCase();
+        const aStarts = aTitle.startsWith(term);
+        const bStarts = bTitle.startsWith(term);
 
         if (aStarts !== bStarts) return aStarts ? -1 : 1;
-        return a.title.localeCompare(b.title);
+        return aTitle.localeCompare(bTitle);
       });
   }, [library, searchTerm]);
 
   return (
     <div className="library-container">
-      <Input
-        placeholder="Search"
-        iconLeft={<MagnifyingGlass size={24} />}
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-      />
+      <div className="library-container__header">
+        <Input
+          placeholder="Search"
+          iconLeft={<MagnifyingGlass size={24} />}
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+
+        <Button variant="rounded" size="icon">
+          <FunnelSimple size={24} className="library-container__header__icon" />
+        </Button>
+      </div>
 
       <ScrollArea>
         <ul className="library-list">
@@ -66,6 +81,7 @@ function SidebarLibrary() {
                 label={game.title}
                 href={`/game/${game.objectId}/${toSlug(game.title)}`}
                 icon={game.iconUrl}
+                isFavorite={game.isFavorite}
               />
             </li>
           ))}
@@ -76,7 +92,7 @@ function SidebarLibrary() {
 }
 
 function SidebarProfile() {
-  const { user } = useUserStore();
+  const { user } = useUser();
 
   return (
     <div className="sidebar-profile">
