@@ -1,4 +1,5 @@
 import clsx from "clsx";
+import { Tooltip } from "../tooltip/tooltip";
 
 export interface InputProps
   extends React.InputHTMLAttributes<HTMLInputElement> {
@@ -10,6 +11,7 @@ export interface InputProps
   inputSize?: "default" | "icon";
   onClick?: () => void;
   ref?: React.Ref<HTMLInputElement>;
+  collapsed?: boolean;
 }
 
 export function Input({
@@ -24,6 +26,7 @@ export function Input({
   inputSize = "default",
   onClick,
   ref,
+  collapsed,
   ...props
 }: Readonly<InputProps>) {
   return (
@@ -33,39 +36,46 @@ export function Input({
           {label}
         </label>
       )}
-      <button
-        type="button"
-        onClick={onClick}
-        className={clsx("input-wrapper", {
-          "input-wrapper--icon": inputSize === "icon",
-        })}
+      <Tooltip
+        content={placeholder}
+        showArrow={false}
+        position="right"
+        active={collapsed}
       >
-        <input
-          id="input"
-          ref={ref}
-          type={type}
-          placeholder={placeholder}
-          disabled={disabled}
-          data-icon-left={iconLeft ? "true" : undefined}
-          data-icon-right={iconRight ? "true" : undefined}
-          data-icon={inputSize === "icon" ? "true" : undefined}
-          className={`input ${error ? "input--error" : ""} ${
-            disabled ? "input--disabled" : ""
-          }`}
-          {...props}
-        />
-        {iconLeft && (
-          <div className="input-icon input-icon--left">{iconLeft}</div>
+        <button
+          type="button"
+          onClick={onClick}
+          className={clsx("input-wrapper", {
+            "input-wrapper--icon": inputSize === "icon",
+          })}
+        >
+          <input
+            id="input"
+            ref={ref}
+            type={type}
+            placeholder={placeholder}
+            disabled={disabled}
+            data-icon-left={iconLeft ? "true" : undefined}
+            data-icon-right={iconRight ? "true" : undefined}
+            data-icon={inputSize === "icon" ? "true" : undefined}
+            className={`input ${error ? "input--error" : ""} ${
+              disabled ? "input--disabled" : ""
+            }`}
+            {...props}
+          />
+          {iconLeft && (
+            <div className="input-icon input-icon--left">{iconLeft}</div>
+          )}
+          {iconRight && (
+            <div className="input-icon input-icon--right">{iconRight}</div>
+          )}
+        </button>
+        {hint && (
+          <p className={clsx("input-hint", { "input-hint--error": error })}>
+            {hint}
+          </p>
         )}
-        {iconRight && (
-          <div className="input-icon input-icon--right">{iconRight}</div>
-        )}
-      </button>
-      {hint && (
-        <p className={clsx("input-hint", { "input-hint--error": error })}>
-          {hint}
-        </p>
-      )}
+      </Tooltip>
     </div>
   );
 }
