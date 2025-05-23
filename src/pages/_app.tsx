@@ -6,6 +6,7 @@ import { Sidebar } from "@/layouts/sidebar/sidebar";
 import { Space_Grotesk } from "next/font/google";
 import { useEffect, useRef } from "react";
 import { useRouter } from "next/router";
+import { useUser } from "@/hooks";
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
@@ -17,6 +18,12 @@ const spaceGrotesk = Space_Grotesk({
 function Main({ children }: { children: React.ReactNode }) {
   const contentRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
+
+  const { getUser } = useUser();
+
+  useEffect(() => {
+    getUser();
+  }, [getUser]);
 
   useEffect(() => {
     if (contentRef.current) contentRef.current.scrollTop = 0;

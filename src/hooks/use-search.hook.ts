@@ -3,29 +3,44 @@ import debounce from "lodash-es/debounce";
 
 export function useSearch<T>(items: T[], fieldsToSearch: (keyof T)[]) {
   const [search, setSearch] = useState("");
-  const [debouncedSearch, setDebouncedSearch] = useState("");
+
+  const debouncedSetSearch = useMemo(
+    () => debounce((value: string) => setSearch(value), 100),
+    []
+  );
 
   useEffect(() => {
-    const handler = debounce((value: string) => {
-      setDebouncedSearch(value);
-    }, 100);
+    debouncedSetSearch(search);
+    return () => debouncedSetSearch.cancel();
+  }, [search, debouncedSetSearch]);
 
-    handler(search);
-
-    return () => {
-      handler.cancel();
-    };
-  }, [search]);
+  const indexedItems = useMemo(() => {
+    return items.map((item) => {
+      const searchText = fieldsToSearch
+        .map((field) => {
+          const value = item[field];
+          return typeof value === "string" ? value.toLowerCase() : "";
+        })
+        .join(" ");
+      return { item, searchText };
+    });
+  }, [items, fieldsToSearch]);
 
   const filteredItems = useMemo(() => {
-    return items.filter((item) => {
-      return fieldsToSearch.some((field) => {
-        return String(item[field])
-          .toLowerCase()
-          .includes(debouncedSearch.toLowerCase());
-      });
-    });
-  }, [items, fieldsToSearch, debouncedSearch]);
+    if (!search) return items;
+
+    const searchLower = search.toLowerCase();
+    const result: T[] = [];
+
+    for (let i = 0; i < indexedItems.length; i++) {
+      const { item, searchText } = indexedItems[i];
+      if (searchText.includes(searchLower)) {
+        result.push(item);
+      }
+    }
+
+    return result;
+  }, [indexedItems, search, items]);
 
   return {
     search,

@@ -1,4 +1,3 @@
-import { useMemo } from "react";
 import { useSidebarStore } from "@/stores/sidebar.store";
 import { FunnelSimple, MagnifyingGlass } from "@phosphor-icons/react";
 import { useLibrary } from "@/hooks/use-library.hook";
@@ -12,6 +11,7 @@ import {
   Button,
 } from "@/components";
 import { toSlug } from "@/helpers";
+import { useSearch } from "@/hooks";
 
 function SidebarRouter() {
   const { routes } = useSidebarStore();
@@ -32,30 +32,7 @@ function SidebarRouter() {
 
 function SidebarLibrary() {
   const { library } = useLibrary();
-  console.log(library);
-  const { searchTerm, setSearchTerm } = useSidebarStore();
-
-  const filteredLibrary = useMemo(() => {
-    const term = searchTerm.trim().toLowerCase();
-    if (!term) {
-      return [...library].sort(
-        (a, b) =>
-          (b.playTimeInMilliseconds ?? 0) - (a.playTimeInMilliseconds ?? 0)
-      );
-    }
-
-    return library
-      .filter(({ title }) => title.toLowerCase().includes(term))
-      .sort((a, b) => {
-        const aTitle = a.title.toLowerCase();
-        const bTitle = b.title.toLowerCase();
-        const aStarts = aTitle.startsWith(term);
-        const bStarts = bTitle.startsWith(term);
-
-        if (aStarts !== bStarts) return aStarts ? -1 : 1;
-        return aTitle.localeCompare(bTitle);
-      });
-  }, [library, searchTerm]);
+  const { filteredItems, search, setSearch } = useSearch(library, ["title"]);
 
   return (
     <div className="library-container">
@@ -63,8 +40,8 @@ function SidebarLibrary() {
         <Input
           placeholder="Search"
           iconLeft={<MagnifyingGlass size={24} />}
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
         />
 
         <Button variant="rounded" size="icon">
@@ -74,7 +51,7 @@ function SidebarLibrary() {
 
       <ScrollArea>
         <ul className="library-list">
-          {filteredLibrary.map((game) => (
+          {filteredItems.map((game) => (
             <li key={game.id} className="library-list__item">
               <RouteAnchor
                 key={game.id}
