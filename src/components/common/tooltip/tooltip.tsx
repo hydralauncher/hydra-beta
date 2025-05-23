@@ -6,6 +6,7 @@ export interface TooltipProps {
   position?: "top" | "bottom" | "left" | "right";
   showArrow?: boolean;
   offset?: number;
+  active?: boolean;
 }
 
 export function Tooltip({
@@ -14,9 +15,11 @@ export function Tooltip({
   position = "top",
   offset = 8,
   showArrow = true,
+  active = true,
 }: Readonly<TooltipProps>) {
   const [isHovering, setIsHovering] = useState(false);
   const tooltipRef = useRef<HTMLDivElement>(null);
+  if (!active) return children;
 
   return (
     <div

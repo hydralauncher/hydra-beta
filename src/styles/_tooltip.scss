@@ -18,7 +18,7 @@
     font-style: normal;
     font-weight: 400;
     line-height: normal;
-    z-index: 100;
+    z-index: 1000;
 
     &--top {
       bottom: calc(100% + attr(data-offset px));
