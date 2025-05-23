@@ -7,10 +7,11 @@ import { useRouter } from "next/router";
 import { useCallback, useEffect } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { useAuthStore } from "@/stores";
+import { useSidebarStore } from "@/stores/sidebar.store";
 
 export default function Home() {
   const router = useRouter();
-
+  const { setIsCollapsed, isCollapsed } = useSidebarStore();
   const { user, getUser, logout } = useUser();
   const { setTokenExpirationTimestamp, setAccessToken, setRefreshToken } =
     useAuthStore();
@@ -111,6 +112,20 @@ export default function Home() {
       ) : (
         <Button onClick={openAuth}>Login</Button>
       )}
+
+      <button
+        style={{
+          position: "absolute",
+          top: 100,
+          left: 400,
+          zIndex: 9999,
+          backgroundColor: "red",
+          padding: 10,
+        }}
+        onClick={() => setIsCollapsed(!isCollapsed)}
+      >
+        {isCollapsed ? "Expand" : "Collapse"}
+      </button>
 
       <Link href="/download-sources">Download Sources</Link>
       <Link href={`/profile/${user?.id}`}>Profile</Link>
