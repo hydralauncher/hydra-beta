@@ -6,11 +6,6 @@ export interface UserProfileProps {
   image: string;
   name: string;
   friendCode: string;
-  playingStatus: {
-    isPlaying: boolean;
-    icon?: string;
-    label: string;
-  };
   collapsed?: boolean;
 }
 
@@ -18,11 +13,6 @@ interface UserProfileContentProps {
   image: string;
   name: string;
   friendCode: string;
-  playingStatus: {
-    isPlaying: boolean;
-    icon?: string;
-    label: string;
-  };
 }
 
 interface UserProfileActionsProps {
@@ -113,7 +103,6 @@ export function UserProfile({
   image,
   name,
   friendCode,
-  playingStatus,
 }: Readonly<UserProfileProps>) {
   return (
     <div className="user-profile-container">
@@ -121,7 +110,6 @@ export function UserProfile({
         image={image}
         name={name}
         friendCode={friendCode}
-        playingStatus={playingStatus}
       />
 
       <UserProfileActions friendsCount={8} />

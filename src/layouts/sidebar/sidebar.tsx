@@ -97,12 +97,8 @@ function SidebarProfile() {
     <div className="sidebar-profile">
       <UserProfile
         name={user?.displayName ?? ""}
-        friendCode={user?.id ?? ""}
         image={user?.profileImageUrl ?? ""}
-        playingStatus={{
-          isPlaying: false,
-          label: user?.id ?? "",
-        }}
+        friendCode={user?.id ?? ""}
       />
     </div>
   );
