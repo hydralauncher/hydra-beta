@@ -13,6 +13,7 @@ const nextConfig: NextConfig = {
       { hostname: "cdn.losbroxas.org", pathname: "/**" },
       { hostname: "shared.steamstatic.com", pathname: "/**" },
       { hostname: "steamcdn-a.akamaihd.net", pathname: "/**" },
+      { hostname: "cdn.cloudflare.steamstatic.com", pathname: "/**" },
     ],
   },
 };

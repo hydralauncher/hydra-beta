@@ -7,6 +7,9 @@ export interface InputProps
   error?: boolean;
   iconLeft?: React.ReactNode;
   iconRight?: React.ReactNode;
+  inputSize?: "default" | "icon";
+  onClick?: () => void;
+  ref?: React.Ref<HTMLInputElement>;
 }
 
 export function Input({
@@ -18,6 +21,9 @@ export function Input({
   disabled = false,
   iconLeft,
   iconRight,
+  inputSize = "default",
+  onClick,
+  ref,
   ...props
 }: Readonly<InputProps>) {
   return (
@@ -27,14 +33,22 @@ export function Input({
           {label}
         </label>
       )}
-      <div className="input-wrapper">
+      <button
+        type="button"
+        onClick={onClick}
+        className={clsx("input-wrapper", {
+          "input-wrapper--icon": inputSize === "icon",
+        })}
+      >
         <input
           id="input"
+          ref={ref}
           type={type}
           placeholder={placeholder}
           disabled={disabled}
           data-icon-left={iconLeft ? "true" : undefined}
           data-icon-right={iconRight ? "true" : undefined}
+          data-icon={inputSize === "icon" ? "true" : undefined}
           className={`input ${error ? "input--error" : ""} ${
             disabled ? "input--disabled" : ""
           }`}
@@ -46,7 +60,7 @@ export function Input({
         {iconRight && (
           <div className="input-icon input-icon--right">{iconRight}</div>
         )}
-      </div>
+      </button>
       {hint && (
         <p className={clsx("input-hint", { "input-hint--error": error })}>
           {hint}

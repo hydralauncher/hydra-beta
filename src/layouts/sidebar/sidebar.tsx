@@ -1,103 +1,105 @@
-import { Divider, RouteAnchor } from "@/components/common";
+import { useSidebarStore } from "@/stores/sidebar.store";
+import { MagnifyingGlass } from "@phosphor-icons/react";
+import { useMemo } from "react";
 import {
-  DownloadSimple,
-  Gear,
-  House,
-  SquaresFour,
-} from "@phosphor-icons/react";
-import clsx from "clsx";
-import { useContext } from "react";
-import { SidebarContext, SidebarProvider } from "./sidebar-context";
-import { SidebarSlider } from "./sidebar-slider";
+  RouteAnchor,
+  Divider,
+  Input,
+  ScrollArea,
+  UserProfile,
+} from "@/components";
+import { useUserStore } from "@/stores/user.store";
+import { toSlug } from "@/helpers";
 import { useLibrary } from "@/hooks";
 
-function SidebarContainer({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
-  const { currentWidth, isCollapsed, sidebarSizes } =
-    useContext(SidebarContext);
+function SidebarRouter() {
+  const { routes } = useSidebarStore();
 
   return (
-    <div
-      className="sidebar-container"
-      style={{ width: isCollapsed ? sidebarSizes.COLLAPSED : currentWidth }}
-    >
-      {children}
-    </div>
-  );
-}
-
-function SidebarRoutes() {
-  const appRoutes = [
-    {
-      path: "/",
-      label: "Home",
-      icon: <House size={24} />,
-    },
-    {
-      path: "/catalog",
-      label: "Catalog",
-      icon: <SquaresFour size={24} />,
-    },
-    {
-      path: "/downloads",
-      label: "Downloads",
-      icon: <DownloadSimple size={24} />,
-    },
-    {
-      path: "/settings",
-      label: "Settings",
-      icon: <Gear size={24} />,
-    },
-  ];
-
-  const { library } = useLibrary();
-
-  const { isCollapsed } = useContext(SidebarContext);
-
-  return (
-    <div className="sidebar-routes">
-      {appRoutes.map((route) => (
+    <div className="router-container">
+      {routes.map((route) => (
         <RouteAnchor
-          key={route.path}
-          href={route.path}
+          key={route.label}
           label={route.label}
-          icon={route.icon}
-          collapsed={isCollapsed}
+          href={route.href}
+          icon={<route.icon size={24} />}
         />
       ))}
-
-      {library.map((game) => (
-        <p key={game.id}>{game.title}</p>
-      ))}
     </div>
   );
 }
 
-function SidebarDivider() {
-  const { isCollapsed } = useContext(SidebarContext);
+function SidebarLibrary() {
+  const { library } = useLibrary();
+  const { searchTerm, setSearchTerm } = useSidebarStore();
+
+  const filteredLibrary = useMemo(() => {
+    const term = searchTerm.trim().toLowerCase();
+    if (!term) return library;
+
+    return library
+      .filter((game) => game.title.toLowerCase().includes(term))
+      .sort((a, b) => {
+        const aStarts = a.title.toLowerCase().startsWith(term);
+        const bStarts = b.title.toLowerCase().startsWith(term);
+
+        if (aStarts !== bStarts) return aStarts ? -1 : 1;
+        return a.title.localeCompare(b.title);
+      });
+  }, [library, searchTerm]);
 
   return (
-    <aside
-      className={clsx("sidebar-divider", {
-        "sidebar-divider--collapsed": isCollapsed,
-      })}
-    >
-      <Divider />
-    </aside>
+    <div className="library-container">
+      <Input
+        placeholder="Search"
+        iconLeft={<MagnifyingGlass size={24} />}
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+      />
+
+      <ScrollArea>
+        <ul className="library-list">
+          {filteredLibrary.map((game) => (
+            <li key={game.id} className="library-list__item">
+              <RouteAnchor
+                key={game.id}
+                label={game.title}
+                href={`/game/${game.objectId}/${toSlug(game.title)}`}
+                icon={game.iconUrl}
+              />
+            </li>
+          ))}
+        </ul>
+      </ScrollArea>
+    </div>
+  );
+}
+
+function SidebarProfile() {
+  const { user } = useUserStore();
+
+  return (
+    <div className="sidebar-profile">
+      <UserProfile
+        name={user?.displayName ?? ""}
+        friendCode={user?.id ?? ""}
+        image={user?.profileImageUrl ?? ""}
+        playingStatus={{
+          isPlaying: false,
+          label: user?.id ?? "",
+        }}
+      />
+    </div>
   );
 }
 
 export function Sidebar() {
   return (
-    <SidebarProvider>
-      <SidebarContainer>
-        <SidebarRoutes />
-        <SidebarDivider />
-      </SidebarContainer>
-      <SidebarSlider />
-    </SidebarProvider>
+    <div className="sidebar-container">
+      <SidebarRouter />
+      <Divider gap={32} />
+      <SidebarLibrary />
+      <SidebarProfile />
+    </div>
   );
 }

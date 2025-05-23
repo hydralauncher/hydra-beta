@@ -1,6 +1,7 @@
+import { ShopAssets } from "@/pages/game/[id]/[slug]";
 import { api } from "@/services/api.service";
 import { HowLongToBeatCategory } from "@/types";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 
 export function useGamePage(objectId: string, shop: string) {
   const { data: howLongToBeat } = useQuery<HowLongToBeatCategory[]>({
@@ -19,11 +20,27 @@ export function useGamePage(objectId: string, shop: string) {
     initialData: [],
   });
 
-  const { data: profileGame } = useQuery({
+  const { data: profileGame } = useQuery<
+    | ({
+        playTimeInSeconds: number;
+        lastTimePlayed: string | null;
+      } & ShopAssets)
+    | null
+  >({
     queryKey: ["game-page", shop, objectId],
     queryFn: () => api.get(`profile/games/${shop}/${objectId}`).json(),
     initialData: null,
   });
 
-  return { howLongToBeat, achievements, profileGame };
+  const { mutate: toggleFavorite } = useMutation({
+    mutationFn: async (isFavorite: boolean) => {
+      if (!isFavorite) {
+        await api.put(`profile/games/${shop}/${objectId}/unfavorite`).json();
+      } else {
+        await api.put(`profile/games/${shop}/${objectId}/favorite`).json();
+      }
+    },
+  });
+
+  return { howLongToBeat, achievements, profileGame, toggleFavorite };
 }

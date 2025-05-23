@@ -4,6 +4,7 @@ export { Checkbox, type CheckboxProps } from "./checkbox/checkbox";
 export { ListCard, type ListCardProps } from "./cards/game-list/list-card";
 export { Divider, type DividerProps } from "./divider/divider";
 export { Tooltip, type TooltipProps } from "./tooltip/tooltip";
+export { ScrollArea, type ScrollAreaProps } from "./scroll-area/scroll-area";
 export {
   UserProfile,
   type UserProfileProps,
@@ -17,8 +18,9 @@ export {
   type SourceAnchorProps,
 } from "./source-anchor/source-anchor";
 export { Typography, type TypographyProps } from "./typography/typography";
-export { Overlay, type OverlayProps } from "./overlay/overlay";
+export { Backdrop, type BackdropProps } from "./backdrop/backdrop";
 export {
   ImageLightbox,
   type ImageLightboxProps,
 } from "./image-lightbox/image-lightbox";
+export { Modal, type ModalProps } from "./modal/modal";

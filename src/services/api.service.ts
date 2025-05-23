@@ -21,7 +21,7 @@ const refreshToken: BeforeRequestHook = async (request) => {
         Date.now() - ACCESS_TOKEN_EXPIRATION_OFFSET_IN_MS;
 
       if (isTokenExpired) {
-        const { expiresIn, accessToken, refreshToken } = await ky
+        const { expiresIn, accessToken } = await ky
           .post(`${API_URL}/auth/refresh`, {
             credentials: "include",
             json: IS_DESKTOP ? { refreshToken: auth.refreshToken } : undefined,
@@ -29,7 +29,6 @@ const refreshToken: BeforeRequestHook = async (request) => {
           .json<{
             expiresIn: number;
             accessToken: string;
-            refreshToken: string;
           }>();
 
         setTokenExpirationTimestamp(
@@ -38,7 +37,6 @@ const refreshToken: BeforeRequestHook = async (request) => {
 
         if (IS_DESKTOP) {
           auth.setAccessToken(accessToken);
-          auth.setRefreshToken(refreshToken);
 
           request.headers.set("Authorization", `Bearer ${accessToken}`);
         }

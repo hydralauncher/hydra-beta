@@ -115,6 +115,8 @@ export default function Home() {
       <Link href="/game/268910">Cuphead</Link>
       <Link href="/download-sources">Download Sources</Link>
       <Link href={`/profile/${user?.id}`}>Profile</Link>
+      <Link href="/gamepad/test">Gamepad Test</Link>
+      <Link href="/gamepad/example">Gamepad Example</Link>
     </div>
   );
 }

@@ -2,31 +2,30 @@ import { create } from "zustand";
 
 import { createJSONStorage, persist } from "zustand/middleware";
 import { levelStorage } from "./level-storage";
+import { DownloadSourceStatus } from "@/constants";
 
-export enum ImportDownloadSourceError {
-  DOWNLOAD_SOURCE_ALREADY_EXISTS = "DOWNLOAD_SOURCE_ALREADY_EXISTS",
-  INVALID_DOWNLOAD_SOURCE = "INVALID_DOWNLOAD_SOURCE",
+export interface DownloadOption {
+  objectIds: string[];
+  title: string;
+  uris: string[];
+  fileSize: string;
+  uploadDate: string;
 }
-
-export enum DownloadSourceStatus {
-  UpToDate = "UP_TO_DATE",
-  Errored = "ERRORED",
-}
-
-export interface DownloadOption {}
 
 export interface DownloadSource {
   name: string;
+  url: string;
   status: DownloadSourceStatus;
   downloadOptions: DownloadOption[];
   downloadCount: number;
+  fingerprint: string;
 }
 
 export interface DownloadSourcesState {
   downloadSources: DownloadSource[];
   setDownloadSources: (downloadSources: DownloadSource[]) => void;
   addDownloadSource: (downloadSource: DownloadSource) => void;
-  removeDownloadSource: (name: string) => void;
+  removeDownloadSource: (url: string) => void;
   clearDownloadSources: () => void;
 }
 
@@ -39,10 +38,10 @@ export const useDownloadSourcesStore = create<DownloadSourcesState>()(
         set((state) => ({
           downloadSources: [...state.downloadSources, downloadSource],
         })),
-      removeDownloadSource: (name) =>
+      removeDownloadSource: (url) =>
         set((state) => ({
           downloadSources: state.downloadSources.filter(
-            (downloadSource) => downloadSource.name !== name
+            (downloadSource) => downloadSource.url !== url
           ),
         })),
       clearDownloadSources: () =>

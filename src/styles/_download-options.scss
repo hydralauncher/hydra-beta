@@ -1,0 +1,79 @@
+.download-options {
+  &__header {
+    background-size: cover;
+    background-position: center;
+  }
+
+  &__overlay {
+    background: linear-gradient(180deg, rgba(14, 14, 14, 0) 0%, #0e0e0e 97%);
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  &__content {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 24px;
+    min-width: 600px;
+  }
+
+  &__list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  &__item {
+    background: #080808;
+    border-radius: 8px;
+  }
+
+  &__button {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    padding: 16px;
+    width: 100%;
+    align-items: center;
+  }
+
+  &__info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    text-align: left;
+    flex: 1;
+  }
+
+  &__source {
+    color: rgba(255, 255, 255, 0.5);
+  }
+
+  &__meta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+    text-align: right;
+    flex: 1;
+  }
+
+  &__filesize {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  &__date {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    color: rgba(255, 255, 255, 0.5);
+  }
+}

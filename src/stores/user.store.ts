@@ -5,6 +5,7 @@ import { levelStorage } from "./level-storage";
 export interface User {
   id: string;
   displayName: string;
+  profileImageUrl: string;
 }
 
 export interface UserState {

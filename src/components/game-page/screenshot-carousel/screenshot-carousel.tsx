@@ -50,6 +50,8 @@ export function ScreenshotCarousel({
     })),
   ];
 
+  const isVisible = (index: number) => Math.abs(index - selectedIndex) <= 1; // only render current ±1
+
   return (
     <div style={{ overflow: "hidden", width: "100%", marginBottom: 32 }}>
       <div className="embla" ref={emblaRef} style={{ overflow: "hidden" }}>
@@ -66,25 +68,37 @@ export function ScreenshotCarousel({
               className="embla__slide"
               style={{ flex: "0 0 80%", maxWidth: "80%" }}
             >
-              {slide.type === "video" ? (
-                <video
-                  ref={(el) => (videoRefs.current[idx] = el)}
-                  src={slide.data.webm.max}
-                  poster={slide.data.thumbnail}
-                  controls
-                  muted
-                  loop
-                  playsInline
-                  style={{ width: "100%" }}
-                />
+              {isVisible(idx) ? (
+                slide.type === "video" ? (
+                  <video
+                    ref={(el) => (videoRefs.current[idx] = el)}
+                    src={slide.data.webm.max}
+                    poster={slide.data.thumbnail}
+                    controls
+                    muted
+                    loop
+                    playsInline
+                    style={{ width: "100%" }}
+                  />
+                ) : (
+                  <img
+                    src={slide.data.path_full}
+                    alt={`Screenshot ${idx + 1}`}
+                    loading="lazy"
+                    style={{
+                      width: "100%",
+                      borderRadius: 8,
+                      objectFit: "cover",
+                    }}
+                  />
+                )
               ) : (
-                <img
-                  src={slide.data.path_full}
-                  alt={`Screenshot ${idx + 1}`}
+                <div
                   style={{
                     width: "100%",
+                    aspectRatio: "16 / 9",
+                    backgroundColor: "#111",
                     borderRadius: 8,
-                    objectFit: "cover",
                   }}
                 />
               )}

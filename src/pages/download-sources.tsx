@@ -1,37 +1,45 @@
-import { Button, Input, Typography } from "@/components";
-import { useDownloadSourcesStore } from "@/stores/download-sources.store";
+import { useForm } from "react-hook-form";
+import { Button, Input, Modal, Typography } from "@/components";
+import { useDownloadSources, useFormat } from "@/hooks";
 import { ArrowsClockwise, PlusCircle, Trash } from "@phosphor-icons/react";
-import { useMutation } from "@tanstack/react-query";
+import { DownloadSource } from "@/stores";
+import { useState } from "react";
 
 export interface DownloadSourceProps {
-  name: string;
-  url: string;
+  downloadSource: DownloadSource;
 }
 
-function DownloadSource({ name, url }: DownloadSourceProps) {
-  const { removeDownloadSource } = useDownloadSourcesStore();
+function DownloadSource({ downloadSource }: DownloadSourceProps) {
+  const { removeDownloadSource, isRemoving, isSyncing } = useDownloadSources();
+  const { formatNumber } = useFormat();
 
-  const { mutate: remove } = useMutation({
-    mutationFn: async () => removeDownloadSource(name),
-  });
+  const { name, url, downloadCount } = downloadSource;
 
   return (
     <div style={{ backgroundColor: "#0E0E0E", borderRadius: 8, padding: 16 }}>
       <Typography variant="h5">{name}</Typography>
-      <Typography>1.082 download options</Typography>
+      <Typography style={{ color: "rgba(255, 255, 255, 0.5)" }}>
+        {formatNumber(downloadCount)} download options
+      </Typography>
 
       <div
         style={{
           display: "flex",
           gap: 8,
-          alignItems: "center",
+          alignItems: "flex-end",
+          marginTop: 16,
         }}
       >
-        <Input readOnly value={url} />
+        <div style={{ flex: 1 }}>
+          <Input readOnly value={url} label="Download source URL" />
+        </div>
+
         <Button
           icon={<Trash size={16} />}
           variant="danger"
-          onClick={() => remove()}
+          onClick={() => removeDownloadSource(url)}
+          disabled={isRemoving || isSyncing}
+          loading={isRemoving}
         >
           Remove
         </Button>
@@ -40,13 +48,42 @@ function DownloadSource({ name, url }: DownloadSourceProps) {
   );
 }
 
+interface FormValues {
+  url: string;
+  shouldSync: boolean;
+}
+
 export default function DownloadSources() {
-  const { downloadSources, clearDownloadSources } = useDownloadSourcesStore();
+  const { register, handleSubmit } = useForm<FormValues>({
+    defaultValues: {
+      url: "",
+      shouldSync: true,
+    },
+  });
+
+  const {
+    downloadSources,
+    clearDownloadSources,
+    importDownloadSource,
+    isImporting,
+    isSyncing,
+  } = useDownloadSources();
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (
     <div>
+      <Modal visible={isModalOpen} onClose={() => setIsModalOpen(false)}>
+        <form onSubmit={handleSubmit((values) => importDownloadSource(values))}>
+          <Input type="text" {...register("url")} />
+          <Button type="submit" loading={isImporting}>
+            Import
+          </Button>
+        </form>
+      </Modal>
+
       <Typography variant="h4">Download Sources</Typography>
-      <Typography>
+      <Typography style={{ color: "rgba(255, 255, 255, 0.5)" }}>
         Hydra will fetch the download links from these sources. The source URL
         must be a direct link to a .json file containing the download the links.
       </Typography>
@@ -56,7 +93,11 @@ export default function DownloadSources() {
           Sync All
         </Button>
 
-        <Button icon={<PlusCircle size={16} />} variant="secondary">
+        <Button
+          icon={<PlusCircle size={16} />}
+          variant="secondary"
+          onClick={() => setIsModalOpen(true)}
+        >
           Add New
         </Button>
 
@@ -64,19 +105,29 @@ export default function DownloadSources() {
           icon={<Trash size={16} />}
           variant="danger"
           onClick={() => clearDownloadSources()}
-          disabled={downloadSources.length === 0}
+          disabled={downloadSources.length === 0 || isSyncing}
         >
           Clear All
         </Button>
       </div>
 
-      {downloadSources.map((downloadSource) => (
-        <DownloadSource
-          key={downloadSource.name}
-          name={downloadSource.name}
-          url={downloadSource.url}
-        />
-      ))}
+      <ul
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: 16,
+          listStyle: "none",
+        }}
+      >
+        {downloadSources.map((downloadSource) => (
+          <li key={downloadSource.url}>
+            <DownloadSource
+              key={downloadSource.url}
+              downloadSource={downloadSource}
+            />
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }

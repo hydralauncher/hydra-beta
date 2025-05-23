@@ -11,8 +11,11 @@
 @forward "./_sidebar.scss";
 @forward "./_typography.scss";
 @forward "./_game-page.scss";
-@forward "./_overlay.scss";
+@forward "./_backdrop.scss";
 @forward "./_image-lightbox.scss";
+@forward "./_scroll-area.scss";
+@forward "./_modal.scss";
+@forward "./_download-options.scss";
 
 :root {
   --primary: rgba(255, 255, 255, 1);
@@ -85,6 +88,12 @@ body {
   box-sizing: border-box;
   padding: 0;
   margin: 0;
+  border: none;
+  outline: none;
+  background-color: transparent;
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
 }
 
 a {

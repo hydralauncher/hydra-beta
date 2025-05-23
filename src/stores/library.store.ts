@@ -1,10 +1,14 @@
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import { levelStorage } from "./level-storage";
+import type { GameShop } from "@/types";
 
 export interface Game {
   id: string;
   title: string;
+  iconUrl: string;
+  objectId: string;
+  shop: GameShop;
 }
 
 export interface LibraryState {

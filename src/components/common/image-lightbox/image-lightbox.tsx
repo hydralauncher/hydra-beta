@@ -1,4 +1,4 @@
-import { Overlay } from "../overlay/overlay";
+import { Backdrop } from "../backdrop/backdrop";
 
 export interface ImageLightboxProps {
   src: string;
@@ -7,8 +7,8 @@ export interface ImageLightboxProps {
 
 export function ImageLightbox({ src, alt }: ImageLightboxProps) {
   return (
-    <Overlay>
+    <Backdrop>
       <img src={src} alt={alt} alt={alt} className="image-lightbox" />
-    </Overlay>
+    </Backdrop>
   );
 }
