@@ -175,7 +175,7 @@ export function Sidebar() {
       <SidebarRouter />
       <Divider gap={32} />
       <SidebarLibrary />
-      {/* <SidebarProfile /> */}
+      <SidebarProfile />
     </SidebarContainer>
   );
 }
