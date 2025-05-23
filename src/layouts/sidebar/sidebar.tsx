@@ -1,8 +1,16 @@
 import { useMemo } from "react";
 import { useSidebarStore } from "@/stores/sidebar.store";
-import { FunnelSimple, MagnifyingGlass } from "@phosphor-icons/react";
 import { useLibrary } from "@/hooks/use-library.hook";
 import { useUser } from "@/hooks/use-user.hook";
+import clsx from "clsx";
+import {
+  House,
+  SquaresFour,
+  DownloadSimple,
+  Gear,
+  FunnelSimple,
+  MagnifyingGlass,
+} from "@phosphor-icons/react";
 import {
   RouteAnchor,
   Divider,
@@ -13,7 +21,30 @@ import {
 } from "@/components";
 
 function SidebarRouter() {
-  const { routes } = useSidebarStore();
+  const { isCollapsed } = useSidebarStore();
+
+  const routes = [
+    {
+      label: "Home",
+      href: "/",
+      icon: House,
+    },
+    {
+      label: "Catalogue",
+      href: "/catalogue",
+      icon: SquaresFour,
+    },
+    {
+      label: "Downloads",
+      href: "/downloads",
+      icon: DownloadSimple,
+    },
+    {
+      label: "Settings",
+      href: "/settings",
+      icon: Gear,
+    },
+  ];
 
   return (
     <div className="router-container">
@@ -23,6 +54,7 @@ function SidebarRouter() {
           label={route.label}
           href={route.href}
           icon={<route.icon size={24} />}
+          collapsed={isCollapsed}
         />
       ))}
     </div>
@@ -31,8 +63,7 @@ function SidebarRouter() {
 
 function SidebarLibrary() {
   const { library } = useLibrary();
-  console.log(library);
-  const { searchTerm, setSearchTerm } = useSidebarStore();
+  const { searchTerm, setSearchTerm, isCollapsed } = useSidebarStore();
 
   const filteredLibrary = useMemo(() => {
     const term = searchTerm.trim().toLowerCase();
@@ -64,11 +95,18 @@ function SidebarLibrary() {
           iconLeft={<MagnifyingGlass size={24} />}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
+          inputSize={isCollapsed ? "icon" : "default"}
+          collapsed={isCollapsed}
         />
 
-        <Button variant="rounded" size="icon">
-          <FunnelSimple size={24} className="library-container__header__icon" />
-        </Button>
+        {!isCollapsed && (
+          <Button variant="rounded" size="icon">
+            <FunnelSimple
+              size={24}
+              className="library-container__header__icon"
+            />
+          </Button>
+        )}
       </div>
 
       <ScrollArea>
@@ -81,6 +119,7 @@ function SidebarLibrary() {
                 href={`/game/${game.id}`}
                 icon={game.iconUrl}
                 isFavorite={game.isFavorite}
+                collapsed={isCollapsed}
               />
             </li>
           ))}
@@ -104,13 +143,39 @@ function SidebarProfile() {
   );
 }
 
+function SidebarContainer({
+  children,
+}: Readonly<{ children: React.ReactNode }>) {
+  const { isCollapsed } = useSidebarStore();
+
+  return (
+    <>
+      <div
+        className={clsx(
+          "sidebar-container",
+          isCollapsed && "sidebar-container--collapsed"
+        )}
+      >
+        {children}
+      </div>
+      <div className="sidebar-spacer" />
+      <div
+        className={clsx(
+          "sidebar-drawer-overlay",
+          isCollapsed && "sidebar-drawer-overlay--collapsed"
+        )}
+      />
+    </>
+  );
+}
+
 export function Sidebar() {
   return (
-    <div className="sidebar-container">
+    <SidebarContainer>
       <SidebarRouter />
       <Divider gap={32} />
       <SidebarLibrary />
-      <SidebarProfile />
-    </div>
+      {/* <SidebarProfile /> */}
+    </SidebarContainer>
   );
 }
