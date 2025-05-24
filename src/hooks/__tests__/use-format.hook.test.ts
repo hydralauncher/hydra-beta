@@ -69,4 +69,36 @@ describe("useFormat", () => {
       expect(result.current.formatCompactNumber(0)).toBe("0");
     });
   });
+
+  describe("formatPlayTime", () => {
+    it("should format times less than 120 minutes in minutes", () => {
+      const { result } = renderHook(() => useFormat());
+
+      expect(result.current.formatPlayTime(0)).toBe("0 minutes");
+      expect(result.current.formatPlayTime(60)).toBe("1 minutes");
+      expect(result.current.formatPlayTime(3540)).toBe("59 minutes");
+      expect(result.current.formatPlayTime(7140)).toBe("119 minutes");
+    });
+
+    it("should format times greater than or equal to 120 minutes in hours", () => {
+      const { result } = renderHook(() => useFormat());
+
+      expect(result.current.formatPlayTime(7200)).toBe("2 hours");
+      expect(result.current.formatPlayTime(36000)).toBe("10 hours");
+      expect(result.current.formatPlayTime(86400)).toBe("24 hours");
+    });
+
+    it("should handle edge cases", () => {
+      const { result } = renderHook(() => useFormat());
+
+      // Exactly 120 minutes
+      expect(result.current.formatPlayTime(7200)).toBe("2 hours");
+
+      // Just under 120 minutes
+      expect(result.current.formatPlayTime(7199)).toBe("120 minutes");
+
+      // Just over 120 minutes
+      expect(result.current.formatPlayTime(7201)).toBe("2 hours");
+    });
+  });
 });
