@@ -13,10 +13,6 @@
     padding: calc(var(--spacing-unit) * 3);
   }
 
-  &--collapsed {
-    width: 48px;
-  }
-
   &--active {
     color: var(--primary);
     background-color: var(--secondary-hover);
@@ -54,10 +50,6 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-
-    &--collapsed {
-      display: none;
-    }
   }
 
   &__favorite {
@@ -78,10 +70,6 @@
 
   &--active {
     pointer-events: none;
-  }
-
-  &--collapsed {
-    width: 48px;
   }
 }
 

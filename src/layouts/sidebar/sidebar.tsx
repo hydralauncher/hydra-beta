@@ -1,7 +1,5 @@
-import { useSidebarStore } from "@/stores/sidebar.store";
 import { useLibrary } from "@/hooks/use-library.hook";
 import { useUser } from "@/hooks/use-user.hook";
-import clsx from "clsx";
 import {
   House,
   SquaresFour,
@@ -23,8 +21,6 @@ import { useSearch } from "@/hooks";
 import { useMemo } from "react";
 
 function SidebarRouter() {
-  const { isCollapsed } = useSidebarStore();
-
   const routes = [
     {
       label: "Home",
@@ -56,7 +52,6 @@ function SidebarRouter() {
           label={route.label}
           href={route.href}
           icon={<route.icon size={24} />}
-          collapsed={isCollapsed}
         />
       ))}
     </div>
@@ -65,7 +60,6 @@ function SidebarRouter() {
 
 function SidebarLibrary() {
   const { library } = useLibrary();
-  const { isCollapsed } = useSidebarStore();
 
   const sortedLibrary = useMemo(() => {
     return library.sort(
@@ -86,18 +80,11 @@ function SidebarLibrary() {
           iconLeft={<MagnifyingGlass size={24} />}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          inputSize={isCollapsed ? "icon" : "default"}
-          collapsed={isCollapsed}
         />
 
-        {!isCollapsed && (
-          <Button variant="rounded" size="icon">
-            <FunnelSimple
-              size={24}
-              className="library-container__header__icon"
-            />
-          </Button>
-        )}
+        <Button variant="rounded" size="icon">
+          <FunnelSimple size={24} className="library-container__header__icon" />
+        </Button>
       </div>
 
       <ScrollArea>
@@ -110,7 +97,6 @@ function SidebarLibrary() {
                 href={`/game/${game.objectId}/${toSlug(game.title)}`}
                 icon={game.iconUrl}
                 isFavorite={game.isFavorite}
-                collapsed={isCollapsed}
               />
             </li>
           ))}
@@ -137,25 +123,11 @@ function SidebarProfile() {
 function SidebarContainer({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  const { isCollapsed } = useSidebarStore();
-
   return (
     <>
-      <div
-        className={clsx(
-          "sidebar-container",
-          isCollapsed && "sidebar-container--collapsed"
-        )}
-      >
-        {children}
-      </div>
+      <div className="sidebar-container">{children}</div>
       <div className="sidebar-spacer" />
-      <div
-        className={clsx(
-          "sidebar-drawer-overlay",
-          isCollapsed && "sidebar-drawer-overlay--collapsed"
-        )}
-      />
+      <div className="sidebar-drawer-overlay" />
     </>
   );
 }
@@ -164,7 +136,7 @@ export function Sidebar() {
   return (
     <SidebarContainer>
       <SidebarRouter />
-      <Divider gap={32} />
+      <Divider />
       <SidebarLibrary />
       <SidebarProfile />
     </SidebarContainer>
