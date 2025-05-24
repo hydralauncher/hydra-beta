@@ -1,21 +1,23 @@
 import List from "rc-virtual-list";
 import { Controller, Control, FieldValues, Path } from "react-hook-form";
 import { useMemo } from "react";
-import { Checkbox } from "@/components";
+import { Checkbox, Typography } from "@/components";
 
 type FilterSectionDataProps = string[] | Record<string, number>;
 
-const ITEM_HEIGHT = 28;
+const ITEM_HEIGHT = 32;
 const MAX_VISIBLE_ITEMS = 10;
 
 export function FilterSection<T extends FieldValues>({
   listData,
   name,
   control,
+  searchTerm = "",
 }: Readonly<{
   listData: FilterSectionDataProps | undefined;
   name: Path<T>;
   control: Control<T>;
+  searchTerm?: string;
 }>) {
   const isRecord = !Array.isArray(listData);
 
@@ -23,12 +25,20 @@ export function FilterSection<T extends FieldValues>({
     if (!listData) return { items: [], height: 0 };
 
     const itemList = isRecord ? Object.keys(listData) : listData;
-    const itemCount = Math.min(itemList.length, MAX_VISIBLE_ITEMS);
+
+    const filteredItems = searchTerm
+      ? itemList.filter((item) =>
+          item.toLowerCase().includes(searchTerm.toLowerCase())
+        )
+      : itemList;
+
+    const itemCount = Math.min(filteredItems.length, MAX_VISIBLE_ITEMS);
+
     return {
-      items: itemList,
+      items: filteredItems,
       height: ITEM_HEIGHT * itemCount,
     };
-  }, [listData, isRecord]);
+  }, [listData, isRecord, searchTerm]);
 
   if (!listData) return null;
 
@@ -45,6 +55,19 @@ export function FilterSection<T extends FieldValues>({
             : selected.filter((v) => v !== value);
           field.onChange(next);
         };
+
+        if (items.length === 0) {
+          return (
+            <div className="filter-section__empty">
+              <Typography
+                variant="label"
+                className="filter-section__empty__text"
+              >
+                No results found
+              </Typography>
+            </div>
+          );
+        }
 
         return (
           <List

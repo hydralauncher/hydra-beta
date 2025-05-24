@@ -3,6 +3,7 @@ import { useCatalogueData } from "../hooks";
 import { FilterSection, Accordion, Input } from "@/components";
 import { useForm } from "react-hook-form";
 import { MagnifyingGlassIcon } from "@phosphor-icons/react";
+import { useCatalogueStore } from "@/stores/catalogue.store";
 
 enum Filters {
   Title = "title",
@@ -35,6 +36,7 @@ function ColorDot({ color }: Readonly<{ color: string }>) {
 
 function CatalogueFilters() {
   const { catalogueData } = useCatalogueData();
+  const { filtersSearchTerms, setFilterSearchTerm } = useCatalogueStore();
   const { control, watch } = useForm();
   const userLanguage = "en"; //  hardcoded enquanto nao temos um "useLocale()"
 
@@ -42,59 +44,69 @@ function CatalogueFilters() {
 
   if (!catalogueData) return null;
 
-  const filterSections = [
-    {
-      name: Filters.Genres,
-      color: Colors.Genres,
-      data: catalogueData.genres[userLanguage],
-    },
-    {
-      name: Filters.UserTags,
-      color: Colors.UserTags,
-      data: catalogueData.userTags[userLanguage],
-    },
-    {
-      name: Filters.Developers,
-      color: Colors.Developers,
-      data: catalogueData.developers,
-    },
-    {
-      name: Filters.Publishers,
-      color: Colors.Publishers,
-      data: catalogueData.publishers,
-    },
-  ];
+  const getFilterSection = (name: Exclude<Filters, Filters.Title>) => {
+    const dataMap = {
+      [Filters.Genres]: catalogueData.genres[userLanguage],
+      [Filters.UserTags]: catalogueData.userTags[userLanguage],
+      [Filters.Developers]: catalogueData.developers,
+      [Filters.Publishers]: catalogueData.publishers,
+    } as const;
 
-  const getDataLength = (
-    name: string,
-    data: string[] | Record<string, number>
-  ) => {
-    return name === Filters.UserTags ? Object.keys(data).length : data.length;
+    const colorMap = {
+      [Filters.Genres]: Colors.Genres,
+      [Filters.UserTags]: Colors.UserTags,
+      [Filters.Developers]: Colors.Developers,
+      [Filters.Publishers]: Colors.Publishers,
+    } as const;
+
+    const data = dataMap[name];
+    const color = colorMap[name];
+    const length =
+      name === Filters.UserTags
+        ? Object.keys(data || {}).length
+        : data?.length || 0;
+
+    return { name, color, data, length };
   };
+
+  const filterSections = (
+    [
+      Filters.Genres,
+      Filters.UserTags,
+      Filters.Developers,
+      Filters.Publishers,
+    ] as const
+  )
+    .map(getFilterSection)
+    .filter(({ data }) => data);
 
   return (
     <div className="catalogue-filters">
-      {filterSections.map(
-        ({ name, color, data }) =>
-          data && (
-            <Accordion
-              key={name}
-              title={name}
-              icon={<ColorDot color={color} />}
-              open={true}
-              hint={`${getDataLength(name, data)} Available`}
-            >
-              <div className="catalogue-filters__container">
-                <Input
-                  placeholder={`Search ${name}`}
-                  iconLeft={<MagnifyingGlassIcon size={24} />}
-                />
+      {filterSections.map(({ name, color, data, length }) => (
+        <Accordion
+          key={name}
+          title={name}
+          icon={<ColorDot color={color} />}
+          open={true}
+          hint={`${length} Available`}
+        >
+          <div className="catalogue-filters__container">
+            <Input
+              placeholder={`Search ${name}`}
+              iconLeft={<MagnifyingGlassIcon size={24} />}
+              value={filtersSearchTerms[name] || ""}
+              onChange={(e) => setFilterSearchTerm(name, e.target.value)}
+            />
 
-                <FilterSection name={name} listData={data} control={control} />
-              </div>
-            </Accordion>
-          )
-      )}
+            <FilterSection
+              name={name}
+              listData={data}
+              control={control}
+              searchTerm={filtersSearchTerms[name] || ""}
+            />
+          </div>
+        </Accordion>
+      ))}
     </div>
   );
 }

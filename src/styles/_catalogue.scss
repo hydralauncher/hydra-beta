@@ -37,3 +37,8 @@
     margin-bottom: 0;
   }
 }
+
+.filter-section__empty__text {
+  color: var(--text-secondary);
+  margin-top: calc(var(--spacing-unit) * 3.5);
+}
