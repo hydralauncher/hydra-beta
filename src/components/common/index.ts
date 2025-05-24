@@ -5,6 +5,7 @@ export { ListCard, type ListCardProps } from "./cards/game-list/list-card";
 export { Divider, type DividerProps } from "./divider/divider";
 export { Tooltip, type TooltipProps } from "./tooltip/tooltip";
 export { ScrollArea, type ScrollAreaProps } from "./scroll-area/scroll-area";
+export { Accordion, type AccordionProps } from "./accordion/accordion";
 export {
   UserProfile,
   type UserProfileProps,
