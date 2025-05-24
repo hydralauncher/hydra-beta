@@ -2,69 +2,38 @@
   display: flex;
   flex-direction: row;
   width: 100%;
-  height: 100%;
-  padding: 2rem;
-  gap: 2rem;
+  min-width: 100%;
+  padding: calc(var(--spacing-unit) * 12);
+  justify-content: space-between;
+  gap: calc(var(--spacing-unit) * 12);
 }
 
-.catalogue-search {
-  width: 80%;
-  height: 100%;
+.catalogue-content {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
-
-  &__input {
-    width: 100%;
-    height: 42px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    padding: 10px;
-  }
-
-  .search-content {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    flex-direction: row;
-    gap: 1rem;
-
-    &__payload {
-      width: 30%;
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-      font-size: 16px;
-    }
-
-    &__results {
-      width: 70%;
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-      font-size: 16px;
-    }
-  }
+  flex: 1;
+  height: 100%;
 }
 
 .catalogue-filters {
-  width: 20%;
-  height: 100%;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  width: 400px;
+  height: 100%;
+  gap: calc(var(--spacing-unit) * 3);
 
-  &__section {
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    padding: 1rem;
+  &__container {
+    display: flex;
+    flex-direction: column;
+    gap: calc(var(--spacing-unit) * 2);
+    width: 100%;
   }
 }
 
-.filter-section-item {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+.filter-section__item {
+  margin-bottom: 4px;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
 }

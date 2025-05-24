@@ -1,7 +1,8 @@
-import List from "rc-virtual-list";
 import { useMemo } from "react";
-import { Controller, Control, FieldValues, Path } from "react-hook-form";
 import { useCatalogueData } from "../hooks";
+import { FilterSection, Accordion, Input } from "@/components";
+import { useForm } from "react-hook-form";
+import { MagnifyingGlassIcon } from "@phosphor-icons/react";
 
 enum Filters {
   Title = "title",
@@ -11,9 +12,105 @@ enum Filters {
   Publishers = "publishers",
 }
 
-type FilterSectionDataProps = string[] | Record<string, number>;
+enum Colors {
+  Genres = "magenta",
+  UserTags = "orange",
+  Developers = "cyan",
+  Publishers = "limegreen",
+}
+
+function ColorDot({ color }: Readonly<{ color: string }>) {
+  return (
+    <div
+      className="color-dot"
+      style={{
+        backgroundColor: color,
+        width: "11px",
+        height: "11px",
+        borderRadius: "50%",
+      }}
+    />
+  );
+}
+
+function CatalogueFilters() {
+  const { catalogueData } = useCatalogueData();
+  const { control, watch } = useForm();
+  const userLanguage = "en"; //  hardcoded enquanto nao temos um "useLocale()"
+
+  console.log(watch());
+
+  if (!catalogueData) return null;
+
+  const filterSections = [
+    {
+      name: Filters.Genres,
+      color: Colors.Genres,
+      data: catalogueData.genres[userLanguage],
+    },
+    {
+      name: Filters.UserTags,
+      color: Colors.UserTags,
+      data: catalogueData.userTags[userLanguage],
+    },
+    {
+      name: Filters.Developers,
+      color: Colors.Developers,
+      data: catalogueData.developers,
+    },
+    {
+      name: Filters.Publishers,
+      color: Colors.Publishers,
+      data: catalogueData.publishers,
+    },
+  ];
+
+  const getDataLength = (
+    name: string,
+    data: string[] | Record<string, number>
+  ) => {
+    return name === Filters.UserTags ? Object.keys(data).length : data.length;
+  };
+
+  return (
+    <div className="catalogue-filters">
+      {filterSections.map(
+        ({ name, color, data }) =>
+          data && (
+            <Accordion
+              key={name}
+              title={name}
+              icon={<ColorDot color={color} />}
+              open={true}
+              hint={`${getDataLength(name, data)} Available`}
+            >
+              <div className="catalogue-filters__container">
+                <Input
+                  placeholder={`Search ${name}`}
+                  iconLeft={<MagnifyingGlassIcon size={24} />}
+                />
+
+                <FilterSection name={name} listData={data} control={control} />
+              </div>
+            </Accordion>
+          )
+      )}
+    </div>
+  );
+}
 
 export default function Catalogue() {
+  return (
+    <div className="catalogue-container">
+      <div className="catalogue-content">
+        <h1>flex 1</h1>
+      </div>
+      <CatalogueFilters />
+    </div>
+  );
+}
+
+export function CatalogueOld() {
   const { form, catalogueData, search } = useCatalogueData();
   const { register, control, watch } = form;
 
@@ -86,101 +183,5 @@ export default function Catalogue() {
         </div>
       </div>
     </div>
-  );
-}
-
-function FilterSection<T extends FieldValues>({
-  listData,
-  name,
-  control,
-}: {
-  listData: FilterSectionDataProps | undefined;
-  name: Path<T>;
-  control: Control<T>;
-}) {
-  if (!listData) return null;
-
-  const isArray = Array.isArray(listData);
-  const isRecord = !isArray && typeof listData === "object";
-
-  const calculateHeight = (items: readonly unknown[]) =>
-    28 * (items.length > 10 ? 10 : items.length);
-
-  return (
-    <Controller
-      name={name}
-      control={control}
-      render={({ field }) => {
-        const selected: (string | number)[] = field.value ?? [];
-
-        const handleChange = (value: string | number, checked: boolean) => {
-          const next = checked
-            ? [...selected, value]
-            : selected.filter((v) => v !== value);
-          field.onChange(next);
-        };
-
-        return (
-          <div className="filter-section">
-            {isArray && (
-              <List
-                data={listData}
-                height={calculateHeight(listData)}
-                itemHeight={28}
-                itemKey={(item) => item}
-              >
-                {(item: string) => (
-                  <div className="filter-section-item" key={item}>
-                    <input
-                      id={`${name}-${item}`}
-                      type="checkbox"
-                      value={item}
-                      checked={selected.includes(item)}
-                      onChange={(e) => handleChange(item, e.target.checked)}
-                    />
-                    <label
-                      className="filter-section-item__label"
-                      htmlFor={`${name}-${item}`}
-                    >
-                      {item}
-                    </label>
-                  </div>
-                )}
-              </List>
-            )}
-
-            {isRecord && (
-              <List
-                data={Object.keys(listData)}
-                height={calculateHeight(Object.keys(listData))}
-                itemHeight={28}
-                itemKey={(item) => item}
-              >
-                {(item: string) => {
-                  const value = (listData as Record<string, number>)[item];
-                  return (
-                    <div className="filter-section-item" key={item}>
-                      <input
-                        id={`${name}-${item}`}
-                        type="checkbox"
-                        value={value}
-                        checked={selected.includes(value)}
-                        onChange={(e) => handleChange(value, e.target.checked)}
-                      />
-                      <label
-                        className="filter-section-item__label"
-                        htmlFor={`${name}-${item}`}
-                      >
-                        {item}
-                      </label>
-                    </div>
-                  );
-                }}
-              </List>
-            )}
-          </div>
-        );
-      }}
-    />
   );
 }
