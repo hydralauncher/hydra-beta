@@ -27,6 +27,7 @@
   flex-direction: row;
   align-items: center;
   gap: calc(var(--spacing-unit) * 2);
+  text-transform: capitalize;
 }
 
 .accordion__header__indicators__icon {

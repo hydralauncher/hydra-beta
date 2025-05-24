@@ -7,6 +7,7 @@ import clsx from "clsx";
 export interface AccordionProps {
   title: string;
   hint?: string;
+  open?: boolean;
   icon?: React.ReactNode;
   children: React.ReactNode;
 }
@@ -65,9 +66,10 @@ export function Accordion({
   title,
   hint,
   icon,
+  open = false,
   children,
 }: Readonly<AccordionProps>) {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(open);
 
   return (
     <div className="accordion">
