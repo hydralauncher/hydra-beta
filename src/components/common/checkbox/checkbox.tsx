@@ -22,8 +22,16 @@ export const Checkbox = ({ label, ...props }: CheckboxProps) => {
     props.onChange?.(checked);
   };
 
+  const handleBlockClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    if (!props.block) return;
+
+    e.preventDefault();
+    handleChange(!isChecked);
+  };
+
   return (
-    <div
+    <button
+      onClick={handleBlockClick}
       className={clsx("checkbox", {
         "checkbox--block": props.block,
         "checkbox--block--active": props.block && isChecked,
@@ -49,6 +57,6 @@ export const Checkbox = ({ label, ...props }: CheckboxProps) => {
           {label}
         </label>
       )}
-    </div>
+    </button>
   );
 };

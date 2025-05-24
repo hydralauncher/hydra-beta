@@ -1,7 +1,7 @@
 .checkbox {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   gap: calc(var(--spacing-unit) * 2);
   font-size: 14px;
   font-style: normal;
@@ -9,11 +9,12 @@
   line-height: normal;
   padding: calc(var(--spacing-unit) * 2);
   user-select: none;
+  cursor: pointer;
 
   &--block {
+    width: 100%;
     border-radius: calc(var(--spacing-unit) * 2);
     transition: background-color 0.2s ease-in-out;
-    cursor: pointer;
 
     &:hover {
       background-color: var(--secondary);
