@@ -16,7 +16,7 @@ import { useDate, useDownloadSources, useFormat, useGamePage } from "@/hooks";
 import { GameShop, type SteamAppDetails } from "@/types";
 import { toSlug } from "@/helpers";
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 
 export interface ShopAssets {
   objectId: string;
@@ -90,15 +90,19 @@ export default function GamePage({
   appDetails,
 }: Readonly<GamePageProps>) {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isFavorite, setIsFavorite] = useState(false);
   const router = useRouter();
   const { id } = router.query;
 
   const { formatNumber } = useFormat();
   const { formatDistance } = useDate();
 
-  const { howLongToBeat, achievements, profileGame, toggleFavorite } =
-    useGamePage(id as string, "steam");
+  const {
+    howLongToBeat,
+    achievements,
+    profileGame,
+    toggleFavorite,
+    isFavorite,
+  } = useGamePage("steam", id as string);
 
   const { downloadSources } = useDownloadSources();
 
@@ -116,10 +120,6 @@ export default function GamePage({
       ),
     [downloadSources, id]
   );
-
-  useEffect(() => {
-    setIsFavorite(profileGame?.isFavorite ?? false);
-  }, [profileGame]);
 
   return (
     <>
@@ -206,13 +206,7 @@ export default function GamePage({
                   isFavorite ? "Remove from Favorites" : "Add to Favorites"
                 }
               >
-                <Button
-                  variant="secondary"
-                  onClick={() => {
-                    toggleFavorite(!isFavorite);
-                    setIsFavorite(!isFavorite);
-                  }}
-                >
+                <Button variant="secondary" onClick={() => toggleFavorite()}>
                   <motion.span
                     key={isFavorite ? "filled" : "empty"}
                     initial={{ scale: 0.8, opacity: 0 }}

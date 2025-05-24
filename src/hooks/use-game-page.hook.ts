@@ -1,11 +1,13 @@
 import { ShopAssets } from "@/pages/game/[id]/[slug]";
 import { api } from "@/services/api.service";
-import { HowLongToBeatCategory } from "@/types";
+import type { GameShop, HowLongToBeatCategory } from "@/types";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useLibrary } from "./use-library.hook";
+import { useEffect, useState } from "react";
 
-export function useGamePage(objectId: string, shop: string) {
-  const { getLibrary } = useLibrary();
+export function useGamePage(shop: GameShop, objectId: string) {
+  const [isFavorite, setIsFavorite] = useState(false);
+  const { toggleGameFavorite } = useLibrary();
 
   const { data: howLongToBeat } = useQuery<HowLongToBeatCategory[]>({
     queryKey: ["howLongToBeat", shop, objectId],
@@ -38,17 +40,28 @@ export function useGamePage(objectId: string, shop: string) {
     initialData: null,
   });
 
-  const { mutate: toggleFavorite } = useMutation({
-    mutationFn: async (isFavorite: boolean) => {
-      if (!isFavorite) {
-        await api.put(`profile/games/${shop}/${objectId}/unfavorite`).json();
-      } else {
-        await api.put(`profile/games/${shop}/${objectId}/favorite`).json();
-      }
+  useEffect(() => {
+    setIsFavorite(profileGame?.isFavorite ?? false);
+  }, [profileGame]);
 
-      getLibrary();
+  const { mutate: toggleFavorite } = useMutation({
+    mutationFn: async () => {
+      setIsFavorite(!isFavorite);
+
+      try {
+        await toggleGameFavorite(shop, objectId);
+      } catch (error) {
+        console.error(error);
+        setIsFavorite(isFavorite);
+      }
     },
   });
 
-  return { howLongToBeat, achievements, profileGame, toggleFavorite };
+  return {
+    howLongToBeat,
+    achievements,
+    profileGame,
+    toggleFavorite,
+    isFavorite,
+  };
 }
