@@ -7,8 +7,6 @@ import { useDownloadSources, useFormat, useGamePage } from "@/hooks";
 import { GameStats, type SteamAppDetails } from "@/types";
 import { toSlug } from "@/helpers";
 import { useMemo, useState } from "react";
-import { GameHero } from "@/components/game-page/game-hero";
-import { TitleBox } from "@/components/game-page/title-box";
 
 export interface GamePageProps {
   stats: GameStats;
@@ -75,7 +73,7 @@ export default function GamePageWrapper({
       />
 
       <div className="game-page">
-        <GameHero
+        <GamePage.Hero
           stats={stats}
           appDetails={appDetails}
           isFavorite={isFavorite}
@@ -161,7 +159,7 @@ export default function GamePageWrapper({
               </div>
 
               <div className="game-page__box-group">
-                <TitleBox title="Requirements" />
+                <GamePage.TitleBox title="Requirements" />
 
                 <GamePage.Box
                   dangerouslySetInnerHTML={{
