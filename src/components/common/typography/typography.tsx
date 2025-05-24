@@ -1,7 +1,9 @@
 import clsx from "clsx";
 
 export interface TypographyProps
-  extends React.HTMLAttributes<HTMLHeadingElement | HTMLParagraphElement> {
+  extends React.HTMLAttributes<
+    HTMLHeadingElement | HTMLParagraphElement | HTMLLabelElement
+  > {
   variant?: "h1" | "h2" | "h3" | "h4" | "h5" | "h6" | "body" | "label";
 }
 

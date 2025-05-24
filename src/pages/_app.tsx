@@ -32,7 +32,6 @@ function Main({ children }: { children: React.ReactNode }) {
   return (
     <main
       ref={contentRef}
-      className={spaceGrotesk.className}
       style={{
         display: "flex",
         flex: 1,
@@ -60,11 +59,16 @@ export default function App({ Component, pageProps }: AppProps) {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <Sidebar />
+      <div
+        className={spaceGrotesk.className}
+        style={{ width: "100%", display: "flex" }}
+      >
+        <Sidebar />
 
-      <Main>
-        <Component {...pageProps} />
-      </Main>
+        <Main>
+          <Component {...pageProps} />
+        </Main>
+      </div>
     </QueryClientProvider>
   );
 }
