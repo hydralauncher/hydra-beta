@@ -131,11 +131,8 @@ export default function GamePage({
           property="og:description"
           content={appDetails.short_description}
         />
-        {stats.assets?.libraryHeroImageUrl && (
-          <meta
-            property="og:image"
-            content={stats.assets.libraryHeroImageUrl}
-          />
+        {stats.assets?.libraryImageUrl && (
+          <meta property="og:image" content={stats.assets.libraryImageUrl} />
         )}
         <meta
           property="og:url"

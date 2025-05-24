@@ -8,7 +8,7 @@ export function useLibrary() {
   const { setLibrary, library } = useLibraryStore();
   const { user } = useUser();
 
-  const { data, isLoading } = useQuery<Game[]>({
+  const { data, refetch, isLoading } = useQuery<Game[]>({
     queryKey: ["library", user?.id],
     queryFn: () => api.get("profile/games").json(),
   });
@@ -22,5 +22,6 @@ export function useLibrary() {
   return {
     library,
     isLoading,
+    getLibrary: refetch,
   };
 }

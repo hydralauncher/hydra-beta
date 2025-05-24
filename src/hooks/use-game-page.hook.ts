@@ -2,8 +2,11 @@ import { ShopAssets } from "@/pages/game/[id]/[slug]";
 import { api } from "@/services/api.service";
 import { HowLongToBeatCategory } from "@/types";
 import { useMutation, useQuery } from "@tanstack/react-query";
+import { useLibrary } from "./use-library.hook";
 
 export function useGamePage(objectId: string, shop: string) {
+  const { getLibrary } = useLibrary();
+
   const { data: howLongToBeat } = useQuery<HowLongToBeatCategory[]>({
     queryKey: ["howLongToBeat", shop, objectId],
     queryFn: () =>
@@ -42,6 +45,8 @@ export function useGamePage(objectId: string, shop: string) {
       } else {
         await api.put(`profile/games/${shop}/${objectId}/favorite`).json();
       }
+
+      getLibrary();
     },
   });
 

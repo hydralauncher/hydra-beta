@@ -52,7 +52,7 @@ export function useDate() {
           locale: getDateLocale("en"),
         });
       } catch (err) {
-        console.error(err);
+        // console.error(err);
         return "";
       }
     },
@@ -68,15 +68,20 @@ export function useDate() {
           locale: getDateLocale("en"),
         });
       } catch (err) {
-        console.error(err);
+        // console.error(err);
         return "";
       }
     },
 
     formatDateTime: (date: number | Date | string): string => {
-      return format(date, "MM-dd-yyyy - hh:mm a", {
-        locale: getDateLocale("en"),
-      });
+      try {
+        return format(date, "MM-dd-yyyy - hh:mm a", {
+          locale: getDateLocale("en"),
+        });
+      } catch (err) {
+        // console.error(err);
+        return "";
+      }
     },
 
     formatDate: (date: number | Date | string) => formatDate(date, "en"),

@@ -132,7 +132,8 @@ export function Tooltip({
       >
         {children}
       </div>
-      {isHovering && createPortal(tooltipContent, document.body)}
+      {isHovering &&
+        createPortal(tooltipContent, document.getElementById("app")!)}
     </>
   );
 }

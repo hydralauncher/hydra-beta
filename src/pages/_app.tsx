@@ -60,6 +60,7 @@ export default function App({ Component, pageProps }: AppProps) {
   return (
     <QueryClientProvider client={queryClient}>
       <div
+        id="app"
         className={spaceGrotesk.className}
         style={{ width: "100%", display: "flex" }}
       >

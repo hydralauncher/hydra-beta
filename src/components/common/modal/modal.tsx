@@ -90,6 +90,6 @@ export function Modal({
         </Backdrop>
       )}
     </AnimatePresence>,
-    document.body
+    document.getElementById("app")!
   );
 }
