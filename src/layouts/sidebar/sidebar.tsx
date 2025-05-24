@@ -1,8 +1,6 @@
-import { useMemo } from "react";
-import { useSidebarStore } from "@/stores/sidebar.store";
+import { useMemo, useState } from "react";
 import { useLibrary } from "@/hooks/use-library.hook";
 import { useUser } from "@/hooks/use-user.hook";
-import clsx from "clsx";
 import {
   House,
   SquaresFour,
@@ -21,8 +19,6 @@ import {
 } from "@/components";
 
 function SidebarRouter() {
-  const { isCollapsed } = useSidebarStore();
-
   const routes = [
     {
       label: "Home",
@@ -54,7 +50,6 @@ function SidebarRouter() {
           label={route.label}
           href={route.href}
           icon={<route.icon size={24} />}
-          collapsed={isCollapsed}
         />
       ))}
     </div>
@@ -63,7 +58,7 @@ function SidebarRouter() {
 
 function SidebarLibrary() {
   const { library } = useLibrary();
-  const { searchTerm, setSearchTerm, isCollapsed } = useSidebarStore();
+  const [searchTerm, setSearchTerm] = useState("");
 
   const filteredLibrary = useMemo(() => {
     const term = searchTerm.trim().toLowerCase();
@@ -95,18 +90,11 @@ function SidebarLibrary() {
           iconLeft={<MagnifyingGlass size={24} />}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          inputSize={isCollapsed ? "icon" : "default"}
-          collapsed={isCollapsed}
         />
 
-        {!isCollapsed && (
-          <Button variant="rounded" size="icon">
-            <FunnelSimple
-              size={24}
-              className="library-container__header__icon"
-            />
-          </Button>
-        )}
+        <Button variant="rounded" size="icon">
+          <FunnelSimple size={24} className="library-container__header__icon" />
+        </Button>
       </div>
 
       <ScrollArea>
@@ -119,7 +107,6 @@ function SidebarLibrary() {
                 href={`/game/${game.id}`}
                 icon={game.iconUrl}
                 isFavorite={game.isFavorite}
-                collapsed={isCollapsed}
               />
             </li>
           ))}
@@ -146,25 +133,11 @@ function SidebarProfile() {
 function SidebarContainer({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  const { isCollapsed } = useSidebarStore();
-
   return (
     <>
-      <div
-        className={clsx(
-          "sidebar-container",
-          isCollapsed && "sidebar-container--collapsed"
-        )}
-      >
-        {children}
-      </div>
+      <div className="sidebar-container">{children}</div>
       <div className="sidebar-spacer" />
-      <div
-        className={clsx(
-          "sidebar-drawer-overlay",
-          isCollapsed && "sidebar-drawer-overlay--collapsed"
-        )}
-      />
+      <div className="sidebar-drawer-overlay" />
     </>
   );
 }
@@ -173,7 +146,7 @@ export function Sidebar() {
   return (
     <SidebarContainer>
       <SidebarRouter />
-      <Divider gap={32} />
+      <Divider />
       <SidebarLibrary />
       <SidebarProfile />
     </SidebarContainer>

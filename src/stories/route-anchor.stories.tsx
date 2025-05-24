@@ -39,7 +39,6 @@ export const Collapsible = () => (
     }}
   >
     <RouteAnchor href="/" label="Home" icon={<House size={24} />} />
-    <RouteAnchor href="/" label="Home" icon={<House size={24} />} collapsed />
   </div>
 );
 
@@ -77,13 +76,6 @@ export const GameIcon = () => (
       href="/"
       label="Cyberpunk 2077"
       icon="https://cdn2.steamgriddb.com/icon/3b5e2c9be5002e87e0477099db5ff21b/32/256x256.png"
-    />
-
-    <RouteAnchor
-      href="/"
-      label="Cyberpunk 2077"
-      icon="https://cdn2.steamgriddb.com/icon/3b5e2c9be5002e87e0477099db5ff21b/32/256x256.png"
-      collapsed
     />
   </div>
 );
