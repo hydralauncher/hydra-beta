@@ -38,7 +38,9 @@ function Main({ children }: { children: React.ReactNode }) {
         overflow: "auto",
       }}
     >
-      <div style={{ maxWidth: 1920, margin: "0 auto" }}>{children}</div>
+      <div style={{ maxWidth: 1920, margin: "0 auto", flex: 1 }}>
+        {children}
+      </div>
     </main>
   );
 }

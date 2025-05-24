@@ -126,6 +126,31 @@ export function useDownloadSources() {
       },
     });
 
+  const downloadSourcesByObjectId = useMemo(() => {
+    console.log(downloadSources);
+    const map = new Map<
+      string,
+      (DownloadOption & { downloadSource: string })[]
+    >();
+
+    for (const downloadSource of downloadSources) {
+      for (const downloadOption of downloadSource.downloadOptions) {
+        for (const objectId of downloadOption.objectIds) {
+          if (!map.has(objectId)) {
+            map.set(objectId, []);
+          }
+
+          map.get(objectId)?.push({
+            ...downloadOption,
+            downloadSource: downloadSource.name,
+          } as DownloadOption & { downloadSource: string });
+        }
+      }
+    }
+
+    return map;
+  }, [downloadSources]);
+
   return {
     importDownloadSource,
     removeDownloadSource: remove,
@@ -135,5 +160,6 @@ export function useDownloadSources() {
     isRemoving,
     isImporting,
     isSyncing,
+    downloadSourcesByObjectId,
   };
 }

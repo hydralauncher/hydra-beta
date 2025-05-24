@@ -1,6 +1,7 @@
+import { GetServerSideProps } from "next";
+
 import { toSlug } from "@/helpers";
 import { getSteamAppDetails } from "@/services";
-import { GetServerSideProps } from "next";
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
   const { id } = context.params as { id: string };

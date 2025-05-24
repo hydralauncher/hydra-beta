@@ -10,6 +10,7 @@ export interface TooltipProps {
   active?: boolean;
   className?: string;
   id?: string;
+  style?: React.CSSProperties;
 }
 
 export function Tooltip({
@@ -21,6 +22,7 @@ export function Tooltip({
   active = true,
   className = "",
   id,
+  style,
 }: Readonly<TooltipProps>) {
   const [isHovering, setIsHovering] = useState(false);
   const [tooltipPosition, setTooltipPosition] = useState({ x: 0, y: 0 });
@@ -129,6 +131,7 @@ export function Tooltip({
         onMouseLeave={handleMouseLeave}
         role="tooltip"
         aria-hidden={!isHovering}
+        style={style}
       >
         {children}
       </div>
