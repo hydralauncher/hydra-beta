@@ -2,7 +2,7 @@ import { useForm } from "react-hook-form";
 import { Button, Input, Modal, Typography } from "@/components";
 import { useDownloadSources, useFormat } from "@/hooks";
 import { ArrowsClockwise, PlusCircle, Trash } from "@phosphor-icons/react";
-import { DownloadSource } from "@/stores";
+import { type DownloadSource } from "@/stores";
 import { useState } from "react";
 
 export interface DownloadSourceProps {

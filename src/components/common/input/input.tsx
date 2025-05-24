@@ -24,7 +24,11 @@ export function Input({
   return (
     <div className="input-container">
       {label && (
-        <Typography variant="label" htmlFor="input" className="input-label">
+        <Typography
+          variant="label"
+          // htmlFor="input"
+          className="input-label"
+        >
           {label}
         </Typography>
       )}

@@ -112,7 +112,7 @@ export function useDownloadSources() {
     useMutation({
       mutationFn: async () => {
         const downloadSources = await api
-          .get<any[]>("profile/download-sources")
+          .get<{ url: string }[]>("profile/download-sources")
           .json();
 
         for (const downloadSource of downloadSources) {

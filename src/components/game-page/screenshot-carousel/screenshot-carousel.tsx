@@ -1,18 +1,31 @@
 import { useRef, useCallback, useState, useEffect } from "react";
 import useEmblaCarousel from "embla-carousel-react";
-
 import { CaretLeft, CaretRight } from "@phosphor-icons/react";
+
+interface Screenshot {
+  path_full: string;
+}
+
+interface Video {
+  webm: {
+    max: string;
+  };
+  thumbnail: string;
+}
+
+interface ScreenshotCarouselProps {
+  screenshots: Screenshot[];
+  videos?: Video[];
+}
+
+type Slide =
+  | { type: "video"; data: Video }
+  | { type: "screenshot"; data: Screenshot };
 
 export function ScreenshotCarousel({
   screenshots,
   videos,
-}: {
-  screenshots: { path_full: string }[];
-  videos?: {
-    webm: { max: string };
-    thumbnail: string;
-  }[];
-}) {
+}: ScreenshotCarouselProps) {
   const [emblaRef, emblaApi] = useEmblaCarousel({ loop: false });
   const [selectedIndex, setSelectedIndex] = useState(0);
 
@@ -42,15 +55,24 @@ export function ScreenshotCarousel({
     onSelect();
   }, [emblaApi, onSelect]);
 
-  const slides = [
-    ...(videos || []).map((video) => ({ type: "video", data: video })),
-    ...screenshots.map((screenshot) => ({
-      type: "screenshot",
-      data: screenshot,
-    })),
+  const slides: Slide[] = [
+    ...(videos || []).map(
+      (video) =>
+        ({
+          type: "video",
+          data: video,
+        }) as const
+    ),
+    ...screenshots.map(
+      (screenshot) =>
+        ({
+          type: "screenshot",
+          data: screenshot,
+        }) as const
+    ),
   ];
 
-  const isVisible = (index: number) => Math.abs(index - selectedIndex) <= 1; // only render current ±1
+  const isVisible = (index: number) => Math.abs(index - selectedIndex) <= 1;
 
   return (
     <div style={{ overflow: "hidden", width: "100%", marginBottom: 32 }}>
@@ -71,7 +93,11 @@ export function ScreenshotCarousel({
               {isVisible(idx) ? (
                 slide.type === "video" ? (
                   <video
-                    ref={(el) => (videoRefs.current[idx] = el)}
+                    ref={(el) => {
+                      if (el) {
+                        videoRefs.current[idx] = el;
+                      }
+                    }}
                     src={slide.data.webm.max}
                     poster={slide.data.thumbnail}
                     controls

@@ -13,7 +13,9 @@ export function useGamePage(objectId: string, shop: string) {
     initialData: [],
   });
 
-  const { data: achievements } = useQuery({
+  const { data: achievements } = useQuery<
+    { name: string; displayName: string; description: string; icon: string }[]
+  >({
     queryKey: ["achievements", shop, objectId],
     queryFn: () =>
       api.get(`games/achievements?objectId=${objectId}&shop=${shop}`).json(),
@@ -24,6 +26,7 @@ export function useGamePage(objectId: string, shop: string) {
     | ({
         playTimeInSeconds: number;
         lastTimePlayed: string | null;
+        isFavorite: boolean;
       } & ShopAssets)
     | null
   >({

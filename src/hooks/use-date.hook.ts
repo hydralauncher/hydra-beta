@@ -52,6 +52,7 @@ export function useDate() {
           locale: getDateLocale("en"),
         });
       } catch (err) {
+        console.error(err);
         return "";
       }
     },
@@ -67,6 +68,7 @@ export function useDate() {
           locale: getDateLocale("en"),
         });
       } catch (err) {
+        console.error(err);
         return "";
       }
     },

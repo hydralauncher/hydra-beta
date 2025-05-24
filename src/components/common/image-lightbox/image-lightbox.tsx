@@ -8,7 +8,7 @@ export interface ImageLightboxProps {
 export function ImageLightbox({ src, alt }: ImageLightboxProps) {
   return (
     <Backdrop>
-      <img src={src} alt={alt} alt={alt} className="image-lightbox" />
+      <img src={src} alt={alt} className="image-lightbox" />
     </Backdrop>
   );
 }

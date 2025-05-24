@@ -155,7 +155,7 @@ export default function GamePage({
         visible={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         downloadOptions={gameDownloadOptions}
-        backgroundImageUrl={stats.assets?.libraryHeroImageUrl}
+        backgroundImageUrl={stats.assets?.libraryHeroImageUrl ?? ""}
       />
 
       <div className="game-page">
@@ -178,7 +178,7 @@ export default function GamePage({
             }}
             className="game-page__hero"
             style={{
-              backgroundImage: `url(${stats.assets.libraryHeroImageUrl})`,
+              backgroundImage: `url(${stats.assets?.libraryHeroImageUrl})`,
             }}
           />
 

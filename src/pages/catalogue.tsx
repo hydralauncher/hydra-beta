@@ -1,20 +1,7 @@
 import List from "rc-virtual-list";
 import { useMemo } from "react";
-import { Controller } from "react-hook-form";
+import { Controller, Control, FieldValues, Path } from "react-hook-form";
 import { useCatalogueData } from "../hooks";
-import type {
-  Developer,
-  Genre,
-  Publisher,
-  UserTag,
-} from "../hooks/use-catalogue.hook";
-
-type FilterSectionDataProps =
-  | Genre
-  | UserTag
-  | Developer
-  | Publisher
-  | undefined;
 
 enum Filters {
   Title = "title",
@@ -23,6 +10,8 @@ enum Filters {
   Developers = "developers",
   Publishers = "publishers",
 }
+
+type FilterSectionDataProps = string[] | Record<string, number>;
 
 export default function Catalogue() {
   const { form, catalogueData, search } = useCatalogueData();
@@ -100,14 +89,14 @@ export default function Catalogue() {
   );
 }
 
-function FilterSection({
+function FilterSection<T extends FieldValues>({
   listData,
   name,
   control,
 }: {
-  listData: FilterSectionDataProps;
-  name: keyof Filters | string;
-  control: ReturnType<typeof useCatalogueData>["form"]["control"];
+  listData: FilterSectionDataProps | undefined;
+  name: Path<T>;
+  control: Control<T>;
 }) {
   if (!listData) return null;
 
@@ -119,15 +108,15 @@ function FilterSection({
 
   return (
     <Controller
-      name={name as any}
+      name={name}
       control={control}
       render={({ field }) => {
-        const selected = field.value ?? [];
+        const selected: (string | number)[] = field.value ?? [];
 
         const handleChange = (value: string | number, checked: boolean) => {
           const next = checked
             ? [...selected, value]
-            : selected.filter((v: any) => v !== value);
+            : selected.filter((v) => v !== value);
           field.onChange(next);
         };
 
@@ -140,8 +129,8 @@ function FilterSection({
                 itemHeight={28}
                 itemKey={(item) => item}
               >
-                {(item) => (
-                  <div className="filter-section-item">
+                {(item: string) => (
+                  <div className="filter-section-item" key={item}>
                     <input
                       id={`${name}-${item}`}
                       type="checkbox"
@@ -167,10 +156,10 @@ function FilterSection({
                 itemHeight={28}
                 itemKey={(item) => item}
               >
-                {(item) => {
+                {(item: string) => {
                   const value = (listData as Record<string, number>)[item];
                   return (
-                    <div className="filter-section-item">
+                    <div className="filter-section-item" key={item}>
                       <input
                         id={`${name}-${item}`}
                         type="checkbox"
