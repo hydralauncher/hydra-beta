@@ -98,7 +98,7 @@ export function ScreenshotCarousel({
                         videoRefs.current[idx] = el;
                       }
                     }}
-                    src={slide.data.webm.max}
+                    src={slide.data.webm.max.replace("http://", "https://")}
                     poster={slide.data.thumbnail}
                     controls
                     muted
