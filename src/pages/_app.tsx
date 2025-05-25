@@ -2,7 +2,7 @@ import "@/styles/globals.scss";
 
 import type { AppProps } from "next/app";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Sidebar } from "@/layouts/sidebar/sidebar";
+import { Sidebar, Header } from "@/layouts";
 import { Space_Grotesk } from "next/font/google";
 import { useEffect, useRef } from "react";
 import { useRouter } from "next/router";
@@ -36,9 +36,12 @@ function Main({ children }: { children: React.ReactNode }) {
         display: "flex",
         flex: 1,
         overflow: "auto",
+        position: "relative",
       }}
     >
-      <div style={{ maxWidth: 1920, margin: "0 auto" }}>{children}</div>
+      <div style={{ maxWidth: 1920, margin: "0 auto", flex: 1 }}>
+        {children}
+      </div>
     </main>
   );
 }
@@ -66,6 +69,7 @@ export default function App({ Component, pageProps }: AppProps) {
         <Sidebar />
 
         <Main>
+          <Header />
           <Component {...pageProps} />
         </Main>
       </div>
