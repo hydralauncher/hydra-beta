@@ -67,7 +67,7 @@ export function useCatalogueData() {
 
   const initialValues: SearchGamesFormValues = useMemo(() => {
     return {
-      take: Number(searchParams.get("take") ?? "20"),
+      take: Number(searchParams.get("take") ?? "18"),
       skip: Number(searchParams.get("skip") ?? "0"),
       title: searchParams.get("title") ?? "",
       tags: parseParam<number[]>(searchParams.get("tags")),
