@@ -1,12 +1,12 @@
 import { useLibrary } from "@/hooks/use-library.hook";
 import { useUser } from "@/hooks/use-user.hook";
 import {
-  House,
-  SquaresFour,
-  DownloadSimple,
-  Gear,
-  FunnelSimple,
-  MagnifyingGlass,
+  HouseIcon,
+  SquaresFourIcon,
+  DownloadSimpleIcon,
+  GearIcon,
+  FunnelSimpleIcon,
+  MagnifyingGlassIcon,
 } from "@phosphor-icons/react";
 import {
   RouteAnchor,
@@ -25,22 +25,22 @@ function SidebarRouter() {
     {
       label: "Home",
       href: "/",
-      icon: House,
+      icon: HouseIcon,
     },
     {
       label: "Catalogue",
       href: "/catalogue",
-      icon: SquaresFour,
+      icon: SquaresFourIcon,
     },
     {
       label: "Downloads",
       href: "/downloads",
-      icon: DownloadSimple,
+      icon: DownloadSimpleIcon,
     },
     {
       label: "Settings",
       href: "/settings",
-      icon: Gear,
+      icon: GearIcon,
     },
   ];
 
@@ -77,13 +77,17 @@ function SidebarLibrary() {
       <div className="library-container__header">
         <Input
           placeholder="Search"
-          iconLeft={<MagnifyingGlass size={24} />}
+          iconLeft={<MagnifyingGlassIcon size={24} />}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
+          spellCheck={false}
         />
 
         <Button variant="rounded" size="icon">
-          <FunnelSimple size={24} className="library-container__header__icon" />
+          <FunnelSimpleIcon
+            size={24}
+            className="library-container__header__icon"
+          />
         </Button>
       </div>
 
