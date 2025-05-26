@@ -10,6 +10,7 @@ export interface AccordionProps {
   open?: boolean;
   icon?: React.ReactNode;
   children: React.ReactNode;
+  onOpenChange?: (isOpen: boolean) => void;
 }
 
 interface AccordionHeaderProps {
@@ -18,6 +19,7 @@ interface AccordionHeaderProps {
   icon?: React.ReactNode;
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
+  onOpenChange?: (isOpen: boolean) => void;
 }
 
 interface AccordionContentProps {
@@ -30,10 +32,14 @@ function AccordionHeader({
   icon,
   isOpen,
   setIsOpen,
+  onOpenChange,
 }: Readonly<AccordionHeaderProps>) {
   return (
     <button
-      onClick={() => setIsOpen(!isOpen)}
+      onClick={() => {
+        setIsOpen(!isOpen);
+        onOpenChange?.(!isOpen);
+      }}
       className={clsx("accordion__header", {
         "accordion__header--open": isOpen,
       })}
@@ -68,6 +74,7 @@ export function Accordion({
   icon,
   open = false,
   children,
+  onOpenChange,
 }: Readonly<AccordionProps>) {
   const [isOpen, setIsOpen] = useState(open);
 
@@ -79,6 +86,7 @@ export function Accordion({
         icon={icon}
         isOpen={isOpen}
         setIsOpen={setIsOpen}
+        onOpenChange={onOpenChange}
       />
 
       <AnimatePresence>
