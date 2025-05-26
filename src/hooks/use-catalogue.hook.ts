@@ -44,6 +44,14 @@ export interface SearchGamesResponseData {
   count: number;
 }
 
+export interface SearchGamesQuery {
+  data: SearchGamesResponseData | undefined;
+  isLoading: boolean;
+  isError: boolean;
+  error: Error | null;
+  isEmpty: boolean;
+}
+
 function parseParam<T>(value: string | null): T | undefined {
   if (!value) return undefined;
   try {
