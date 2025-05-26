@@ -35,7 +35,7 @@ export function CatalogueGameCard({
       videoRef.current.volume = 0.3;
       videoRef.current.muted = false;
     }
-    
+
     hoverTimeoutRef.current = setTimeout(() => {
       setHighZIndex(true);
       setShowPreview(true);
