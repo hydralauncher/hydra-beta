@@ -1,3 +1,5 @@
+import { Typography } from "../typography/typography";
+
 export interface SourceAnchorProps
   extends React.AnchorHTMLAttributes<HTMLAnchorElement> {
   title: string;
@@ -12,7 +14,9 @@ export function SourceAnchor({
   return (
     <a href={href} {...props}>
       <div className="source-anchor">
-        <p className="source-anchor__title">{title}</p>
+        <Typography variant="body" className="source-anchor__title">
+          {title}
+        </Typography>
       </div>
     </a>
   );
