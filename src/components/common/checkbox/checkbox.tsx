@@ -1,4 +1,4 @@
-import { Check } from "@phosphor-icons/react";
+import { CheckIcon } from "@phosphor-icons/react";
 import React from "react";
 import clsx from "clsx";
 
@@ -15,10 +15,9 @@ export const Checkbox = ({ label, ...props }: CheckboxProps) => {
   const generatedId = React.useId();
   const id = props.id ?? generatedId;
 
-  const [isChecked, setIsChecked] = React.useState(props.checked);
+  const isChecked = props.checked ?? false;
 
   const handleChange = (checked: boolean) => {
-    setIsChecked(checked);
     props.onChange?.(checked);
   };
 
@@ -49,7 +48,7 @@ export const Checkbox = ({ label, ...props }: CheckboxProps) => {
         aria-checked={isChecked}
         aria-labelledby={label ? `${id}-label` : undefined}
       >
-        {isChecked && <Check className="checkbox__input__icon" size={14} />}
+        {isChecked && <CheckIcon className="checkbox__input__icon" size={14} />}
       </button>
 
       {label && (
