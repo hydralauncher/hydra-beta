@@ -61,7 +61,7 @@ export function useCatalogueData() {
     return {
       take: Number(searchParams.get("take") ?? "20"),
       skip: Number(searchParams.get("skip") ?? "0"),
-      title: searchParams.get("title") || "",
+      title: searchParams.get("title") ?? "",
       tags: parseParam<number[]>(searchParams.get("tags")),
       genres: parseParam<string[]>(searchParams.get("genres")),
       publishers: parseParam<string[]>(searchParams.get("publishers")),

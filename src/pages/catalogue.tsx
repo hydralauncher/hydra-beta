@@ -36,7 +36,12 @@ function ColorDot({ color }: Readonly<{ color: string }>) {
 
 function CatalogueFilters() {
   const { catalogueData } = useCatalogueData();
-  const { filtersSearchTerms, setFilterSearchTerm } = useCatalogueStore();
+  const {
+    filtersSearchTerms,
+    setFilterSearchTerm,
+    openedFilters,
+    setOpenedFilter,
+  } = useCatalogueStore();
   const { control, watch } = useForm();
   const userLanguage = "en"; //  hardcoded enquanto nao temos um "useLocale()"
 
@@ -87,8 +92,11 @@ function CatalogueFilters() {
           key={name}
           title={name}
           icon={<ColorDot color={color} />}
-          open={true}
+          open={openedFilters[name] || false}
           hint={`${length} Available`}
+          onOpenChange={(isOpen) => {
+            setOpenedFilter(name, isOpen);
+          }}
         >
           <div className="catalogue-filters__container">
             <Input
