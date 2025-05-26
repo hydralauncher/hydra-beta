@@ -6,6 +6,7 @@ export { Divider, type DividerProps } from "./divider/divider";
 export { Tooltip, type TooltipProps } from "./tooltip/tooltip";
 export { ScrollArea, type ScrollAreaProps } from "./scroll-area/scroll-area";
 export { Accordion, type AccordionProps } from "./accordion/accordion";
+export { Chips, type ChipsProps } from "./chips";
 export {
   UserProfile,
   type UserProfileProps,
@@ -25,3 +26,7 @@ export {
   type ImageLightboxProps,
 } from "./image-lightbox/image-lightbox";
 export { Modal, type ModalProps } from "./modal/modal";
+export {
+  CatalogueGameCard,
+  type CatalogueGameCardProps,
+} from "./catalogue-game-card";
