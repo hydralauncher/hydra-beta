@@ -309,6 +309,7 @@ function CatalogueContent({
                 image={edge.libraryImageUrl}
                 genres={edge.genres}
                 href={`/game/${edge.objectId}`}
+                objectId={edge.objectId}
               />
             </div>
           ))

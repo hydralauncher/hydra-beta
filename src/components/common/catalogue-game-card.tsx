@@ -5,12 +5,13 @@ import Link from "next/link";
 import { useRef, useState } from "react";
 import { motion } from "framer-motion";
 import clsx from "clsx";
+import { useDownloadSources } from "@/hooks/use-download-sources.hook";
 
 export interface CatalogueGameCardProps {
   title: string;
   image: string;
   genres: string[];
-  sources?: string[];
+  objectId?: string;
   href: string;
   trailerUrl?: string;
 }
@@ -19,16 +20,22 @@ export function CatalogueGameCard({
   title,
   image,
   genres,
-  sources = ["FitGirl", "SteamRip"],
+  objectId,
   href,
   trailerUrl = "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
 }: Readonly<CatalogueGameCardProps>) {
+  const { uniqueDownloadSourcesByObjectId } = useDownloadSources();
   const [showPreview, setShowPreview] = useState(false);
-  const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const cardRef = useRef<HTMLDivElement>(null);
   const [highZIndex, setHighZIndex] = useState(false);
+  const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const zIndexTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const cardRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
+
+  const sources = () => {
+    if (!objectId) return [];
+    return uniqueDownloadSourcesByObjectId.get(objectId) || [];
+  };
 
   const handleMouseEnter = () => {
     if (videoRef.current) {
@@ -53,8 +60,6 @@ export function CatalogueGameCard({
       setHighZIndex(false);
     }, 300);
   };
-
-  console.log("showPreview", showPreview);
 
   return (
     <div
@@ -134,7 +139,7 @@ export function CatalogueGameCard({
           </Typography>
         </div>
         <div className="catalogue-game-card__content__sources">
-          {sources.map((source) => (
+          {sources().map((source) => (
             <SourceAnchor key={source} title={source} href="/" />
           ))}
         </div>
