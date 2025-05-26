@@ -1,5 +1,5 @@
 import { CheckIcon } from "@phosphor-icons/react";
-import { useId, useState } from "react";
+import { useId } from "react";
 import clsx from "clsx";
 
 export interface CheckboxProps {
