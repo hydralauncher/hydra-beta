@@ -1,21 +1,7 @@
-export type GameShop = "steam";
-
-export interface HowLongToBeatCategory {
-  title: string;
-  duration: string;
-  accuracy: string;
-}
-
 export type SteamGamesByLetterResponse = Record<
   string,
   { id: number; name: string }[]
 >;
-
-export interface User {
-  id: string;
-  displayName: string;
-  profileImageUrl: string;
-}
 
 export interface Auth {
   accessToken: string;
@@ -81,27 +67,5 @@ export interface TrendingGame {
   locale: string;
 }
 
-export interface CatalogueGame {
-  id: string;
-  title: string;
-  shop: GameShop;
-  iconUrl: string;
-  libraryHeroImageUrl: string;
-  libraryImageUrl: string;
-  logoImageUrl: string;
-  logoPosition: number;
-  objectId: string;
-  iconHash: string;
-  tags: string[];
-  genres: string[];
-  developer: string;
-  publisher: string;
-  installCount: number;
-  reviewScore: number;
-  achievementCount: number;
-  achievementsPointsTotal: number;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
+export * from "./api.types";
 export * from "./steam.types";

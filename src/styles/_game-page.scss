@@ -11,6 +11,17 @@
     border-bottom-right-radius: 0;
   }
 
+  &__content {
+    padding: calc(var(--spacing-unit) * 6) calc(var(--spacing-unit) * 24);
+  }
+
+  &__sidebar {
+    width: 500px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
   &__how-long-to-beat-title {
     border-top-left-radius: 0;
     border-top-right-radius: 0;
@@ -18,8 +29,9 @@
 
   &__playtime-bar {
     display: flex;
-    flex-direction: column;
-    justify-content: center;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
     background-color: #0e0e0e;
     height: 76px;
     border-radius: 8px;
@@ -56,7 +68,7 @@
         #080808 99.53%
       ),
       linear-gradient(180deg, rgba(8, 8, 8, 0) 0%, #080808 97%);
-    padding: calc(var(--spacing-unit) * 12);
+    padding: calc(var(--spacing-unit) * 12) calc(var(--spacing-unit) * 24);
     gap: calc(var(--spacing-unit) * 6);
   }
 

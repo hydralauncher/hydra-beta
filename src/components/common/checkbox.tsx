@@ -1,5 +1,5 @@
 import { CheckIcon } from "@phosphor-icons/react";
-import React from "react";
+import { useId, useState } from "react";
 import clsx from "clsx";
 
 export interface CheckboxProps {
@@ -12,7 +12,7 @@ export interface CheckboxProps {
 }
 
 export const Checkbox = ({ label, ...props }: CheckboxProps) => {
-  const generatedId = React.useId();
+  const generatedId = useId();
   const id = props.id ?? generatedId;
 
   const isChecked = props.checked ?? false;

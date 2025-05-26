@@ -19,7 +19,6 @@ const refreshToken: BeforeRequestHook = async (request) => {
       const isTokenExpired =
         Number(tokenExpirationTimestamp) <
         Date.now() - ACCESS_TOKEN_EXPIRATION_OFFSET_IN_MS;
-
       if (isTokenExpired) {
         const { expiresIn, accessToken } = await ky
           .post(`${API_URL}/auth/refresh`, {
