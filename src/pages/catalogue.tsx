@@ -1,9 +1,44 @@
 import { useMemo } from "react";
-import { useCatalogueData } from "../hooks";
-import { FilterSection, Accordion, Input } from "@/components";
-import { useForm } from "react-hook-form";
+import { motion } from "framer-motion";
 import { MagnifyingGlassIcon } from "@phosphor-icons/react";
 import { useCatalogueStore } from "@/stores/catalogue.store";
+import {
+  Control,
+  UseFormRegister,
+  UseFormGetValues,
+  UseFormSetValue,
+} from "react-hook-form";
+import {
+  FilterSection,
+  Accordion,
+  Input,
+  Typography,
+  Chips,
+  CatalogueGameCard,
+} from "@/components";
+import {
+  CatalogueData,
+  SearchGamesFormValues,
+  useCatalogueData,
+  SteamUserTagsResponse,
+  SearchGamesQuery,
+} from "../hooks";
+
+interface CatalogueContentProps {
+  payload: SearchGamesFormValues;
+  catalogueData: CatalogueData | undefined;
+  userLanguage: keyof SteamUserTagsResponse;
+  getValues: UseFormGetValues<SearchGamesFormValues>;
+  setValue: UseFormSetValue<SearchGamesFormValues>;
+  search: SearchGamesQuery;
+}
+
+interface CatalogueFiltersProps {
+  catalogueData: CatalogueData | undefined;
+  control: Control<SearchGamesFormValues>;
+  register: UseFormRegister<SearchGamesFormValues>;
+  userLanguage: keyof SteamUserTagsResponse;
+}
 
 enum Filters {
   Title = "title",
@@ -34,18 +69,18 @@ function ColorDot({ color }: Readonly<{ color: string }>) {
   );
 }
 
-function CatalogueFilters() {
-  const { catalogueData } = useCatalogueData();
+function CatalogueFilters({
+  catalogueData,
+  control,
+  register,
+  userLanguage,
+}: Readonly<CatalogueFiltersProps>) {
   const {
     filtersSearchTerms,
     setFilterSearchTerm,
     openedFilters,
     setOpenedFilter,
   } = useCatalogueStore();
-  const { control, watch } = useForm();
-  const userLanguage = "en"; //  hardcoded enquanto nao temos um "useLocale()"
-
-  console.log(watch());
 
   if (!catalogueData) return null;
 
@@ -87,12 +122,14 @@ function CatalogueFilters() {
 
   return (
     <div className="catalogue-filters">
+      <Input placeholder="debug" {...register(Filters.Title)} />
+
       {filterSections.map(({ name, color, data, length }) => (
         <Accordion
           key={name}
           title={name}
           icon={<ColorDot color={color} />}
-          open={openedFilters[name] || false}
+          open={openedFilters[name] ?? true}
           hint={`${length} Available`}
           onOpenChange={(isOpen) => {
             setOpenedFilter(name, isOpen);
@@ -119,13 +156,191 @@ function CatalogueFilters() {
   );
 }
 
+function CatalogueContent({
+  payload,
+  catalogueData,
+  userLanguage,
+  getValues,
+  setValue,
+  search,
+}: Readonly<CatalogueContentProps>) {
+  console.log("search", search);
+
+  const activeFilters = useMemo(() => {
+    if (!catalogueData) return [];
+
+    const filters: Array<{
+      label: string;
+      color: string;
+      type: string;
+      value: string;
+    }> = [];
+
+    payload.genres?.forEach((genre) => {
+      filters.push({
+        label: genre,
+        color: Colors.Genres,
+        type: "genres",
+        value: genre,
+      });
+    });
+
+    payload.tags?.forEach((tagId) => {
+      const tagName = Object.keys(catalogueData.userTags[userLanguage]).find(
+        (key) => catalogueData.userTags[userLanguage][key] === tagId
+      );
+      filters.push({
+        label: tagName ?? `Tag ${tagId}`,
+        color: Colors.UserTags,
+        type: "tags",
+        value: tagId.toString(),
+      });
+    });
+
+    payload.publishers?.forEach((publisher) => {
+      filters.push({
+        label: publisher,
+        color: Colors.Publishers,
+        type: "publishers",
+        value: publisher,
+      });
+    });
+
+    payload.developers?.forEach((developer) => {
+      filters.push({
+        label: developer,
+        color: Colors.Developers,
+        type: "developers",
+        value: developer,
+      });
+    });
+
+    return filters;
+  }, [payload, catalogueData, userLanguage]);
+
+  const handleRemoveFilter = (filter: { type: string; value: string }) => {
+    const currentValues = getValues();
+
+    if (filter.type === "genres" && currentValues.genres) {
+      setValue(
+        "genres",
+        currentValues.genres.filter((item) => item !== filter.value)
+      );
+    } else if (filter.type === "tags" && currentValues.tags) {
+      setValue(
+        "tags",
+        currentValues.tags.filter((item) => item.toString() !== filter.value)
+      );
+    } else if (filter.type === "publishers" && currentValues.publishers) {
+      setValue(
+        "publishers",
+        currentValues.publishers.filter((item) => item !== filter.value)
+      );
+    } else if (filter.type === "developers" && currentValues.developers) {
+      setValue(
+        "developers",
+        currentValues.developers.filter((item) => item !== filter.value)
+      );
+    }
+  };
+
+  return (
+    <div className="catalogue-content">
+      <div className="catalogue-content__header">
+        {payload.title || activeFilters.length > 0 ? (
+          <Typography variant="h4" className="catalogue-content__header__title">
+            Showing search results for {payload.title && <q>{payload.title}</q>}
+          </Typography>
+        ) : (
+          <Typography variant="h4" className="catalogue-content__header__title">
+            Most popular games
+          </Typography>
+        )}
+
+        {activeFilters.length > 0 && (
+          <div className="catalogue-content__header__active-filters">
+            {activeFilters.map((filter) => (
+              <motion.div
+                key={`${filter.type}-${filter.value}`}
+                layout="position"
+                transition={{
+                  type: "spring",
+                  stiffness: 600,
+                  damping: 40,
+                }}
+              >
+                <Chips
+                  label={filter.label}
+                  color={filter.color}
+                  onRemove={() => handleRemoveFilter(filter)}
+                />
+              </motion.div>
+            ))}
+
+            <button
+              className="catalogue-content__header__clear-filters"
+              onClick={() => {
+                setValue("genres", []);
+                setValue("tags", []);
+                setValue("publishers", []);
+                setValue("developers", []);
+              }}
+            >
+              <Typography
+                variant="label"
+                className="catalogue-content__header__clear-filters__text"
+              >
+                Clear all
+              </Typography>
+            </button>
+          </div>
+        )}
+      </div>
+
+      <div className="catalogue-content__body">
+        {search.isLoading ? (
+          // TODO: adicionar o skeleton loader aqui
+          <p>loading results...</p>
+        ) : (
+          search.data?.edges.map((edge) => (
+            <div key={edge.id} className="catalogue-content__body__item">
+              <CatalogueGameCard
+                title={edge.title}
+                image={edge.libraryImageUrl}
+                genres={edge.genres}
+                href={`/game/${edge.objectId}`}
+              />
+            </div>
+          ))
+        )}
+      </div>
+    </div>
+  );
+}
+
 export default function Catalogue() {
+  const userLanguage = "en"; //  hardcoded enquanto nao temos um "useLocale()"
+  const { form, catalogueData, search } = useCatalogueData();
+  const { register, control, watch, getValues, setValue } = form;
+
+  console.log("payload", watch());
+
   return (
     <div className="catalogue-container">
-      <div className="catalogue-content">
-        <h1>flex 1</h1>
-      </div>
-      <CatalogueFilters />
+      <CatalogueContent
+        payload={watch()}
+        search={search}
+        catalogueData={catalogueData}
+        userLanguage={userLanguage}
+        getValues={getValues}
+        setValue={setValue}
+      />
+      <CatalogueFilters
+        catalogueData={catalogueData}
+        control={control}
+        register={register}
+        userLanguage={userLanguage}
+      />
     </div>
   );
 }
