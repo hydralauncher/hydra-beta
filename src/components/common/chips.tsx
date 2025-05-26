@@ -1,4 +1,4 @@
-import { Typography } from "./typography/typography";
+import { Typography } from "./typography";
 import { XIcon } from "@phosphor-icons/react";
 
 export interface ChipsProps {

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Typography } from "../typography/typography";
+import { Typography } from "./typography";
 import { CaretUpIcon } from "@phosphor-icons/react";
 import { AnimatePresence, motion } from "framer-motion";
 import clsx from "clsx";

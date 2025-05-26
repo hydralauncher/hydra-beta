@@ -1,5 +1,4 @@
 import { Input, type InputProps } from "@/components/common";
-import { Row } from "@/components/common/storybook/row";
 import { MagnifyingGlass } from "@phosphor-icons/react";
 
 export default {
@@ -30,7 +29,7 @@ base.args = {
 };
 
 export const Types = () => (
-  <Row>
+  <div>
     <Input
       type="email"
       label="Email"
@@ -52,12 +51,12 @@ export const Types = () => (
       placeholder="Search friends"
       iconRight={<MagnifyingGlass size={20} />}
     />
-  </Row>
+  </div>
 );
 
 export const States = () => (
-  <Row align="start">
+  <div>
     <Input error placeholder="Error" hint="your email is invalid" />
     <Input disabled placeholder="Disabled" />
-  </Row>
+  </div>
 );

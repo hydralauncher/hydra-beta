@@ -1,5 +1,4 @@
 import { Button, type ButtonProps } from "@/components/common";
-import { Row } from "@/components/common/storybook";
 import { PlusCircle } from "@phosphor-icons/react";
 
 export default {
@@ -33,7 +32,7 @@ base.args = {
 };
 
 export const Types = (args: ButtonProps) => (
-  <Row>
+  <div>
     <Button size="icon" {...args}>
       <PlusCircle size={24} />
     </Button>
@@ -43,11 +42,11 @@ export const Types = (args: ButtonProps) => (
     <Button icon={<PlusCircle size={24} />} {...args}>
       Add to Library
     </Button>
-  </Row>
+  </div>
 );
 
 export const Sizes = (args: ButtonProps) => (
-  <Row>
+  <div>
     <Button icon={<PlusCircle size={24} />} size="small" {...args}>
       Small Button
     </Button>
@@ -57,11 +56,11 @@ export const Sizes = (args: ButtonProps) => (
     <Button icon={<PlusCircle size={24} />} size="large" {...args}>
       Large Button
     </Button>
-  </Row>
+  </div>
 );
 
 export const Variants = (args: ButtonProps) => (
-  <Row>
+  <div>
     <Button icon={<PlusCircle size={24} />} variant="primary" {...args}>
       Primary Button
     </Button>
@@ -71,11 +70,11 @@ export const Variants = (args: ButtonProps) => (
     <Button icon={<PlusCircle size={24} />} variant="danger" {...args}>
       Danger Button
     </Button>
-  </Row>
+  </div>
 );
 
 export const States = (args: ButtonProps) => (
-  <Row>
+  <div>
     <Button size="icon" icon={<PlusCircle size={24} />} loading {...args}>
       <PlusCircle size={24} />
     </Button>
@@ -85,11 +84,11 @@ export const States = (args: ButtonProps) => (
     <Button disabled {...args}>
       Add to Library
     </Button>
-  </Row>
+  </div>
 );
 
 export const Link = (args: ButtonProps) => (
-  <Row>
+  <div>
     <Button href="https://github.com/hydralauncher/hydra" {...args}>
       Source Code
     </Button>
@@ -100,5 +99,5 @@ export const Link = (args: ButtonProps) => (
     >
       Source Code
     </Button>
-  </Row>
+  </div>
 );

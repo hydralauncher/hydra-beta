@@ -1,4 +1,4 @@
-import { HeartStraight } from "@phosphor-icons/react";
+import { HeartStraightIcon } from "@phosphor-icons/react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -44,7 +44,7 @@ export const RouteAnchor = ({
 
           {isFavorite && (
             <div className="route-anchor__favorite">
-              <HeartStraight
+              <HeartStraightIcon
                 size={18}
                 weight="fill"
                 className="route-anchor__favorite__icon"

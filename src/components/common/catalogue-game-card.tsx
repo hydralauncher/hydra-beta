@@ -1,6 +1,6 @@
 import Image from "next/image";
-import { Typography } from "./typography/typography";
-import { SourceAnchor } from "./source-anchor/source-anchor";
+import { Typography } from "./typography";
+import { SourceAnchor } from "./source-anchor";
 import Link from "next/link";
 import { useRef, useState } from "react";
 import { motion } from "framer-motion";

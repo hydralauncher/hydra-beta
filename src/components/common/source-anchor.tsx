@@ -1,4 +1,4 @@
-import { Typography } from "../typography/typography";
+import { Typography } from "./typography";
 
 export interface SourceAnchorProps
   extends React.AnchorHTMLAttributes<HTMLAnchorElement> {
