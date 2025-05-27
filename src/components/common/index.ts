@@ -6,7 +6,7 @@ export { Divider, type DividerProps } from "./divider";
 export { Tooltip, type TooltipProps } from "./tooltip";
 export { ScrollArea, type ScrollAreaProps } from "./scroll-area";
 export { Accordion, type AccordionProps } from "./accordion";
-export { Chips, type ChipsProps } from "./chips";
+export { Chips, type ChipsProps, ColorDot, type ColorDotProps } from "./chips";
 export { UserProfile, type UserProfileProps } from "./user-profile";
 export { RouteAnchor, type RouteAnchorProps } from "./route-anchor";
 export { SourceAnchor, type SourceAnchorProps } from "./source-anchor";

@@ -14,6 +14,7 @@ import {
   Input,
   Typography,
   Chips,
+  ColorDot,
   CatalogueGameCard,
 } from "@/components";
 import {
@@ -24,68 +25,183 @@ import {
   SearchGamesQuery,
 } from "../hooks";
 
-interface CatalogueContentProps {
-  payload: SearchGamesFormValues;
-  catalogueData: CatalogueData | undefined;
-  userLanguage: keyof SteamUserTagsResponse;
-  getValues: UseFormGetValues<SearchGamesFormValues>;
-  setValue: UseFormSetValue<SearchGamesFormValues>;
-  search: SearchGamesQuery;
-}
-
-interface CatalogueFiltersProps {
-  catalogueData: CatalogueData | undefined;
-  control: Control<SearchGamesFormValues>;
-  register: UseFormRegister<SearchGamesFormValues>;
-  userLanguage: keyof SteamUserTagsResponse;
-}
-
-enum Filters {
-  Title = "title",
-  DownloadSources = "downloadSourceFingerprints",
-  Genres = "genres",
-  UserTags = "tags",
-  Developers = "developers",
-  Publishers = "publishers",
-}
-
-// Adiciona mapeamento para nomes bonitos
-const FilterDisplayNames = {
-  [Filters.DownloadSources]: "Sources",
-  [Filters.Genres]: "Genres",
-  [Filters.UserTags]: "User Tags",
-  [Filters.Developers]: "Developers",
-  [Filters.Publishers]: "Publishers",
+const FILTER_CONFIG = {
+  genres: {
+    label: "Genres",
+    color: "#d946ef",
+    isObject: false,
+  },
+  tags: {
+    label: "User Tags",
+    color: "#f97316",
+    isObject: true,
+  },
+  downloadSourceFingerprints: {
+    label: "Download Sources",
+    color: "#ef4444",
+    isObject: true,
+  },
+  developers: {
+    label: "Developers",
+    color: "#06b6d4",
+    isObject: false,
+  },
+  publishers: {
+    label: "Publishers",
+    color: "#32cd32",
+    isObject: false,
+  },
 } as const;
 
-enum Colors {
-  DownloadSources = "red",
-  Genres = "magenta",
-  UserTags = "orange",
-  Developers = "cyan",
-  Publishers = "limegreen",
+type FilterKey = keyof typeof FILTER_CONFIG;
+
+interface FilterChip {
+  readonly label: string;
+  readonly color: string;
+  readonly type: FilterKey;
+  readonly value: string;
 }
 
-function ColorDot({ color }: Readonly<{ color: string }>) {
-  return (
-    <div
-      className="color-dot"
-      style={{
-        backgroundColor: color,
-        width: "11px",
-        height: "11px",
-        borderRadius: "50%",
-      }}
-    />
+interface SidebarProps {
+  readonly catalogueData: CatalogueData | undefined;
+  readonly control: Control<SearchGamesFormValues>;
+  readonly register: UseFormRegister<SearchGamesFormValues>;
+  readonly userLanguage: keyof SteamUserTagsResponse;
+}
+
+interface HeaderProps {
+  readonly title?: string;
+  readonly activeFilters: readonly FilterChip[];
+  readonly onRemoveFilter: (filter: FilterChip) => void;
+  readonly onClearAll: () => void;
+}
+
+interface GridProps {
+  readonly search: SearchGamesQuery;
+}
+
+interface FilterAccordionProps {
+  readonly filterKey: FilterKey;
+  readonly config: (typeof FILTER_CONFIG)[FilterKey];
+  readonly data: string[] | Record<string, number> | Record<string, string>;
+  readonly control: Control<SearchGamesFormValues>;
+}
+
+interface ActiveFiltersChipsProps {
+  readonly filters: readonly FilterChip[];
+  readonly onRemoveFilter: (filter: FilterChip) => void;
+  readonly onClearAll: () => void;
+}
+
+const findTagLabel = (
+  catalogueData: CatalogueData,
+  userLanguage: keyof SteamUserTagsResponse,
+  value: string | number
+) => {
+  return Object.keys(catalogueData.userTags[userLanguage]).find(
+    (tagKey) => catalogueData.userTags[userLanguage][tagKey] === value
   );
+};
+
+const findSourceLabel = (
+  catalogueData: CatalogueData,
+  value: string | number
+) => {
+  return Object.keys(catalogueData.downloadSources).find(
+    (sourceKey) => catalogueData.downloadSources[sourceKey] === value
+  );
+};
+
+const createFilterChip = (
+  value: string | number,
+  config: (typeof FILTER_CONFIG)[FilterKey],
+  filterKey: FilterKey,
+  catalogueData: CatalogueData,
+  userLanguage: keyof SteamUserTagsResponse
+): FilterChip => {
+  let label = value.toString();
+
+  if (filterKey === "tags") {
+    const tagName = findTagLabel(catalogueData, userLanguage, value);
+    label = tagName ?? `Tag ${value}`;
+  } else if (filterKey === "downloadSourceFingerprints") {
+    const sourceName = findSourceLabel(catalogueData, value);
+    label = sourceName ?? `Source ${value}`;
+  }
+
+  return {
+    label,
+    color: config.color,
+    type: filterKey,
+    value: value.toString(),
+  };
+};
+
+function useActiveFilters(
+  payload: SearchGamesFormValues,
+  catalogueData: CatalogueData | undefined,
+  userLanguage: keyof SteamUserTagsResponse
+): FilterChip[] {
+  return useMemo(() => {
+    if (!catalogueData) return [];
+
+    const filters: FilterChip[] = [];
+
+    Object.entries(FILTER_CONFIG).forEach(([key, config]) => {
+      const filterKey = key as FilterKey;
+      const values = payload[filterKey];
+
+      if (!values?.length) return;
+
+      values.forEach((value: string | number) => {
+        filters.push(
+          createFilterChip(
+            value,
+            config,
+            filterKey,
+            catalogueData,
+            userLanguage
+          )
+        );
+      });
+    });
+
+    return filters;
+  }, [payload, catalogueData, userLanguage]);
 }
 
-function CatalogueFilters({
-  catalogueData,
+function useFilterRemoval(
+  getValues: UseFormGetValues<SearchGamesFormValues>,
+  setValue: UseFormSetValue<SearchGamesFormValues>
+) {
+  const removeFilter = (filter: FilterChip) => {
+    const currentValues = getValues();
+    const currentArray = currentValues[filter.type];
+
+    if (!currentArray) return;
+
+    const newArray = currentArray.filter(
+      (item) => item.toString() !== filter.value
+    );
+
+    setValue(filter.type, newArray as string[] | number[]);
+  };
+
+  const clearAllFilters = () => {
+    Object.keys(FILTER_CONFIG).forEach((key) => {
+      setValue(key as FilterKey, []);
+    });
+  };
+
+  return { removeFilter, clearAllFilters };
+}
+
+function FilterAccordion({
+  filterKey,
+  config,
+  data,
   control,
-  register,
-  userLanguage,
-}: Readonly<CatalogueFiltersProps>) {
+}: FilterAccordionProps) {
   const {
     filtersSearchTerms,
     setFilterSearchTerm,
@@ -93,287 +209,203 @@ function CatalogueFilters({
     setOpenedFilter,
   } = useCatalogueStore();
 
-  if (!catalogueData) return null;
-
-  const getFilterSection = (name: Exclude<Filters, Filters.Title>) => {
-    const dataMap = {
-      [Filters.DownloadSources]: catalogueData.downloadSources,
-      [Filters.Genres]: catalogueData.genres[userLanguage],
-      [Filters.UserTags]: catalogueData.userTags[userLanguage],
-      [Filters.Developers]: catalogueData.developers,
-      [Filters.Publishers]: catalogueData.publishers,
-    } as const;
-
-    const colorMap = {
-      [Filters.DownloadSources]: Colors.DownloadSources,
-      [Filters.Genres]: Colors.Genres,
-      [Filters.UserTags]: Colors.UserTags,
-      [Filters.Developers]: Colors.Developers,
-      [Filters.Publishers]: Colors.Publishers,
-    } as const;
-
-    const data = dataMap[name];
-    const color = colorMap[name];
-    const length =
-      name === Filters.UserTags || name === Filters.DownloadSources
-        ? Object.keys(data || {}).length
-        : data?.length || 0;
-
-    return { name, color, data, length };
-  };
-
-  const filterSections = (
-    [
-      Filters.DownloadSources,
-      Filters.Genres,
-      Filters.UserTags,
-      Filters.Developers,
-      Filters.Publishers,
-    ] as const
-  )
-    .map(getFilterSection)
-    .filter(({ data }) => data);
+  const length = config.isObject
+    ? Object.keys(data || {}).length
+    : data?.length || 0;
 
   return (
-    <div className="catalogue-filters">
-      <Input placeholder="debug" {...register(Filters.Title)} />
+    <Accordion
+      title={config.label}
+      icon={<ColorDot color={config.color} />}
+      open={openedFilters[filterKey] ?? true}
+      hint={`${length} Available`}
+      onOpenChange={(isOpen) => setOpenedFilter(filterKey, isOpen)}
+    >
+      <div className="catalogue__sidebar-filter">
+        <Input
+          placeholder={`Search ${config.label}`}
+          iconLeft={<MagnifyingGlassIcon size={24} />}
+          value={filtersSearchTerms[filterKey] || ""}
+          onChange={(e) => setFilterSearchTerm(filterKey, e.target.value)}
+        />
 
-      {filterSections.map(({ name, color, data, length }) => (
-        <Accordion
-          key={name}
-          title={FilterDisplayNames[name]}
-          icon={<ColorDot color={color} />}
-          open={openedFilters[name] ?? true}
-          hint={`${length} Available`}
-          onOpenChange={(isOpen) => {
-            setOpenedFilter(name, isOpen);
+        <FilterSection
+          name={filterKey}
+          listData={data}
+          control={control}
+          searchTerm={filtersSearchTerms[filterKey] || ""}
+        />
+      </div>
+    </Accordion>
+  );
+}
+
+function ActiveFiltersChips({
+  filters,
+  onRemoveFilter,
+  onClearAll,
+}: ActiveFiltersChipsProps) {
+  if (filters.length === 0) return null;
+
+  return (
+    <div className="catalogue__header-filters">
+      {filters.map((filter) => (
+        <motion.div
+          key={`${filter.type}-${filter.value}`}
+          layout="position"
+          transition={{
+            type: "spring",
+            stiffness: 600,
+            damping: 40,
           }}
         >
-          <div className="catalogue-filters__container">
-            <Input
-              placeholder={`Search ${name}`}
-              iconLeft={<MagnifyingGlassIcon size={24} />}
-              value={filtersSearchTerms[name] || ""}
-              onChange={(e) => setFilterSearchTerm(name, e.target.value)}
-            />
+          <Chips
+            label={filter.label}
+            color={filter.color}
+            onRemove={() => onRemoveFilter(filter)}
+          />
+        </motion.div>
+      ))}
 
-            <FilterSection
-              name={name}
-              listData={data}
-              control={control}
-              searchTerm={filtersSearchTerms[name] || ""}
-            />
-          </div>
-        </Accordion>
+      <button className="catalogue__clear-button" onClick={onClearAll}>
+        <Typography variant="label" className="catalogue__clear-text">
+          Clear all
+        </Typography>
+      </button>
+    </div>
+  );
+}
+
+function Sidebar({
+  catalogueData,
+  control,
+  register,
+  userLanguage,
+}: SidebarProps) {
+  const getFilterData = useMemo(() => {
+    if (!catalogueData) return () => null;
+
+    return (key: FilterKey) => {
+      switch (key) {
+        case "downloadSourceFingerprints":
+          return catalogueData.downloadSources;
+        case "genres":
+          return catalogueData.genres[userLanguage];
+        case "tags":
+          return catalogueData.userTags[userLanguage];
+        case "developers":
+          return catalogueData.developers;
+        case "publishers":
+          return catalogueData.publishers;
+        default:
+          return null;
+      }
+    };
+  }, [catalogueData, userLanguage]);
+
+  if (!catalogueData) return null;
+
+  return (
+    <div className="catalogue__sidebar">
+      <Input placeholder="Search games..." {...register("title")} />
+
+      {Object.entries(FILTER_CONFIG).map(([key, config]) => {
+        const filterKey = key as FilterKey;
+        const data = getFilterData(filterKey);
+
+        if (!data) return null;
+
+        return (
+          <FilterAccordion
+            key={filterKey}
+            filterKey={filterKey}
+            config={config}
+            data={data}
+            control={control}
+          />
+        );
+      })}
+    </div>
+  );
+}
+
+function Header({
+  title,
+  activeFilters,
+  onRemoveFilter,
+  onClearAll,
+}: HeaderProps) {
+  const hasSearchCriteria = Boolean(title) || activeFilters.length > 0;
+
+  return (
+    <div className="catalogue__header">
+      <Typography variant="h4" className="catalogue__title">
+        {hasSearchCriteria ? (
+          <>Showing search results for {title && <q>{title}</q>}</>
+        ) : (
+          "Most popular games"
+        )}
+      </Typography>
+
+      <ActiveFiltersChips
+        filters={activeFilters}
+        onRemoveFilter={onRemoveFilter}
+        onClearAll={onClearAll}
+      />
+    </div>
+  );
+}
+
+function Grid({ search }: GridProps) {
+  if (search.isLoading) {
+    return <p>Loading results...</p>;
+  }
+
+  if (search.error) {
+    return <p>Error loading games. Please try again.</p>;
+  }
+
+  return (
+    <div className="catalogue__grid">
+      {search.data?.edges.map((edge) => (
+        <div key={edge.id} className="catalogue__grid-item">
+          <CatalogueGameCard
+            title={edge.title}
+            image={edge.libraryImageUrl}
+            genres={edge.genres}
+            href={`/game/${edge.objectId}`}
+            objectId={edge.objectId}
+          />
+        </div>
       ))}
     </div>
   );
 }
 
-function CatalogueContent({
-  payload,
-  catalogueData,
-  userLanguage,
-  getValues,
-  setValue,
-  search,
-}: Readonly<CatalogueContentProps>) {
-  console.log("search", search);
-
-  const activeFilters = useMemo(() => {
-    if (!catalogueData) return [];
-
-    const filters: Array<{
-      label: string;
-      color: string;
-      type: string;
-      value: string;
-    }> = [];
-
-    payload.genres?.forEach((genre) => {
-      filters.push({
-        label: genre,
-        color: Colors.Genres,
-        type: "genres",
-        value: genre,
-      });
-    });
-
-    payload.tags?.forEach((tagId) => {
-      const tagName = Object.keys(catalogueData.userTags[userLanguage]).find(
-        (key) => catalogueData.userTags[userLanguage][key] === tagId
-      );
-      filters.push({
-        label: tagName ?? `Tag ${tagId}`,
-        color: Colors.UserTags,
-        type: "tags",
-        value: tagId.toString(),
-      });
-    });
-
-    payload.publishers?.forEach((publisher) => {
-      filters.push({
-        label: publisher,
-        color: Colors.Publishers,
-        type: "publishers",
-        value: publisher,
-      });
-    });
-
-    payload.developers?.forEach((developer) => {
-      filters.push({
-        label: developer,
-        color: Colors.Developers,
-        type: "developers",
-        value: developer,
-      });
-    });
-
-    payload.downloadSourceFingerprints?.forEach((fingerprint) => {
-      const sourceName = Object.keys(catalogueData.downloadSources).find(
-        (key) => catalogueData.downloadSources[key] === fingerprint
-      );
-      filters.push({
-        label: sourceName ?? `Source ${fingerprint}`,
-        color: Colors.DownloadSources,
-        type: "downloadSourceFingerprints",
-        value: fingerprint,
-      });
-    });
-
-    return filters;
-  }, [payload, catalogueData, userLanguage]);
-
-  const handleRemoveFilter = (filter: { type: string; value: string }) => {
-    const currentValues = getValues();
-
-    if (filter.type === "genres" && currentValues.genres) {
-      setValue(
-        "genres",
-        currentValues.genres.filter((item) => item !== filter.value)
-      );
-    } else if (filter.type === "tags" && currentValues.tags) {
-      setValue(
-        "tags",
-        currentValues.tags.filter((item) => item.toString() !== filter.value)
-      );
-    } else if (filter.type === "publishers" && currentValues.publishers) {
-      setValue(
-        "publishers",
-        currentValues.publishers.filter((item) => item !== filter.value)
-      );
-    } else if (filter.type === "developers" && currentValues.developers) {
-      setValue(
-        "developers",
-        currentValues.developers.filter((item) => item !== filter.value)
-      );
-    } else if (
-      filter.type === "downloadSourceFingerprints" &&
-      currentValues.downloadSourceFingerprints
-    ) {
-      setValue(
-        "downloadSourceFingerprints",
-        currentValues.downloadSourceFingerprints.filter(
-          (item) => item !== filter.value
-        )
-      );
-    }
-  };
-
-  return (
-    <div className="catalogue-content">
-      <div className="catalogue-content__header">
-        {payload.title || activeFilters.length > 0 ? (
-          <Typography variant="h4" className="catalogue-content__header__title">
-            Showing search results for {payload.title && <q>{payload.title}</q>}
-          </Typography>
-        ) : (
-          <Typography variant="h4" className="catalogue-content__header__title">
-            Most popular games
-          </Typography>
-        )}
-
-        {activeFilters.length > 0 && (
-          <div className="catalogue-content__header__active-filters">
-            {activeFilters.map((filter) => (
-              <motion.div
-                key={`${filter.type}-${filter.value}`}
-                layout="position"
-                transition={{
-                  type: "spring",
-                  stiffness: 600,
-                  damping: 40,
-                }}
-              >
-                <Chips
-                  label={filter.label}
-                  color={filter.color}
-                  onRemove={() => handleRemoveFilter(filter)}
-                />
-              </motion.div>
-            ))}
-
-            <button
-              className="catalogue-content__header__clear-filters"
-              onClick={() => {
-                setValue("genres", []);
-                setValue("tags", []);
-                setValue("publishers", []);
-                setValue("developers", []);
-                setValue("downloadSourceFingerprints", []);
-              }}
-            >
-              <Typography
-                variant="label"
-                className="catalogue-content__header__clear-filters__text"
-              >
-                Clear all
-              </Typography>
-            </button>
-          </div>
-        )}
-      </div>
-
-      <div className="catalogue-content__body">
-        {search.isLoading ? (
-          // TODO: adicionar o skeleton loader aqui
-          <p>loading results...</p>
-        ) : (
-          search.data?.edges.map((edge) => (
-            <div key={edge.id} className="catalogue-content__body__item">
-              <CatalogueGameCard
-                title={edge.title}
-                image={edge.libraryImageUrl}
-                genres={edge.genres}
-                href={`/game/${edge.objectId}`}
-                objectId={edge.objectId}
-              />
-            </div>
-          ))
-        )}
-      </div>
-    </div>
-  );
-}
-
 export default function Catalogue() {
-  const userLanguage = "en"; //  hardcoded enquanto nao temos um "useLocale()"
+  const userLanguage = "en";
   const { form, catalogueData, search } = useCatalogueData();
   const { register, control, watch, getValues, setValue } = form;
 
-  console.log("payload", watch());
+  const payload = watch();
+  const activeFilters = useActiveFilters(payload, catalogueData, userLanguage);
+  const { removeFilter, clearAllFilters } = useFilterRemoval(
+    getValues,
+    setValue
+  );
 
   return (
-    <div className="catalogue-container">
-      <CatalogueContent
-        payload={watch()}
-        search={search}
-        catalogueData={catalogueData}
-        userLanguage={userLanguage}
-        getValues={getValues}
-        setValue={setValue}
-      />
-      <CatalogueFilters
+    <div className="catalogue">
+      <div className="catalogue__content">
+        <Catalogue.Header
+          title={payload.title}
+          activeFilters={activeFilters}
+          onRemoveFilter={removeFilter}
+          onClearAll={clearAllFilters}
+        />
+        <Catalogue.Grid search={search} />
+      </div>
+      <Catalogue.Sidebar
         catalogueData={catalogueData}
         control={control}
         register={register}
@@ -383,78 +415,6 @@ export default function Catalogue() {
   );
 }
 
-export function CatalogueOld() {
-  const { form, catalogueData, search } = useCatalogueData();
-  const { register, control, watch } = form;
-
-  const payload = useMemo(() => watch(), [watch]);
-
-  return (
-    <div className="catalogue-container">
-      <div className="catalogue-search">
-        <input
-          className="catalogue-search__input"
-          type="text"
-          placeholder="Search"
-          {...register(Filters.Title)}
-        />
-
-        <div className="search-content">
-          <div className="search-content__payload">
-            <h3>Payload:</h3>
-            <pre>{JSON.stringify(payload, null, 2)}</pre>
-          </div>
-
-          <div className="search-content__results">
-            <h3>Results Title:</h3>
-            {search.isLoading ? (
-              <p>loading results...</p>
-            ) : (
-              <pre>
-                {JSON.stringify(
-                  search.data?.edges.map((edge) => edge.title) || [],
-                  null,
-                  2
-                )}
-              </pre>
-            )}
-          </div>
-        </div>
-      </div>
-
-      <div className="catalogue-filters">
-        <div className="catalogue-filters__section">
-          <FilterSection
-            name={Filters.Genres}
-            listData={catalogueData?.genres.en}
-            control={control}
-          />
-        </div>
-
-        <div className="catalogue-filters__section">
-          <FilterSection
-            name={Filters.UserTags}
-            listData={catalogueData?.userTags.en}
-            control={control}
-          />
-        </div>
-
-        <div className="catalogue-filters__section">
-          <FilterSection
-            name={Filters.Publishers}
-            listData={catalogueData?.publishers}
-            control={control}
-          />
-        </div>
-
-        <div className="catalogue-filters__section">
-          <FilterSection
-            name={Filters.Developers}
-            listData={catalogueData?.developers}
-            control={control}
-          />
-        </div>
-      </div>
-    </div>
-  );
-}
+Catalogue.Sidebar = Sidebar;
+Catalogue.Header = Header;
+Catalogue.Grid = Grid;
