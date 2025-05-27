@@ -4,9 +4,12 @@ import ky from "ky";
 import { api } from "@/services/api.service";
 import type { CatalogueGame } from "@/types";
 import { useSearchParams, useRouter } from "next/navigation";
+import { useDownloadSources } from "./use-download-sources.hook";
 import { useEffect, useMemo } from "react";
 import { debounce } from "lodash-es";
 import { IS_BROWSER } from "@/constants";
+
+export type CatalogueDownloadSource = Record<string, string>;
 
 export interface SteamGenresResponse {
   en: string[];
@@ -25,6 +28,7 @@ export interface SteamUserTagsResponse {
 export interface CatalogueData {
   genres: SteamGenresResponse;
   userTags: SteamUserTagsResponse;
+  downloadSources: CatalogueDownloadSource;
   developers: string[];
   publishers: string[];
 }
@@ -35,6 +39,7 @@ export interface SearchGamesFormValues {
   title?: string;
   tags?: number[];
   genres?: string[];
+  downloadSourceFingerprints?: string[];
   publishers?: string[];
   developers?: string[];
 }
@@ -64,6 +69,12 @@ function parseParam<T>(value: string | null): T | undefined {
 export function useCatalogueData() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const { downloadSources } = useDownloadSources();
+
+  const downloadSourcesRecord = downloadSources.reduce((acc, source) => {
+    acc[source.name] = source.fingerprint;
+    return acc;
+  }, {} as CatalogueDownloadSource);
 
   const initialValues: SearchGamesFormValues = useMemo(() => {
     return {
@@ -74,6 +85,9 @@ export function useCatalogueData() {
       genres: parseParam<string[]>(searchParams.get("genres")),
       publishers: parseParam<string[]>(searchParams.get("publishers")),
       developers: parseParam<string[]>(searchParams.get("developers")),
+      downloadSourceFingerprints: parseParam<string[]>(
+        searchParams.get("downloadSourceFingerprints")
+      ),
     };
   }, [searchParams]);
 
@@ -100,6 +114,11 @@ export function useCatalogueData() {
           query.set("publishers", JSON.stringify(values.publishers));
         if (values.developers?.length)
           query.set("developers", JSON.stringify(values.developers));
+        if (values.downloadSourceFingerprints?.length)
+          query.set(
+            "downloadSourceFingerprints",
+            JSON.stringify(values.downloadSourceFingerprints)
+          );
 
         router.replace(`?${query.toString()}`);
       }, 300)
@@ -171,6 +190,7 @@ export function useCatalogueData() {
           userTags: userTagsQuery.data,
           developers: developersQuery.data,
           publishers: publishersQuery.data,
+          downloadSources: downloadSourcesRecord,
         }
       : undefined;
 

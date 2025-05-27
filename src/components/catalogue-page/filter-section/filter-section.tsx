@@ -3,7 +3,10 @@ import { Controller, Control, FieldValues, Path } from "react-hook-form";
 import { useMemo } from "react";
 import { Checkbox, Typography } from "@/components";
 
-type FilterSectionDataProps = string[] | Record<string, number>;
+type FilterSectionDataProps =
+  | string[]
+  | Record<string, number>
+  | Record<string, string>;
 
 const ITEM_HEIGHT = 32;
 const MAX_VISIBLE_ITEMS = 10;

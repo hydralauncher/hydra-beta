@@ -42,13 +42,24 @@ interface CatalogueFiltersProps {
 
 enum Filters {
   Title = "title",
+  DownloadSources = "downloadSourceFingerprints",
   Genres = "genres",
   UserTags = "tags",
   Developers = "developers",
   Publishers = "publishers",
 }
 
+// Adiciona mapeamento para nomes bonitos
+const FilterDisplayNames = {
+  [Filters.DownloadSources]: "Sources",
+  [Filters.Genres]: "Genres",
+  [Filters.UserTags]: "User Tags",
+  [Filters.Developers]: "Developers",
+  [Filters.Publishers]: "Publishers",
+} as const;
+
 enum Colors {
+  DownloadSources = "red",
   Genres = "magenta",
   UserTags = "orange",
   Developers = "cyan",
@@ -86,6 +97,7 @@ function CatalogueFilters({
 
   const getFilterSection = (name: Exclude<Filters, Filters.Title>) => {
     const dataMap = {
+      [Filters.DownloadSources]: catalogueData.downloadSources,
       [Filters.Genres]: catalogueData.genres[userLanguage],
       [Filters.UserTags]: catalogueData.userTags[userLanguage],
       [Filters.Developers]: catalogueData.developers,
@@ -93,6 +105,7 @@ function CatalogueFilters({
     } as const;
 
     const colorMap = {
+      [Filters.DownloadSources]: Colors.DownloadSources,
       [Filters.Genres]: Colors.Genres,
       [Filters.UserTags]: Colors.UserTags,
       [Filters.Developers]: Colors.Developers,
@@ -102,7 +115,7 @@ function CatalogueFilters({
     const data = dataMap[name];
     const color = colorMap[name];
     const length =
-      name === Filters.UserTags
+      name === Filters.UserTags || name === Filters.DownloadSources
         ? Object.keys(data || {}).length
         : data?.length || 0;
 
@@ -111,6 +124,7 @@ function CatalogueFilters({
 
   const filterSections = (
     [
+      Filters.DownloadSources,
       Filters.Genres,
       Filters.UserTags,
       Filters.Developers,
@@ -127,7 +141,7 @@ function CatalogueFilters({
       {filterSections.map(({ name, color, data, length }) => (
         <Accordion
           key={name}
-          title={name}
+          title={FilterDisplayNames[name]}
           icon={<ColorDot color={color} />}
           open={openedFilters[name] ?? true}
           hint={`${length} Available`}
@@ -215,6 +229,18 @@ function CatalogueContent({
       });
     });
 
+    payload.downloadSourceFingerprints?.forEach((fingerprint) => {
+      const sourceName = Object.keys(catalogueData.downloadSources).find(
+        (key) => catalogueData.downloadSources[key] === fingerprint
+      );
+      filters.push({
+        label: sourceName ?? `Source ${fingerprint}`,
+        color: Colors.DownloadSources,
+        type: "downloadSourceFingerprints",
+        value: fingerprint,
+      });
+    });
+
     return filters;
   }, [payload, catalogueData, userLanguage]);
 
@@ -240,6 +266,16 @@ function CatalogueContent({
       setValue(
         "developers",
         currentValues.developers.filter((item) => item !== filter.value)
+      );
+    } else if (
+      filter.type === "downloadSourceFingerprints" &&
+      currentValues.downloadSourceFingerprints
+    ) {
+      setValue(
+        "downloadSourceFingerprints",
+        currentValues.downloadSourceFingerprints.filter(
+          (item) => item !== filter.value
+        )
       );
     }
   };
@@ -284,6 +320,7 @@ function CatalogueContent({
                 setValue("tags", []);
                 setValue("publishers", []);
                 setValue("developers", []);
+                setValue("downloadSourceFingerprints", []);
               }}
             >
               <Typography
