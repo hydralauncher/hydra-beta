@@ -6,6 +6,7 @@
   display: flex;
   border-radius: var(--spacing-unit);
   transition: background-color 0.15s ease-in-out;
+  cursor: pointer;
 
   .source-anchor__title {
     color: var(--primary-hover);
