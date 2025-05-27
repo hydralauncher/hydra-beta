@@ -1,5 +1,4 @@
 import { Checkbox, type CheckboxProps } from "@/components/common";
-import { Row } from "@/components/common/storybook/row";
 
 export default {
   title: "Components/Checkbox",
@@ -30,8 +29,8 @@ block.args = {
 };
 
 export const State = (args: CheckboxProps) => (
-  <Row>
+  <div>
     <Checkbox label="Disabled" disabled checked {...args} />
     <Checkbox label="Disabled" disabled checked block {...args} />
-  </Row>
+  </div>
 );

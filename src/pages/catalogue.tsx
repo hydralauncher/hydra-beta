@@ -1,186 +1,420 @@
-import List from "rc-virtual-list";
 import { useMemo } from "react";
-import { Controller, Control, FieldValues, Path } from "react-hook-form";
-import { useCatalogueData } from "../hooks";
+import { motion } from "framer-motion";
+import { MagnifyingGlassIcon } from "@phosphor-icons/react";
+import { useCatalogueStore } from "@/stores/catalogue.store";
+import {
+  Control,
+  UseFormRegister,
+  UseFormGetValues,
+  UseFormSetValue,
+} from "react-hook-form";
+import {
+  FilterSection,
+  Accordion,
+  Input,
+  Typography,
+  Chips,
+  ColorDot,
+  CatalogueGameCard,
+} from "@/components";
+import {
+  CatalogueData,
+  SearchGamesFormValues,
+  useCatalogueData,
+  SteamUserTagsResponse,
+  SearchGamesQuery,
+} from "../hooks";
 
-enum Filters {
-  Title = "title",
-  Genres = "genres",
-  UserTags = "tags",
-  Developers = "developers",
-  Publishers = "publishers",
+const FILTER_CONFIG = {
+  genres: {
+    label: "Genres",
+    color: "#d946ef",
+    isObject: false,
+  },
+  tags: {
+    label: "User Tags",
+    color: "#f97316",
+    isObject: true,
+  },
+  downloadSourceFingerprints: {
+    label: "Download Sources",
+    color: "#ef4444",
+    isObject: true,
+  },
+  developers: {
+    label: "Developers",
+    color: "#06b6d4",
+    isObject: false,
+  },
+  publishers: {
+    label: "Publishers",
+    color: "#32cd32",
+    isObject: false,
+  },
+} as const;
+
+type FilterKey = keyof typeof FILTER_CONFIG;
+
+interface FilterChip {
+  readonly label: string;
+  readonly color: string;
+  readonly type: FilterKey;
+  readonly value: string;
 }
 
-type FilterSectionDataProps = string[] | Record<string, number>;
+interface SidebarProps {
+  readonly catalogueData: CatalogueData | undefined;
+  readonly control: Control<SearchGamesFormValues>;
+  readonly register: UseFormRegister<SearchGamesFormValues>;
+  readonly userLanguage: keyof SteamUserTagsResponse;
+}
 
-export default function Catalogue() {
-  const { form, catalogueData, search } = useCatalogueData();
-  const { register, control, watch } = form;
+interface HeaderProps {
+  readonly title?: string;
+  readonly activeFilters: readonly FilterChip[];
+  readonly onRemoveFilter: (filter: FilterChip) => void;
+  readonly onClearAll: () => void;
+}
 
-  const payload = useMemo(() => watch(), [watch]);
+interface GridProps {
+  readonly search: SearchGamesQuery;
+}
+
+interface FilterAccordionProps {
+  readonly filterKey: FilterKey;
+  readonly config: (typeof FILTER_CONFIG)[FilterKey];
+  readonly data: string[] | Record<string, number> | Record<string, string>;
+  readonly control: Control<SearchGamesFormValues>;
+}
+
+interface ActiveFiltersChipsProps {
+  readonly filters: readonly FilterChip[];
+  readonly onRemoveFilter: (filter: FilterChip) => void;
+  readonly onClearAll: () => void;
+}
+
+const findTagLabel = (
+  catalogueData: CatalogueData,
+  userLanguage: keyof SteamUserTagsResponse,
+  value: string | number
+) => {
+  return Object.keys(catalogueData.userTags[userLanguage]).find(
+    (tagKey) => catalogueData.userTags[userLanguage][tagKey] === value
+  );
+};
+
+const findSourceLabel = (
+  catalogueData: CatalogueData,
+  value: string | number
+) => {
+  return Object.keys(catalogueData.downloadSources).find(
+    (sourceKey) => catalogueData.downloadSources[sourceKey] === value
+  );
+};
+
+const createFilterChip = (
+  value: string | number,
+  config: (typeof FILTER_CONFIG)[FilterKey],
+  filterKey: FilterKey,
+  catalogueData: CatalogueData,
+  userLanguage: keyof SteamUserTagsResponse
+): FilterChip => {
+  let label = value.toString();
+
+  if (filterKey === "tags") {
+    const tagName = findTagLabel(catalogueData, userLanguage, value);
+    label = tagName ?? `Tag ${value}`;
+  } else if (filterKey === "downloadSourceFingerprints") {
+    const sourceName = findSourceLabel(catalogueData, value);
+    label = sourceName ?? `Source ${value}`;
+  }
+
+  return {
+    label,
+    color: config.color,
+    type: filterKey,
+    value: value.toString(),
+  };
+};
+
+function useActiveFilters(
+  payload: SearchGamesFormValues,
+  catalogueData: CatalogueData | undefined,
+  userLanguage: keyof SteamUserTagsResponse
+): FilterChip[] {
+  return useMemo(() => {
+    if (!catalogueData) return [];
+
+    const filters: FilterChip[] = [];
+
+    Object.entries(FILTER_CONFIG).forEach(([key, config]) => {
+      const filterKey = key as FilterKey;
+      const values = payload[filterKey];
+
+      if (!values?.length) return;
+
+      values.forEach((value: string | number) => {
+        filters.push(
+          createFilterChip(
+            value,
+            config,
+            filterKey,
+            catalogueData,
+            userLanguage
+          )
+        );
+      });
+    });
+
+    return filters;
+  }, [payload, catalogueData, userLanguage]);
+}
+
+function useFilterRemoval(
+  getValues: UseFormGetValues<SearchGamesFormValues>,
+  setValue: UseFormSetValue<SearchGamesFormValues>
+) {
+  const removeFilter = (filter: FilterChip) => {
+    const currentValues = getValues();
+    const currentArray = currentValues[filter.type];
+
+    if (!currentArray) return;
+
+    const newArray = currentArray.filter(
+      (item) => item.toString() !== filter.value
+    );
+
+    setValue(filter.type, newArray as string[] | number[]);
+  };
+
+  const clearAllFilters = () => {
+    Object.keys(FILTER_CONFIG).forEach((key) => {
+      setValue(key as FilterKey, []);
+    });
+  };
+
+  return { removeFilter, clearAllFilters };
+}
+
+function FilterAccordion({
+  filterKey,
+  config,
+  data,
+  control,
+}: FilterAccordionProps) {
+  const {
+    filtersSearchTerms,
+    setFilterSearchTerm,
+    openedFilters,
+    setOpenedFilter,
+  } = useCatalogueStore();
+
+  const length = config.isObject
+    ? Object.keys(data || {}).length
+    : data?.length || 0;
 
   return (
-    <div className="catalogue-container">
-      <div className="catalogue-search">
-        <input
-          className="catalogue-search__input"
-          type="text"
-          placeholder="Search"
-          {...register(Filters.Title)}
+    <Accordion
+      title={config.label}
+      icon={<ColorDot color={config.color} />}
+      open={openedFilters[filterKey] ?? true}
+      hint={`${length} Available`}
+      onOpenChange={(isOpen) => setOpenedFilter(filterKey, isOpen)}
+    >
+      <div className="catalogue__sidebar-filter">
+        <Input
+          placeholder={`Search ${config.label}`}
+          iconLeft={<MagnifyingGlassIcon size={24} />}
+          value={filtersSearchTerms[filterKey] || ""}
+          onChange={(e) => setFilterSearchTerm(filterKey, e.target.value)}
         />
 
-        <div className="search-content">
-          <div className="search-content__payload">
-            <h3>Payload:</h3>
-            <pre>{JSON.stringify(payload, null, 2)}</pre>
-          </div>
-
-          <div className="search-content__results">
-            <h3>Results Title:</h3>
-            {search.isLoading ? (
-              <p>loading results...</p>
-            ) : (
-              <pre>
-                {JSON.stringify(
-                  search.data?.edges.map((edge) => edge.title) || [],
-                  null,
-                  2
-                )}
-              </pre>
-            )}
-          </div>
-        </div>
+        <FilterSection
+          name={filterKey}
+          listData={data}
+          control={control}
+          searchTerm={filtersSearchTerms[filterKey] || ""}
+        />
       </div>
+    </Accordion>
+  );
+}
 
-      <div className="catalogue-filters">
-        <div className="catalogue-filters__section">
-          <FilterSection
-            name={Filters.Genres}
-            listData={catalogueData?.genres.en}
-            control={control}
-          />
-        </div>
+function ActiveFiltersChips({
+  filters,
+  onRemoveFilter,
+  onClearAll,
+}: ActiveFiltersChipsProps) {
+  if (filters.length === 0) return null;
 
-        <div className="catalogue-filters__section">
-          <FilterSection
-            name={Filters.UserTags}
-            listData={catalogueData?.userTags.en}
-            control={control}
+  return (
+    <div className="catalogue__header-filters">
+      {filters.map((filter) => (
+        <motion.div
+          key={`${filter.type}-${filter.value}`}
+          layout="position"
+          transition={{
+            type: "spring",
+            stiffness: 600,
+            damping: 40,
+          }}
+        >
+          <Chips
+            label={filter.label}
+            color={filter.color}
+            onRemove={() => onRemoveFilter(filter)}
           />
-        </div>
+        </motion.div>
+      ))}
 
-        <div className="catalogue-filters__section">
-          <FilterSection
-            name={Filters.Publishers}
-            listData={catalogueData?.publishers}
-            control={control}
-          />
-        </div>
-
-        <div className="catalogue-filters__section">
-          <FilterSection
-            name={Filters.Developers}
-            listData={catalogueData?.developers}
-            control={control}
-          />
-        </div>
-      </div>
+      <button className="catalogue__clear-button" onClick={onClearAll}>
+        <Typography variant="label" className="catalogue__clear-text">
+          Clear all
+        </Typography>
+      </button>
     </div>
   );
 }
 
-function FilterSection<T extends FieldValues>({
-  listData,
-  name,
+function Sidebar({
+  catalogueData,
   control,
-}: {
-  listData: FilterSectionDataProps | undefined;
-  name: Path<T>;
-  control: Control<T>;
-}) {
-  if (!listData) return null;
+  register,
+  userLanguage,
+}: SidebarProps) {
+  const getFilterData = useMemo(() => {
+    if (!catalogueData) return () => null;
 
-  const isArray = Array.isArray(listData);
-  const isRecord = !isArray && typeof listData === "object";
+    return (key: FilterKey) => {
+      switch (key) {
+        case "downloadSourceFingerprints":
+          return catalogueData.downloadSources;
+        case "genres":
+          return catalogueData.genres[userLanguage];
+        case "tags":
+          return catalogueData.userTags[userLanguage];
+        case "developers":
+          return catalogueData.developers;
+        case "publishers":
+          return catalogueData.publishers;
+        default:
+          return null;
+      }
+    };
+  }, [catalogueData, userLanguage]);
 
-  const calculateHeight = (items: readonly unknown[]) =>
-    28 * (items.length > 10 ? 10 : items.length);
+  if (!catalogueData) return null;
 
   return (
-    <Controller
-      name={name}
-      control={control}
-      render={({ field }) => {
-        const selected: (string | number)[] = field.value ?? [];
+    <div className="catalogue__sidebar">
+      <Input placeholder="Search games..." {...register("title")} />
 
-        const handleChange = (value: string | number, checked: boolean) => {
-          const next = checked
-            ? [...selected, value]
-            : selected.filter((v) => v !== value);
-          field.onChange(next);
-        };
+      {Object.entries(FILTER_CONFIG).map(([key, config]) => {
+        const filterKey = key as FilterKey;
+        const data = getFilterData(filterKey);
+
+        if (!data) return null;
 
         return (
-          <div className="filter-section">
-            {isArray && (
-              <List
-                data={listData}
-                height={calculateHeight(listData)}
-                itemHeight={28}
-                itemKey={(item) => item}
-              >
-                {(item: string) => (
-                  <div className="filter-section-item" key={item}>
-                    <input
-                      id={`${name}-${item}`}
-                      type="checkbox"
-                      value={item}
-                      checked={selected.includes(item)}
-                      onChange={(e) => handleChange(item, e.target.checked)}
-                    />
-                    <label
-                      className="filter-section-item__label"
-                      htmlFor={`${name}-${item}`}
-                    >
-                      {item}
-                    </label>
-                  </div>
-                )}
-              </List>
-            )}
-
-            {isRecord && (
-              <List
-                data={Object.keys(listData)}
-                height={calculateHeight(Object.keys(listData))}
-                itemHeight={28}
-                itemKey={(item) => item}
-              >
-                {(item: string) => {
-                  const value = (listData as Record<string, number>)[item];
-                  return (
-                    <div className="filter-section-item" key={item}>
-                      <input
-                        id={`${name}-${item}`}
-                        type="checkbox"
-                        value={value}
-                        checked={selected.includes(value)}
-                        onChange={(e) => handleChange(value, e.target.checked)}
-                      />
-                      <label
-                        className="filter-section-item__label"
-                        htmlFor={`${name}-${item}`}
-                      >
-                        {item}
-                      </label>
-                    </div>
-                  );
-                }}
-              </List>
-            )}
-          </div>
+          <FilterAccordion
+            key={filterKey}
+            filterKey={filterKey}
+            config={config}
+            data={data}
+            control={control}
+          />
         );
-      }}
-    />
+      })}
+    </div>
   );
 }
+
+function Header({
+  title,
+  activeFilters,
+  onRemoveFilter,
+  onClearAll,
+}: HeaderProps) {
+  const hasSearchCriteria = Boolean(title) || activeFilters.length > 0;
+
+  return (
+    <div className="catalogue__header">
+      <Typography variant="h4" className="catalogue__title">
+        {hasSearchCriteria ? (
+          <>Showing search results for {title && <q>{title}</q>}</>
+        ) : (
+          "Most popular games"
+        )}
+      </Typography>
+
+      <ActiveFiltersChips
+        filters={activeFilters}
+        onRemoveFilter={onRemoveFilter}
+        onClearAll={onClearAll}
+      />
+    </div>
+  );
+}
+
+function Grid({ search }: GridProps) {
+  if (search.isLoading) {
+    return <p>Loading results...</p>;
+  }
+
+  if (search.error) {
+    return <p>Error loading games. Please try again.</p>;
+  }
+
+  return (
+    <div className="catalogue__grid">
+      {search.data?.edges.map((edge) => (
+        <div key={edge.id} className="catalogue__grid-item">
+          <CatalogueGameCard
+            title={edge.title}
+            image={edge.libraryImageUrl}
+            genres={edge.genres}
+            href={`/game/${edge.objectId}`}
+            objectId={edge.objectId}
+          />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+export default function Catalogue() {
+  const userLanguage = "en";
+  const { form, catalogueData, search } = useCatalogueData();
+  const { register, control, watch, getValues, setValue } = form;
+
+  const payload = watch();
+  const activeFilters = useActiveFilters(payload, catalogueData, userLanguage);
+  const { removeFilter, clearAllFilters } = useFilterRemoval(
+    getValues,
+    setValue
+  );
+
+  return (
+    <div className="catalogue">
+      <div className="catalogue__content">
+        <Catalogue.Header
+          title={payload.title}
+          activeFilters={activeFilters}
+          onRemoveFilter={removeFilter}
+          onClearAll={clearAllFilters}
+        />
+        <Catalogue.Grid search={search} />
+      </div>
+      <Catalogue.Sidebar
+        catalogueData={catalogueData}
+        control={control}
+        register={register}
+        userLanguage={userLanguage}
+      />
+    </div>
+  );
+}
+
+Catalogue.Sidebar = Sidebar;
+Catalogue.Header = Header;
+Catalogue.Grid = Grid;

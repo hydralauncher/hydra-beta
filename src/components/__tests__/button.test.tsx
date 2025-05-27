@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
-import { Button, type ButtonProps } from "@/components/common/button/button";
+import { Button, type ButtonProps } from "@/components/common";
 
 // Mock the Spinner component
 vi.mock("@phosphor-icons/react", () => ({

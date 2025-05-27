@@ -49,6 +49,10 @@ export interface CatalogueGame {
   shop: GameShop;
   objectId: string;
   iconHash: string;
+  libraryHeroImageUrl: string;
+  libraryImageUrl: string;
+  logoImageUrl: string;
+  logoPosition: number;
   tags: string[];
   genres: string[];
   developer: string;

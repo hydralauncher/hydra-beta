@@ -127,7 +127,6 @@ export function useDownloadSources() {
     });
 
   const downloadSourcesByObjectId = useMemo(() => {
-    console.log(downloadSources);
     const map = new Map<
       string,
       (DownloadOption & { downloadSource: string })[]
@@ -151,6 +150,17 @@ export function useDownloadSources() {
     return map;
   }, [downloadSources]);
 
+  const uniqueDownloadSourcesByObjectId = useMemo(() => {
+    return new Map(
+      Array.from(downloadSourcesByObjectId.entries()).map(
+        ([objectId, options]) => [
+          objectId,
+          Array.from(new Set(options.map((opt) => opt.downloadSource))),
+        ]
+      )
+    );
+  }, [downloadSourcesByObjectId]);
+
   return {
     importDownloadSource,
     removeDownloadSource: remove,
@@ -161,5 +171,6 @@ export function useDownloadSources() {
     isImporting,
     isSyncing,
     downloadSourcesByObjectId,
+    uniqueDownloadSourcesByObjectId,
   };
 }

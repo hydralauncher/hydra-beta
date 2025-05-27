@@ -102,7 +102,7 @@ export default function Home() {
   }, [authorizePayload]);
 
   return (
-    <div>
+    <div style={{ marginTop: "80px", marginLeft: "60px" }}>
       <p>Logged in as {user?.displayName}</p>
 
       {user ? (

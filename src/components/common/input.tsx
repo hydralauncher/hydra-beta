@@ -1,5 +1,5 @@
 import clsx from "clsx";
-import { Typography } from "../typography/typography";
+import { Typography } from "./typography";
 
 export interface InputProps
   extends React.InputHTMLAttributes<HTMLInputElement> {

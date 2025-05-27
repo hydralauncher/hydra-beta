@@ -1,5 +1,5 @@
-import { Check } from "@phosphor-icons/react";
-import { useId, useState } from "react";
+import { CheckIcon } from "@phosphor-icons/react";
+import { useId } from "react";
 import clsx from "clsx";
 
 export interface CheckboxProps {
@@ -15,15 +15,22 @@ export const Checkbox = ({ label, ...props }: CheckboxProps) => {
   const generatedId = useId();
   const id = props.id ?? generatedId;
 
-  const [isChecked, setIsChecked] = useState(props.checked);
+  const isChecked = props.checked ?? false;
 
   const handleChange = (checked: boolean) => {
-    setIsChecked(checked);
     props.onChange?.(checked);
   };
 
+  const handleBlockClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    if (!props.block) return;
+
+    e.preventDefault();
+    handleChange(!isChecked);
+  };
+
   return (
-    <div
+    <button
+      onClick={handleBlockClick}
       className={clsx("checkbox", {
         "checkbox--block": props.block,
         "checkbox--block--active": props.block && isChecked,
@@ -41,7 +48,7 @@ export const Checkbox = ({ label, ...props }: CheckboxProps) => {
         aria-checked={isChecked}
         aria-labelledby={label ? `${id}-label` : undefined}
       >
-        {isChecked && <Check className="checkbox__input__icon" size={14} />}
+        {isChecked && <CheckIcon className="checkbox__input__icon" size={14} />}
       </button>
 
       {label && (
@@ -49,6 +56,6 @@ export const Checkbox = ({ label, ...props }: CheckboxProps) => {
           {label}
         </label>
       )}
-    </div>
+    </button>
   );
 };

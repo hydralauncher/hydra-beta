@@ -1,7 +1,7 @@
 import {
   RouteAnchor,
   type RouteAnchorProps,
-} from "@/components/common/route-anchor/route-anchor";
+} from "@/components/common/route-anchor";
 import { House } from "@phosphor-icons/react";
 export default {
   title: "Sidebar/Route Anchor",

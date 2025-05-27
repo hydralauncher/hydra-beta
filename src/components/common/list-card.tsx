@@ -34,7 +34,7 @@ export function ListCard({
             {sources && (
               <div className="list-card__content__info__sources">
                 {sources.map((source) => (
-                  <SourceAnchor title={source} href="/" key={source} />
+                  <SourceAnchor title={source} key={source} />
                 ))}
               </div>
             )}

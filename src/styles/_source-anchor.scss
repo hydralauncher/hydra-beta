@@ -1,19 +1,22 @@
 .source-anchor {
-  background-color: var(--secondary-hover);
-  height: 28px;
-  padding: 0 calc(var(--spacing-unit) * 2);
-  display: flex;
-  align-items: center;
+  background-color: var(--surface);
+  padding: calc(var(--spacing-unit) * 2) calc(var(--spacing-unit) * 3);
   justify-content: center;
+  align-items: center;
+  display: flex;
   border-radius: var(--spacing-unit);
+  transition: background-color 0.15s ease-in-out;
+  cursor: pointer;
 
-  &__title {
-    font-size: 10px;
+  .source-anchor__title {
+    color: var(--primary-hover);
+    font-size: 12px;
     font-style: normal;
     font-weight: 400;
-    line-height: normal;
-    color: var(--primary);
-    opacity: 0.8;
+  }
+
+  &:hover {
+    background-color: var(--secondary);
   }
 }
 

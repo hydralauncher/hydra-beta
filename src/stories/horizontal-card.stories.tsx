@@ -1,4 +1,4 @@
-import { HorizontalCard } from "@/components/common/cards/game-horizontal/horizontal-card";
+import { HorizontalCard } from "@/components/common/horizontal-card";
 import { PlusCircle } from "@phosphor-icons/react";
 import { Button } from "@/components/common";
 

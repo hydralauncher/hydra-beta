@@ -1,8 +1,7 @@
 import { useCallback, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "framer-motion";
-
-import { Backdrop } from "../backdrop/backdrop";
+import { Backdrop } from "./backdrop";
 import { IS_BROWSER } from "@/constants";
 
 export interface ModalProps {
