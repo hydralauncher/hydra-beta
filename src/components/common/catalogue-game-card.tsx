@@ -11,7 +11,7 @@ export interface CatalogueGameCardProps {
   title: string;
   image: string;
   genres: string[];
-  objectId?: string;
+  objectId: string;
   href: string;
   trailerUrl?: string;
 }
@@ -31,11 +31,7 @@ export function CatalogueGameCard({
   const zIndexTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const cardRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
-
-  const sources = () => {
-    if (!objectId) return [];
-    return uniqueDownloadSourcesByObjectId.get(objectId) || [];
-  };
+  const sources = uniqueDownloadSourcesByObjectId.get(objectId) || [];
 
   const handleMouseEnter = () => {
     if (videoRef.current) {
@@ -138,11 +134,20 @@ export function CatalogueGameCard({
               : genres.join(", ")}
           </Typography>
         </div>
-        <div className="catalogue-game-card__content__sources">
-          {sources().map((source) => (
-            <SourceAnchor key={source} title={source} href="/" />
-          ))}
-        </div>
+        {sources.length > 0 && (
+          <div className="catalogue-game-card__content__sources">
+            {sources.slice(0, 3).map((source) => (
+              <SourceAnchor key={source} title={source} />
+            ))}
+
+            {sources.length > 3 && (
+              <SourceAnchor
+                className="catalogue-game-card__content__sources__more"
+                title={`+${sources.length - 3}`}
+              />
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

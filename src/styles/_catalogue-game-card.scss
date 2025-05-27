@@ -67,6 +67,11 @@
       display: flex;
       flex-direction: row;
       gap: calc(var(--spacing-unit) * 2);
+
+      &__more {
+        cursor: default;
+        pointer-events: none;
+      }
     }
   }
 }
