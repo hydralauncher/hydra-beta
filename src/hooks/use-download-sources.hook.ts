@@ -127,7 +127,6 @@ export function useDownloadSources() {
     });
 
   const downloadSourcesByObjectId = useMemo(() => {
-    console.log(downloadSources);
     const map = new Map<
       string,
       (DownloadOption & { downloadSource: string })[]
