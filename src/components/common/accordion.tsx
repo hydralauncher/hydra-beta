@@ -92,7 +92,9 @@ export function Accordion({
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ height: 0, scaleY: 0 }}
+            initial={
+              open ? { height: "auto", scaleY: 1 } : { height: 0, scaleY: 0 }
+            }
             exit={{ height: 0, scaleY: 0 }}
             animate={{ height: "auto", scaleY: 1 }}
             transition={{ duration: 0.2, ease: "easeInOut" }}
