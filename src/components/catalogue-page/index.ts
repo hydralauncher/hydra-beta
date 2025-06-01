@@ -1,13 +1,15 @@
 import Sidebar from "./sidebar";
 import Filters from "./filters";
 import Header from "./header";
+import Card from "./card";
+import Grid from "./grid";
 import type { FilterKey, FilterConfig } from "@/types";
 
 export const FILTER_COLORS = {
   genres: "magenta",
   userTags: "yellow",
   developers: "cyan",
-  publishers: "greenlime",
+  publishers: "limegreen",
   downloadSourceFingerprints: "red",
 } as const;
 
@@ -43,4 +45,6 @@ export const Catalogue = {
   Sidebar,
   Filters,
   Header,
+  Card,
+  Grid,
 };

@@ -3,7 +3,7 @@ import Link from "next/link";
 export interface SourceAnchorProps
   extends React.AnchorHTMLAttributes<HTMLAnchorElement> {
   title: string;
-  href: string;
+  href?: string;
 }
 
 export function SourceAnchor({
