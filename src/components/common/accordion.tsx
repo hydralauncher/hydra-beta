@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Typography } from "@/components";
 import { CaretUpIcon } from "@phosphor-icons/react";
 import { AnimatePresence, motion } from "framer-motion";
@@ -77,6 +77,11 @@ export function Accordion({
   onOpenChange,
 }: Readonly<AccordionProps>) {
   const [isOpen, setIsOpen] = useState(open);
+  const [hasMounted, setHasMounted] = useState(false);
+
+  useEffect(() => {
+    setHasMounted(true);
+  }, []);
 
   return (
     <div className="accordion">
@@ -93,7 +98,9 @@ export function Accordion({
         {isOpen && (
           <motion.div
             initial={
-              open ? { height: "auto", scaleY: 1 } : { height: 0, scaleY: 0 }
+              !hasMounted && open
+                ? { height: "auto", scaleY: 1 }
+                : { height: 0, scaleY: 0 }
             }
             exit={{ height: 0, scaleY: 0 }}
             animate={{ height: "auto", scaleY: 1 }}
