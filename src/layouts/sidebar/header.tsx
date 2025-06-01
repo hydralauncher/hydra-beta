@@ -33,7 +33,7 @@ export function Header() {
     if (router.pathname !== "/catalogue") {
       router.push("/catalogue");
     }
-    
+
     inputRef.current?.focus();
   };
 
