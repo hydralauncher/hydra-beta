@@ -102,7 +102,7 @@ export default function Home() {
   }, [authorizePayload]);
 
   return (
-    <div>
+    <div style={{ padding: "100px" }}>
       <p>Logged in as {user?.displayName}</p>
 
       {user ? (

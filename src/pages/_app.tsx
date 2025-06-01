@@ -7,7 +7,7 @@ import { Space_Grotesk } from "next/font/google";
 import { useEffect, useRef } from "react";
 import { useRouter } from "next/router";
 import { useUser } from "@/hooks";
-
+import { Header } from "@/layouts/sidebar/header";
 const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
   variable: "--font-space-grotesk",
@@ -69,6 +69,7 @@ export default function App({ Component, pageProps }: AppProps) {
         <Sidebar />
 
         <Main>
+          <Header />
           <Component {...pageProps} />
         </Main>
       </div>
