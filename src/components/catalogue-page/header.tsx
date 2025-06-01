@@ -24,67 +24,45 @@ export default function Header() {
   const activeFilters = useMemo((): ActiveFilter[] => {
     const filters: ActiveFilter[] = [];
 
-    // Genres
-    genres.forEach((genre) => {
-      filters.push({
-        type: "genres",
-        value: genre,
-        label: genre,
-        color: FILTER_COLORS.genres,
+    const addFilters = (
+      items: (string | number)[],
+      type: ActiveFilter["type"],
+      getLabelFn?: (item: string | number) => string
+    ) => {
+      items.forEach((item) => {
+        filters.push({
+          type,
+          value: item,
+          label: getLabelFn ? getLabelFn(item) : String(item),
+          color: FILTER_COLORS[type],
+        });
       });
-    });
+    };
 
-    // User Tags (tags -> names from catalogue data)
+    addFilters(genres, "genres");
+    addFilters(developers, "developers");
+    addFilters(publishers, "publishers");
+
     if (catalogueData) {
-      tags.forEach((tagId) => {
-        const tagName = Object.keys(catalogueData.userTags.en).find(
-          (name) => catalogueData.userTags.en[name] === tagId
+      addFilters(tags, "userTags", (tagId) => {
+        return (
+          Object.keys(catalogueData.userTags.en).find(
+            (name) => catalogueData.userTags.en[name] === tagId
+          ) ?? String(tagId)
         );
-        if (tagName) {
-          filters.push({
-            type: "userTags",
-            value: tagId,
-            label: tagName,
-            color: FILTER_COLORS.userTags,
-          });
-        }
       });
     }
 
-    // Developers
-    developers.forEach((developer) => {
-      filters.push({
-        type: "developers",
-        value: developer,
-        label: developer,
-        color: FILTER_COLORS.developers,
-      });
-    });
-
-    // Publishers
-    publishers.forEach((publisher) => {
-      filters.push({
-        type: "publishers",
-        value: publisher,
-        label: publisher,
-        color: FILTER_COLORS.publishers,
-      });
-    });
-
-    // Download Sources (fingerprints -> names)
-    downloadSourceFingerprints.forEach((fingerprint) => {
-      const source = downloadSources.find(
-        (ds) => ds.fingerprint === fingerprint
-      );
-      if (source) {
-        filters.push({
-          type: "downloadSourceFingerprints",
-          value: fingerprint,
-          label: source.name,
-          color: FILTER_COLORS.downloadSourceFingerprints,
-        });
+    addFilters(
+      downloadSourceFingerprints,
+      "downloadSourceFingerprints",
+      (fingerprint) => {
+        return (
+          downloadSources.find((ds) => ds.fingerprint === fingerprint)?.name ??
+          String(fingerprint)
+        );
       }
-    });
+    );
 
     return filters;
   }, [
@@ -98,31 +76,28 @@ export default function Header() {
   ]);
 
   const removeFilter = (filter: ActiveFilter) => {
-    switch (filter.type) {
-      case "genres":
-        setFilters({ genres: genres.filter((g) => g !== filter.value) });
-        break;
-      case "userTags":
-        setFilters({ tags: tags.filter((t) => t !== filter.value) });
-        break;
-      case "developers":
+    const filterMap = {
+      genres: () =>
+        setFilters({ genres: genres.filter((g) => g !== filter.value) }),
+      userTags: () =>
+        setFilters({ tags: tags.filter((t) => t !== filter.value) }),
+      developers: () =>
         setFilters({
           developers: developers.filter((d) => d !== filter.value),
-        });
-        break;
-      case "publishers":
+        }),
+      publishers: () =>
         setFilters({
           publishers: publishers.filter((p) => p !== filter.value),
-        });
-        break;
-      case "downloadSourceFingerprints":
+        }),
+      downloadSourceFingerprints: () =>
         setFilters({
           downloadSourceFingerprints: downloadSourceFingerprints.filter(
             (ds) => ds !== filter.value
           ),
-        });
-        break;
-    }
+        }),
+    };
+
+    filterMap[filter.type]();
   };
 
   const clearAllFilters = () => {
