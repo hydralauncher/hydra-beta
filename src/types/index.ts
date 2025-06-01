@@ -69,3 +69,4 @@ export interface TrendingGame {
 
 export * from "./api.types";
 export * from "./steam.types";
+export * from "./catalogue.types";
