@@ -4,11 +4,9 @@ import { Catalogue } from "@/components";
 import { FILTER_CONFIG } from "./index";
 
 export default function Sidebar() {
-  const { data: catalogueData, isLoading, isError } = useCatalogueAssets();
+  const { data: catalogueData, isError } = useCatalogueAssets();
   const { downloadSources } = useDownloadSources();
 
-  if (isLoading)
-    return <div className="sidebar-loading">Loading filters...</div>;
   if (isError)
     return <div className="sidebar-error">Failed to load filters</div>;
   if (!catalogueData) return null;
