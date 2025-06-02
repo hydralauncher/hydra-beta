@@ -1,6 +1,7 @@
 import { useCatalogueSearch } from "@/hooks/use-catalogue-search.hook";
 import { Catalogue } from "@/components";
 import type { CatalogueGame } from "@/types";
+import { CardSkeleton } from "./skeleton";
 
 interface CatalogueGameWithAssets extends CatalogueGame {
   libraryImageUrl: string;
@@ -10,7 +11,11 @@ export default function Grid() {
   const { search } = useCatalogueSearch();
 
   if (search.isLoading) {
-    return <p>Loading results...</p>;
+    return (
+      <div className="catalogue__grid">
+        <CardSkeleton />
+      </div>
+    );
   }
 
   if (search.isError) {
