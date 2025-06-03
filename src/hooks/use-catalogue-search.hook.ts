@@ -5,17 +5,6 @@ import { useCatalogueStore } from "@/stores/catalogue.store";
 import { useState, useEffect } from "react";
 import { debounce } from "lodash-es";
 
-export interface SearchGamesFormValues {
-  take?: number;
-  skip?: number;
-  title?: string;
-  tags?: number[];
-  genres?: string[];
-  publishers?: string[];
-  developers?: string[];
-  downloadSourceFingerprints?: string[];
-}
-
 export interface SearchGamesResponseData {
   edges: CatalogueGame[];
   count: number;
@@ -34,36 +23,21 @@ export function useCatalogueSearch() {
     return () => debouncedUpdate.cancel();
   }, [storeValues]);
 
-  const searchQuery = useQuery<SearchGamesResponseData>({
-    queryKey: [
-      "search-games",
-      debouncedValues.title,
-      debouncedValues.take,
-      debouncedValues.skip,
-      debouncedValues.tags,
-      debouncedValues.genres,
-      debouncedValues.publishers,
-      debouncedValues.developers,
-      debouncedValues.downloadSourceFingerprints,
-    ],
-    queryFn: () =>
-      api
-        .post("catalogue/search", {
-          json: debouncedValues,
-        })
-        .json(),
-  });
-
-  const searchData = searchQuery.data;
-  const isEmpty = !searchData || searchData.edges.length === 0;
+  const { data, isLoading, isError, error } = useQuery<SearchGamesResponseData>(
+    {
+      queryKey: ["search-games", debouncedValues],
+      queryFn: () =>
+        api.post("catalogue/search", { json: debouncedValues }).json(),
+    }
+  );
 
   return {
     search: {
-      data: searchData,
-      isLoading: searchQuery.isLoading,
-      isError: searchQuery.isError,
-      error: searchQuery.error,
-      isEmpty,
+      data,
+      isLoading,
+      isError,
+      error,
+      isEmpty: data?.edges.length === 0,
     },
   };
 }
