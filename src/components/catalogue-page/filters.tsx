@@ -1,8 +1,9 @@
 import List from "rc-virtual-list";
-import { useMemo } from "react";
+import { useMemo, useState, useCallback } from "react";
 import { Accordion, Input, ColorDot, Checkbox, Typography } from "@/components";
 import { MagnifyingGlassIcon } from "@phosphor-icons/react";
 import { useCatalogueStore } from "@/stores/catalogue.store";
+import { useSearch } from "@/hooks/use-search.hook";
 import type { FilterKey, FilterConfig } from "@/types";
 
 type FilterData = string[] | Record<string, number> | Record<string, string>;
@@ -22,8 +23,22 @@ export default function Filters({
   data,
 }: Readonly<FiltersProps>) {
   const store = useCatalogueStore();
-  const searchTerm = store.filtersSearchTerms[filterKey] ?? "";
+  const [isOpen, setIsOpen] = useState(true);
   const isRecord = !Array.isArray(data);
+
+  const itemList = useMemo(() => {
+    if (!data) return [];
+    return isRecord ? Object.keys(data) : data;
+  }, [data, isRecord]);
+
+  const searchableItems = useMemo(
+    () => itemList.map((item) => ({ value: item })),
+    [itemList]
+  );
+
+  const { search, setSearch, filteredItems } = useSearch(searchableItems, [
+    "value",
+  ]);
 
   const storeMapping: Record<FilterKey, (string | number)[]> = {
     genres: store.genres,
@@ -34,51 +49,42 @@ export default function Filters({
   };
 
   const { items, height } = useMemo(() => {
-    if (!data) return { items: [], height: 0 };
-
-    const itemList = isRecord ? Object.keys(data) : data;
-    const filteredItems = searchTerm
-      ? itemList.filter((item) =>
-          item.toLowerCase().includes(searchTerm.toLowerCase())
-        )
-      : itemList;
-
+    const finalItems = filteredItems.map((item) => item.value);
     return {
-      items: filteredItems,
-      height: ITEM_HEIGHT * Math.min(filteredItems.length, MAX_VISIBLE_ITEMS),
+      items: finalItems,
+      height: ITEM_HEIGHT * Math.min(finalItems.length, MAX_VISIBLE_ITEMS),
     };
-  }, [data, isRecord, searchTerm]);
+  }, [filteredItems]);
 
   const selected = storeMapping[filterKey];
 
-  const handleChange = (value: string | number, checked: boolean) => {
-    const next = checked
-      ? [...selected, value]
-      : selected.filter((v) => v !== value);
+  const handleChange = useCallback(
+    (value: string | number, checked: boolean) => {
+      const next = checked
+        ? [...selected, value]
+        : selected.filter((v) => v !== value);
 
-    const storeKey = filterKey === "userTags" ? "tags" : filterKey;
-    store.setFilters({ [storeKey]: next });
-  };
+      const storeKey = filterKey === "userTags" ? "tags" : filterKey;
+      store.setFilters({ [storeKey]: next });
+    },
+    [selected, filterKey, store]
+  );
 
   if (!data || items.length === 0) {
     return (
       <Accordion
         title={config.label}
         icon={<ColorDot color={config.color} />}
-        open={store.openedFilters[filterKey] ?? true}
+        open={isOpen}
         hint={`${config.isObject ? Object.keys(data || {}).length : data?.length || 0} Available`}
-        onOpenChange={(isOpen: boolean) =>
-          store.setOpenedFilter(filterKey, isOpen)
-        }
+        onOpenChange={setIsOpen}
       >
         <div className="catalogue__sidebar-filter">
           <Input
             placeholder={`Search ${config.label}`}
             iconLeft={<MagnifyingGlassIcon size={24} />}
-            value={searchTerm}
-            onChange={(e) =>
-              store.setFilterSearchTerm(filterKey, e.target.value)
-            }
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
           />
           <div className="filter-section__empty">
             <Typography variant="label">No results found</Typography>
@@ -92,18 +98,16 @@ export default function Filters({
     <Accordion
       title={config.label}
       icon={<ColorDot color={config.color} />}
-      open={store.openedFilters[filterKey] ?? true}
+      open={isOpen}
       hint={`${config.isObject ? Object.keys(data || {}).length : data?.length || 0} Available`}
-      onOpenChange={(isOpen: boolean) =>
-        store.setOpenedFilter(filterKey, isOpen)
-      }
+      onOpenChange={setIsOpen}
     >
       <div className="catalogue__sidebar-filter">
         <Input
           placeholder={`Search ${config.label}`}
           iconLeft={<MagnifyingGlassIcon size={24} />}
-          value={searchTerm}
-          onChange={(e) => store.setFilterSearchTerm(filterKey, e.target.value)}
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
         />
 
         <List

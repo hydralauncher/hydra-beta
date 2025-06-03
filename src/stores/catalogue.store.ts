@@ -1,5 +1,4 @@
 import { create } from "zustand";
-import type { FilterKey } from "@/types";
 
 export interface CatalogueState {
   title: string;
@@ -10,15 +9,11 @@ export interface CatalogueState {
   publishers: string[];
   developers: string[];
   downloadSourceFingerprints: string[];
-  filtersSearchTerms: Record<FilterKey, string>;
-  openedFilters: Record<FilterKey, boolean>;
 }
 
 export interface CatalogueActions {
   setTitle: (title: string) => void;
   setFilters: (filters: Partial<CatalogueState>) => void;
-  setFilterSearchTerm: (filterKey: FilterKey, searchTerm: string) => void;
-  setOpenedFilter: (filterKey: FilterKey, isOpen: boolean) => void;
   reset: () => void;
 }
 
@@ -31,20 +26,6 @@ const initialState: CatalogueState = {
   publishers: [],
   developers: [],
   downloadSourceFingerprints: [],
-  filtersSearchTerms: {
-    genres: "",
-    userTags: "",
-    developers: "",
-    publishers: "",
-    downloadSourceFingerprints: "",
-  },
-  openedFilters: {
-    genres: true,
-    userTags: true,
-    developers: true,
-    publishers: true,
-    downloadSourceFingerprints: true,
-  },
 };
 
 export const useCatalogueStore = create<CatalogueState & CatalogueActions>(
@@ -53,20 +34,6 @@ export const useCatalogueStore = create<CatalogueState & CatalogueActions>(
 
     setTitle: (title) => set({ title }),
     setFilters: (filters) => set(filters),
-    setFilterSearchTerm: (filterKey, searchTerm) =>
-      set((state) => ({
-        filtersSearchTerms: {
-          ...state.filtersSearchTerms,
-          [filterKey]: searchTerm,
-        },
-      })),
-    setOpenedFilter: (filterKey, isOpen) =>
-      set((state) => ({
-        openedFilters: {
-          ...state.openedFilters,
-          [filterKey]: isOpen,
-        },
-      })),
     reset: () => set(initialState),
   })
 );
