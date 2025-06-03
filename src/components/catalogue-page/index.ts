@@ -3,10 +3,7 @@ import Grid from "./grid";
 import Header from "./header";
 import Sidebar from "./sidebar";
 import { SkeletonCard } from "./skeleton";
-import {
-  FILTERS,
-  type FilterConfig,
-} from "./filters.config";
+import { FILTERS, type FilterConfig } from "./filters.config";
 
 export type { FilterConfig };
 

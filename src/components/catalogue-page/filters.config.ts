@@ -6,8 +6,6 @@ export interface FilterConfig {
   isObject: boolean;
 }
 
-
-
 export const FILTERS: Record<FilterKey, FilterConfig> = {
   genres: {
     label: "Genres",

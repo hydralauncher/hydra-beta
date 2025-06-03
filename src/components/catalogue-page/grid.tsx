@@ -19,11 +19,12 @@ export default function Grid({ search }: Readonly<GridProps>) {
   if (search.isLoading) {
     return (
       <div className="catalogue-grid">
-        {Array.from({ length: Number(skeletonLength) }, (_, index) => index).map(
-          (item) => (
-            <Catalogue.SkeletonCard key={`skeleton-${item}`} />
-          )
-        )}
+        {Array.from(
+          { length: Number(skeletonLength) },
+          (_, index) => index
+        ).map((item) => (
+          <Catalogue.SkeletonCard key={`skeleton-${item}`} />
+        ))}
       </div>
     );
   }
