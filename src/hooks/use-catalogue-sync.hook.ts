@@ -5,128 +5,101 @@ import {
   useCatalogueStore,
   type CatalogueState,
 } from "@/stores/catalogue.store";
-import type { SearchGamesFormValues } from "./use-catalogue-search.hook";
-import { IS_BROWSER } from "@/constants";
 
-function parseParam<T>(value: string | null): T | undefined {
-  if (!value) return undefined;
+const DEFAULTS = { take: 20, skip: 0 } as const;
+
+const FILTER_FIELDS = [
+  "tags",
+  "genres",
+  "publishers",
+  "developers",
+  "downloadSourceFingerprints",
+] as const;
+
+type FilterValue = string | number;
+type FilterArray = FilterValue[];
+
+function safeParseArray(value: string | null): FilterArray {
   try {
-    return JSON.parse(value);
+    const parsed = JSON.parse(value ?? "");
+    return Array.isArray(parsed) ? parsed : [];
   } catch {
-    return value as unknown as T;
+    return [];
   }
 }
 
-function getInitialValues(
-  params: URLSearchParams
-): Partial<SearchGamesFormValues> {
-  return {
-    take: Number(params.get("take") ?? "20"),
-    skip: Number(params.get("skip") ?? "0"),
-    title: params.get("title") ?? "",
-    tags: parseParam<number[]>(params.get("tags")) ?? [],
-    genres: parseParam<string[]>(params.get("genres")) ?? [],
-    publishers: parseParam<string[]>(params.get("publishers")) ?? [],
-    developers: parseParam<string[]>(params.get("developers")) ?? [],
-    downloadSourceFingerprints:
-      parseParam<string[]>(params.get("downloadSourceFingerprints")) ?? [],
-  };
+function urlToState(params: URLSearchParams): Partial<CatalogueState> {
+  const state: Partial<CatalogueState> = {};
+
+  const title = params.get("title");
+  if (title) state.title = title;
+
+  const take = Number(params.get("take"));
+  if (take && take !== DEFAULTS.take) state.take = take;
+
+  const skip = Number(params.get("skip"));
+  if (skip && skip !== DEFAULTS.skip) state.skip = skip;
+
+  FILTER_FIELDS.forEach((key) => {
+    const arr = safeParseArray(params.get(key));
+    if (arr.length) {
+      (state as Record<string, FilterArray>)[key] = arr;
+    }
+  });
+
+  return state;
 }
 
-function hasSearchParams(params: URLSearchParams): boolean {
-  return Array.from(params.keys()).some((key) =>
-    [
-      "take",
-      "skip",
-      "title",
-      "tags",
-      "genres",
-      "publishers",
-      "developers",
-      "downloadSourceFingerprints",
-    ].includes(key)
-  );
+function stateToUrl(state: CatalogueState): string {
+  const params = new URLSearchParams();
+
+  if (state.title?.trim()) params.set("title", state.title.trim());
+  if (state.take !== DEFAULTS.take) params.set("take", String(state.take));
+  if (state.skip !== DEFAULTS.skip) params.set("skip", String(state.skip));
+
+  FILTER_FIELDS.forEach((key) => {
+    const value = state[key];
+    if (Array.isArray(value) && value.length) {
+      params.set(key, JSON.stringify(value));
+    }
+  });
+
+  return params.toString();
 }
 
-function toSearchParams(values: CatalogueState): URLSearchParams {
-  const query = new URLSearchParams();
-
-  if (values.take !== 20) query.set("take", String(values.take));
-  if (values.skip !== 0) query.set("skip", String(values.skip));
-  if (values.title) query.set("title", values.title);
-  if (values.tags?.length) query.set("tags", JSON.stringify(values.tags));
-  if (values.genres?.length) query.set("genres", JSON.stringify(values.genres));
-  if (values.publishers?.length)
-    query.set("publishers", JSON.stringify(values.publishers));
-  if (values.developers?.length)
-    query.set("developers", JSON.stringify(values.developers));
-  if (values.downloadSourceFingerprints?.length)
-    query.set(
-      "downloadSourceFingerprints",
-      JSON.stringify(values.downloadSourceFingerprints)
-    );
-
-  return query;
-}
-
-export function useCatalogueFormSync() {
+export function useCatalogueSync() {
+  const store = useCatalogueStore();
   const searchParams = useSearchParams();
   const router = useRouter();
-  const { setFilters } = useCatalogueStore();
-  const storeValues = useCatalogueStore();
-  const isInitialMount = useRef(true);
 
-  const {
-    title,
-    take,
-    skip,
-    tags,
-    genres,
-    publishers,
-    developers,
-    downloadSourceFingerprints,
-  } = storeValues;
+  const syncing = useRef(false);
+  const lastUrl = useRef("");
 
-  useEffect(() => {
-    if (isInitialMount.current && hasSearchParams(searchParams)) {
-      const urlValues = getInitialValues(searchParams);
-      setFilters(urlValues);
-      isInitialMount.current = false;
-    } else {
-      isInitialMount.current = false;
-    }
-  }, [searchParams, setFilters]);
+  const updateUrl = useRef(
+    debounce((state: CatalogueState) => {
+      if (syncing.current) return;
+
+      const nextUrl = stateToUrl(state);
+      if (nextUrl !== lastUrl.current) {
+        lastUrl.current = nextUrl;
+        router.replace(`?${nextUrl}`, { scroll: false });
+      }
+    }, 100)
+  );
 
   useEffect(() => {
-    if (!IS_BROWSER) return;
+    const currentUrl = searchParams.toString();
+    if (currentUrl === lastUrl.current) return;
 
-    const urlRelevantValues = {
-      title,
-      take,
-      skip,
-      tags,
-      genres,
-      publishers,
-      developers,
-      downloadSourceFingerprints,
-    };
+    syncing.current = true;
+    lastUrl.current = currentUrl;
 
-    const updateUrl = debounce((values: typeof urlRelevantValues) => {
-      const query = toSearchParams(values as CatalogueState);
-      router.replace(`?${query.toString()}`);
-    }, 300);
+    const parsedState = urlToState(searchParams);
+    store.setFilters(parsedState);
+    syncing.current = false;
+  }, [searchParams, store]);
 
-    updateUrl(urlRelevantValues);
-    return () => updateUrl.cancel();
-  }, [
-    title,
-    take,
-    skip,
-    tags,
-    genres,
-    publishers,
-    developers,
-    downloadSourceFingerprints,
-    router,
-  ]);
+  useEffect(() => {
+    updateUrl.current(store);
+  }, [store]);
 }
