@@ -29,9 +29,12 @@ export function Header() {
   const { title, setTitle } = useCatalogueStore();
 
   const handleInputFocus = () => {
-    if (!isSearchOpen) setIsSearchOpen(true);
-    if (router.pathname !== "/catalogue") {
-      router.push("/catalogue");
+    if (!isSearchOpen) {
+      setIsSearchOpen(true);
+
+      if (router.pathname !== "/catalogue") {
+        router.push("/catalogue");
+      }
     }
 
     inputRef.current?.focus();
