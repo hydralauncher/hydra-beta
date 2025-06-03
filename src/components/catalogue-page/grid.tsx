@@ -2,6 +2,7 @@ import { useCatalogueSearch } from "@/hooks/use-catalogue-search.hook";
 import { Catalogue } from "@/components";
 import type { CatalogueGame } from "@/types";
 import { CardSkeleton } from "./skeleton";
+import { toSlug } from "@/helpers/string-formatting";
 
 interface CatalogueGameWithAssets extends CatalogueGame {
   libraryImageUrl: string;
@@ -34,7 +35,7 @@ export default function Grid() {
             title={edge.title}
             image={(edge as CatalogueGameWithAssets).libraryImageUrl}
             genres={edge.genres}
-            href={`/game/${edge.objectId}`}
+            href={`/game/${edge.objectId}/${toSlug(edge.title)}`}
             objectId={edge.objectId}
           />
         </div>
