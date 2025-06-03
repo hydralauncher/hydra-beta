@@ -15,7 +15,7 @@ export interface SteamGenresResponse {
   ru: string[];
 }
 
-export interface SteamUserTagsResponse {
+export interface SteamTagsResponse {
   en: Record<string, number>;
   es: Record<string, number>;
   pt: Record<string, number>;
@@ -24,7 +24,7 @@ export interface SteamUserTagsResponse {
 
 export interface CatalogueData {
   genres: SteamGenresResponse;
-  userTags: SteamUserTagsResponse;
+  tags: SteamTagsResponse;
   developers: string[];
   publishers: string[];
 }
@@ -107,8 +107,8 @@ export function useCatalogueData() {
     queryFn: () => ky.get("/assets/steam-genres.json").json(),
   });
 
-  const userTagsQuery = useQuery<SteamUserTagsResponse>({
-    queryKey: ["catalogue", "userTags"],
+  const tagsQuery = useQuery<SteamTagsResponse>({
+    queryKey: ["catalogue", "tags"],
     queryFn: () => ky.get("/assets/steam-user-tags.json").json(),
   });
 
@@ -134,33 +134,33 @@ export function useCatalogueData() {
 
   const isLoading =
     genresQuery.isLoading ||
-    userTagsQuery.isLoading ||
+    tagsQuery.isLoading ||
     developersQuery.isLoading ||
     publishersQuery.isLoading ||
     searchQuery.isLoading;
 
   const isError =
     genresQuery.isError ||
-    userTagsQuery.isError ||
+    tagsQuery.isError ||
     developersQuery.isError ||
     publishersQuery.isError ||
     searchQuery.isError;
 
   const error =
     genresQuery.error ||
-    userTagsQuery.error ||
+    tagsQuery.error ||
     developersQuery.error ||
     publishersQuery.error ||
     searchQuery.error;
 
   const catalogueData: CatalogueData | undefined =
     genresQuery.data &&
-    userTagsQuery.data &&
+    tagsQuery.data &&
     developersQuery.data &&
     publishersQuery.data
       ? {
           genres: genresQuery.data,
-          userTags: userTagsQuery.data,
+          tags: tagsQuery.data,
           developers: developersQuery.data,
           publishers: publishersQuery.data,
         }
