@@ -1,8 +1,8 @@
 import { Catalogue } from "@/components";
-import { useCatalogueFormSync } from "@/hooks/use-catalogue-sync.hook";
+import { useCatalogueSync } from "@/hooks/use-catalogue-sync.hook";
 
 export default function CataloguePage() {
-  useCatalogueFormSync();
+  useCatalogueSync();
 
   return (
     <div className="catalogue">
