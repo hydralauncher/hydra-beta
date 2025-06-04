@@ -1,78 +1,85 @@
-import { SearchGamesFormValues, useCatalogueData } from "@/hooks";
+import { SearchGamesFormValues, CatalogueData } from "@/hooks";
 import { Typography } from "../common";
 import { Chip } from "../common/chip";
-import { UseFormReturn } from "react-hook-form";
-import { FILTERS } from "./filters.config";
 import { motion } from "framer-motion";
+import { DebouncedFunc } from "lodash-es";
 
 interface HeaderProps {
-  form: UseFormReturn<SearchGamesFormValues>;
+  values: SearchGamesFormValues;
+  updateSearchParams: DebouncedFunc<
+    (newValues: Partial<SearchGamesFormValues>) => void
+  >;
+  catalogueData: CatalogueData;
 }
 
-export default function Header({ form }: Readonly<HeaderProps>) {
-  const { catalogueData } = useCatalogueData();
-  const { watch, setValue } = form;
-  const [title, genres, tags, publishers, developers] = watch([
-    "title",
-    "genres",
-    "tags",
-    "publishers",
-    "developers",
-  ]);
+export enum FilterType {
+  GENRES = "genres",
+  TAGS = "tags",
+  PUBLISHERS = "publishers",
+  DEVELOPERS = "developers",
+}
 
-  const getTagName = (value: number) =>
-    Object.keys(catalogueData?.tags["en"] ?? {}).find(
-      (tagKey) => catalogueData?.tags["en"][tagKey] === value
-    ) || value.toString();
+interface FilterItem {
+  type: FilterType;
+  value: string | number;
+  label: string;
+}
 
-  const getFilterColor = (filter: string | number) => {
-    if (genres?.includes(filter as string)) return FILTERS.genres.color;
-    if (catalogueData?.tags["en"][filter as string]) return FILTERS.tags.color;
-    if (publishers?.includes(filter as string)) return FILTERS.publishers.color;
-    if (developers?.includes(filter as string)) return FILTERS.developers.color;
-    return "red";
-  };
+export default function Header({
+  values,
+  updateSearchParams,
+  catalogueData,
+}: Readonly<HeaderProps>) {
+  const { title, genres, tags, publishers, developers } = values;
 
-  const activeFilters = [
-    ...(genres ?? []),
-    ...((tags ?? []).map(getTagName) ?? []),
-    ...(developers ?? []),
-    ...(publishers ?? []),
+  const activeFilters: FilterItem[] = [
+    ...(genres?.map((value) => ({
+      type: FilterType.GENRES,
+      label: value,
+      value,
+    })) ?? []),
+    ...(tags?.map((id) => {
+      const name =
+        Object.entries(catalogueData.tags.data).find(
+          ([, tagId]) => tagId === id
+        )?.[0] ?? id.toString();
+
+      return {
+        type: FilterType.TAGS,
+        label: name,
+        value: id,
+      };
+    }) ?? []),
+    ...(publishers?.map((value) => ({
+      type: FilterType.PUBLISHERS,
+      label: value,
+      value,
+    })) ?? []),
+    ...(developers?.map((value) => ({
+      type: FilterType.DEVELOPERS,
+      label: value,
+      value,
+    })) ?? []),
   ];
 
-  const hasActiveFilters = !!title || activeFilters.length > 0;
+  const hasActiveFilters = Boolean(title) || activeFilters.length > 0;
 
-  const handleRemoveFilter = (filter: string | number) => {
-    if (genres?.includes(filter as string)) {
-      setValue(
-        "genres",
-        genres.filter((g) => g !== filter)
-      );
-    } else if (catalogueData?.tags["en"][filter as string]) {
-      const tagId = catalogueData.tags["en"][filter as string];
-      setValue(
-        "tags",
-        tags?.filter((t) => t !== tagId)
-      );
-    } else if (publishers?.includes(filter as string)) {
-      setValue(
-        "publishers",
-        publishers.filter((p) => p !== filter)
-      );
-    } else if (developers?.includes(filter as string)) {
-      setValue(
-        "developers",
-        developers.filter((d) => d !== filter)
-      );
-    }
+  const handleRemoveFilter = ({ type, value }: FilterItem) => {
+    const currentFilters = values[type];
+    if (!currentFilters) return;
+
+    updateSearchParams({
+      [type]: currentFilters.filter((v) => v !== value),
+    });
   };
 
   const handleRemoveAllFilters = () => {
-    setValue("title", "");
-    setValue("genres", []);
-    setValue("tags", []);
-    setValue("publishers", []);
-    setValue("developers", []);
+    const emptyFilters = Object.values(FilterType).reduce(
+      (acc, type) => ({ ...acc, [type]: [] }),
+      {}
+    ) satisfies Partial<SearchGamesFormValues>;
+
+    updateSearchParams(emptyFilters);
   };
 
   return (
@@ -102,7 +109,7 @@ export default function Header({ form }: Readonly<HeaderProps>) {
           <div className="catalogue-header__filters-container">
             {activeFilters.map((filter) => (
               <motion.div
-                key={filter}
+                key={`${filter.type}-${filter.value}`}
                 layout="position"
                 transition={{
                   type: "spring",
@@ -111,8 +118,8 @@ export default function Header({ form }: Readonly<HeaderProps>) {
                 }}
               >
                 <Chip
-                  color={getFilterColor(filter)}
-                  label={filter.toString()}
+                  color={catalogueData[filter.type].color}
+                  label={filter.label}
                   onRemove={() => handleRemoveFilter(filter)}
                 />
               </motion.div>
