@@ -1,12 +1,10 @@
-import { useForm } from "react-hook-form";
 import { useQuery } from "@tanstack/react-query";
 import ky from "ky";
 import { api } from "@/services/api.service";
 import type { CatalogueGame } from "@/types";
 import { useSearchParams, useRouter } from "next/navigation";
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import { debounce } from "lodash-es";
-import { IS_BROWSER } from "@/constants";
 
 export interface SteamGenresResponse {
   en: string[];
@@ -23,10 +21,10 @@ export interface SteamTagsResponse {
 }
 
 export interface CatalogueData {
-  genres: SteamGenresResponse;
-  tags: SteamTagsResponse;
-  developers: string[];
-  publishers: string[];
+  genres: { data: string[]; label: string; color: string };
+  tags: { data: Record<string, number>; label: string; color: string };
+  developers: { data: string[]; label: string; color: string };
+  publishers: { data: string[]; label: string; color: string };
 }
 
 export interface SearchGamesFormValues {
@@ -37,6 +35,7 @@ export interface SearchGamesFormValues {
   genres?: string[];
   publishers?: string[];
   developers?: string[];
+  downloadSourceFingerprints?: string[];
 }
 
 export interface SearchGamesResponseData {
@@ -57,50 +56,42 @@ export function useCatalogueData() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
-  const initialValues: SearchGamesFormValues = useMemo(() => {
-    return {
-      take: Number(searchParams.get("take") ?? "20"),
-      skip: Number(searchParams.get("skip") ?? "0"),
-      title: searchParams.get("title") || "",
+  const values = useMemo(
+    () => ({
+      take: parseParam<number>(searchParams.get("take")) ?? 20,
+      skip: parseParam<number>(searchParams.get("skip")) ?? 0,
+      title: parseParam<string>(searchParams.get("title")) ?? "",
       tags: parseParam<number[]>(searchParams.get("tags")),
       genres: parseParam<string[]>(searchParams.get("genres")),
       publishers: parseParam<string[]>(searchParams.get("publishers")),
       developers: parseParam<string[]>(searchParams.get("developers")),
-    };
-  }, [searchParams]);
+      downloadSourceFingerprints: parseParam<string[]>(
+        searchParams.get("downloadSourceFingerprints")
+      ),
+    }),
+    [searchParams]
+  );
 
-  const form = useForm<SearchGamesFormValues>({
-    defaultValues: initialValues,
-  });
+  const updateSearchParams = useMemo(
+    () =>
+      debounce((newValues: Partial<SearchGamesFormValues>) => {
+        const query = new URLSearchParams(searchParams.toString());
 
-  const { watch } = form;
-
-  useEffect(() => {
-    if (!IS_BROWSER) return;
-
-    const subscription = watch(
-      debounce((values) => {
-        const query = new URLSearchParams();
-
-        if (values.take) query.set("take", String(values.take));
-        if (values.skip) query.set("skip", String(values.skip));
-        if (values.title) query.set("title", values.title);
-        if (values.tags?.length) query.set("tags", JSON.stringify(values.tags));
-        if (values.genres?.length)
-          query.set("genres", JSON.stringify(values.genres));
-        if (values.publishers?.length)
-          query.set("publishers", JSON.stringify(values.publishers));
-        if (values.developers?.length)
-          query.set("developers", JSON.stringify(values.developers));
+        Object.entries(newValues).forEach(([key, value]) => {
+          if (value && (!Array.isArray(value) || value.length > 0)) {
+            query.set(
+              key,
+              Array.isArray(value) ? JSON.stringify(value) : String(value)
+            );
+          } else {
+            query.delete(key);
+          }
+        });
 
         router.replace(`?${query.toString()}`);
-      }, 300)
-    );
-
-    return () => subscription.unsubscribe();
-  }, [watch, router]);
-
-  const values = form.getValues();
+      }, 300),
+    [searchParams, router]
+  );
 
   const genresQuery = useQuery<SteamGenresResponse>({
     queryKey: ["catalogue", "genres"],
@@ -124,12 +115,7 @@ export function useCatalogueData() {
 
   const searchQuery = useQuery<SearchGamesResponseData>({
     queryKey: ["search-games", values],
-    queryFn: () =>
-      api
-        .post("catalogue/search", {
-          json: values,
-        })
-        .json(),
+    queryFn: () => api.post("catalogue/search", { json: values }).json(),
   });
 
   const isLoading =
@@ -159,10 +145,26 @@ export function useCatalogueData() {
     developersQuery.data &&
     publishersQuery.data
       ? {
-          genres: genresQuery.data,
-          tags: tagsQuery.data,
-          developers: developersQuery.data,
-          publishers: publishersQuery.data,
+          genres: {
+            data: genresQuery.data.en,
+            label: "Genres",
+            color: "magenta",
+          },
+          tags: {
+            data: tagsQuery.data.en,
+            label: "Tags",
+            color: "yellow",
+          },
+          developers: {
+            data: developersQuery.data,
+            label: "Developers",
+            color: "cyan",
+          },
+          publishers: {
+            data: publishersQuery.data,
+            label: "Publishers",
+            color: "lime",
+          },
         }
       : undefined;
 
@@ -170,7 +172,8 @@ export function useCatalogueData() {
   const isEmpty = !searchData || searchData.edges.length === 0;
 
   return {
-    form,
+    values,
+    updateSearchParams,
     catalogueData,
     search: {
       data: searchData,
