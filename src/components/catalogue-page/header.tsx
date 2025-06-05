@@ -1,22 +1,12 @@
-import { SearchGamesFormValues, CatalogueData } from "@/hooks";
+import { SearchGamesFormValues, CatalogueData, FilterType } from "@/hooks";
 import { Typography } from "../common";
 import { Chip } from "../common/chip";
 import { motion } from "framer-motion";
-import { DebouncedFunc } from "lodash-es";
 
 interface HeaderProps {
   values: SearchGamesFormValues;
-  updateSearchParams: DebouncedFunc<
-    (newValues: Partial<SearchGamesFormValues>) => void
-  >;
+  updateSearchParams: (newValues: Partial<SearchGamesFormValues>) => void;
   catalogueData: CatalogueData;
-}
-
-export enum FilterType {
-  GENRES = "genres",
-  TAGS = "tags",
-  PUBLISHERS = "publishers",
-  DEVELOPERS = "developers",
 }
 
 interface FilterItem {
