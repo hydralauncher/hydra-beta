@@ -21,7 +21,7 @@
     font-style: normal;
     font-weight: 400;
     line-height: normal;
-    margin-top: 2px;
+    margin-top: calc(var(--spacing-unit) * 0.5);
   }
 
   &__color {
@@ -35,9 +35,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-top: 2px;
+  margin-top: calc(var(--spacing-unit) * 0.5);
   padding: var(--spacing-unit);
-  border-radius: 4px;
+  border-radius: var(--spacing-unit);
   cursor: pointer;
   transition: background-color 0.2s ease-in-out;
 
