@@ -1,89 +1,78 @@
 import List from "rc-virtual-list";
-import { Controller, Control, FieldValues, Path } from "react-hook-form";
-import { Checkbox, Typography } from "@/components";
+import { Typography } from "@/components";
+import { Checkbox } from "@/components";
+import { SearchGamesFormValues, FilterType } from "@/hooks";
 
-type FilterSectionDataProps =
-  | string[]
-  | Record<string, number>
-  | Record<string, string>;
+type FilterSectionDataProps = string[] | Record<string, number>;
 
-const ITEM_HEIGHT = 32;
-const MAX_VISIBLE_ITEMS = 10;
+interface FilterSectionProps {
+  listData: FilterSectionDataProps | undefined;
+  name: FilterType;
+  values: SearchGamesFormValues;
+  updateSearchParams: (newValues: Partial<SearchGamesFormValues>) => void;
+  searchTerm?: string;
+}
 
-export default function FilterSection<T extends FieldValues>({
+export default function FilterSection({
   listData,
   name,
-  control,
+  values,
+  updateSearchParams,
   searchTerm = "",
-}: Readonly<{
-  listData: FilterSectionDataProps | undefined;
-  name: Path<T>;
-  control: Control<T>;
-  searchTerm?: string;
-}>) {
+}: Readonly<FilterSectionProps>) {
   if (!listData) return null;
 
-  const isRecord = !Array.isArray(listData);
-  const itemList = isRecord ? Object.keys(listData) : listData;
-  const items = searchTerm
-    ? itemList.filter((item) =>
+  const ITEM_HEIGHT = 32;
+  const items = Array.isArray(listData) ? listData : Object.keys(listData);
+
+  const filteredItems = searchTerm
+    ? items.filter((item) =>
         item.toLowerCase().includes(searchTerm.toLowerCase())
       )
-    : itemList;
+    : items;
 
-  const height = ITEM_HEIGHT * Math.min(items.length, MAX_VISIBLE_ITEMS);
+  const selected = (values[name] ?? []) as Array<string | number>;
+  const height = ITEM_HEIGHT * Math.min(filteredItems.length, 10);
+
+  const handleChange = (value: string | number, checked: boolean) => {
+    updateSearchParams({
+      [name]: checked
+        ? [...selected, value]
+        : selected.filter((v) => v !== value),
+    });
+  };
+
+  if (filteredItems.length === 0) {
+    return (
+      <div className="filter-section__empty">
+        <Typography variant="label" className="filter-section__empty__text">
+          No results found
+        </Typography>
+      </div>
+    );
+  }
 
   return (
-    <Controller
-      name={name}
-      control={control}
-      render={({ field }) => {
-        const selected: (string | number)[] = field.value ?? [];
-
-        const handleChange = (value: string | number, checked: boolean) => {
-          const next = checked
-            ? [...selected, value]
-            : selected.filter((v) => v !== value);
-          field.onChange(next);
-        };
-
-        if (items.length === 0) {
-          return (
-            <div className="filter-section__empty">
-              <Typography
-                variant="label"
-                className="filter-section__empty__text"
-              >
-                No results found
-              </Typography>
-            </div>
-          );
-        }
-
+    <List
+      data={filteredItems}
+      height={height}
+      itemHeight={ITEM_HEIGHT}
+      itemKey={(item) => `${name}-${item}`}
+    >
+      {(item: string) => {
+        const value = Array.isArray(listData) ? item : listData[item];
         return (
-          <List
-            data={items}
-            height={height}
-            itemHeight={ITEM_HEIGHT}
-            itemKey={(item) => item}
-          >
-            {(item: string) => {
-              const value = isRecord ? listData[item] : item;
-              return (
-                <div className="filter-section__item" key={item}>
-                  <Checkbox
-                    id={`${name}-${item}`}
-                    label={item}
-                    checked={selected.includes(value)}
-                    onChange={(checked) => handleChange(value, checked)}
-                    block
-                  />
-                </div>
-              );
-            }}
-          </List>
+          <div className="filter-section__item">
+            <Checkbox
+              id={`${name}-${item}`}
+              label={item}
+              checked={selected.includes(value)}
+              onChange={(checked) => handleChange(value, checked)}
+              block
+            />
+          </div>
         );
       }}
-    />
+    </List>
   );
 }
