@@ -4,7 +4,6 @@ import { api } from "@/services/api.service";
 import type { CatalogueGame } from "@/types";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useMemo } from "react";
-import { debounce } from "lodash-es";
 
 export interface SteamGenresResponse {
   en: string[];
@@ -20,21 +19,32 @@ export interface SteamTagsResponse {
   ru: Record<string, number>;
 }
 
+export enum FilterType {
+  GENRES = "genres",
+  TAGS = "tags",
+  PUBLISHERS = "publishers",
+  DEVELOPERS = "developers",
+}
+
 export interface CatalogueData {
-  genres: { data: string[]; label: string; color: string };
-  tags: { data: Record<string, number>; label: string; color: string };
-  developers: { data: string[]; label: string; color: string };
-  publishers: { data: string[]; label: string; color: string };
+  [FilterType.GENRES]: { data: string[]; label: string; color: string };
+  [FilterType.TAGS]: {
+    data: Record<string, number>;
+    label: string;
+    color: string;
+  };
+  [FilterType.DEVELOPERS]: { data: string[]; label: string; color: string };
+  [FilterType.PUBLISHERS]: { data: string[]; label: string; color: string };
 }
 
 export interface SearchGamesFormValues {
   take?: number;
   skip?: number;
   title?: string;
-  tags?: number[];
-  genres?: string[];
-  publishers?: string[];
-  developers?: string[];
+  [FilterType.TAGS]?: number[];
+  [FilterType.GENRES]?: string[];
+  [FilterType.PUBLISHERS]?: string[];
+  [FilterType.DEVELOPERS]?: string[];
   downloadSourceFingerprints?: string[];
 }
 
@@ -73,23 +83,22 @@ export function useCatalogueData() {
   );
 
   const updateSearchParams = useMemo(
-    () =>
-      debounce((newValues: Partial<SearchGamesFormValues>) => {
-        const query = new URLSearchParams(searchParams.toString());
+    () => (newValues: Partial<SearchGamesFormValues>) => {
+      const query = new URLSearchParams(searchParams.toString());
 
-        Object.entries(newValues).forEach(([key, value]) => {
-          if (value && (!Array.isArray(value) || value.length > 0)) {
-            query.set(
-              key,
-              Array.isArray(value) ? JSON.stringify(value) : String(value)
-            );
-          } else {
-            query.delete(key);
-          }
-        });
+      Object.entries(newValues).forEach(([key, value]) => {
+        if (value && (!Array.isArray(value) || value.length > 0)) {
+          query.set(
+            key,
+            Array.isArray(value) ? JSON.stringify(value) : String(value)
+          );
+        } else {
+          query.delete(key);
+        }
+      });
 
-        router.replace(`?${query.toString()}`);
-      }, 300),
+      router.replace(`?${query.toString()}`);
+    },
     [searchParams, router]
   );
 
@@ -145,22 +154,22 @@ export function useCatalogueData() {
     developersQuery.data &&
     publishersQuery.data
       ? {
-          genres: {
+          [FilterType.GENRES]: {
             data: genresQuery.data.en,
             label: "Genres",
             color: "magenta",
           },
-          tags: {
+          [FilterType.TAGS]: {
             data: tagsQuery.data.en,
             label: "Tags",
             color: "yellow",
           },
-          developers: {
+          [FilterType.DEVELOPERS]: {
             data: developersQuery.data,
             label: "Developers",
             color: "cyan",
           },
-          publishers: {
+          [FilterType.PUBLISHERS]: {
             data: publishersQuery.data,
             label: "Publishers",
             color: "lime",
