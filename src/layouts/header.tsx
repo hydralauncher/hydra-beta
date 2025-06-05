@@ -92,7 +92,7 @@ export function Header() {
           </Typography>
         </button>
 
-        <div
+        <button
           ref={searchRef}
           className={clsx("header__search", {
             "header__search--open": isSearchOpen,
@@ -135,7 +135,7 @@ export function Header() {
             placeholder="Looking for anything in particular?"
             onChange={(e) => debouncedPush(e.target.value)}
           />
-        </div>
+        </button>
       </header>
     </div>
   );

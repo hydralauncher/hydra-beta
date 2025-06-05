@@ -128,24 +128,24 @@ export function useCatalogueData() {
   });
 
   const isLoading =
-    genresQuery.isLoading ||
-    tagsQuery.isLoading ||
-    developersQuery.isLoading ||
-    publishersQuery.isLoading ||
+    genresQuery.isLoading ??
+    tagsQuery.isLoading ??
+    developersQuery.isLoading ??
+    publishersQuery.isLoading ??
     searchQuery.isLoading;
 
   const isError =
-    genresQuery.isError ||
-    tagsQuery.isError ||
-    developersQuery.isError ||
-    publishersQuery.isError ||
+    genresQuery.isError ??
+    tagsQuery.isError ??
+    developersQuery.isError ??
+    publishersQuery.isError ??
     searchQuery.isError;
 
   const error =
-    genresQuery.error ||
-    tagsQuery.error ||
-    developersQuery.error ||
-    publishersQuery.error ||
+    genresQuery.error ??
+    tagsQuery.error ??
+    developersQuery.error ??
+    publishersQuery.error ??
     searchQuery.error;
 
   const catalogueData: CatalogueData | undefined =

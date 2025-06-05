@@ -14,7 +14,7 @@ interface GridProps {
 
 export default function Grid({ search }: Readonly<GridProps>) {
   const queryParams = useSearchParams();
-  const skeletonLength = queryParams.get("skeleton") || 21;
+  const skeletonLength = queryParams.get("take") ?? 21;
 
   if (search.isLoading) {
     return (

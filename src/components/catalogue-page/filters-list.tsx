@@ -1,6 +1,5 @@
 import List from "rc-virtual-list";
-import { Typography } from "@/components";
-import { Checkbox } from "@/components";
+import { Typography, Checkbox } from "@/components";
 import { SearchGamesFormValues, FilterType } from "@/hooks";
 
 type FilterSectionDataProps = string[] | Record<string, number>;
