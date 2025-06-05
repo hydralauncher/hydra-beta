@@ -150,13 +150,17 @@ export function useDownloadSources() {
     return map;
   }, [downloadSources]);
 
-  const uniqueDownloadSourcesByObjectId = new Map(
-    Array.from(downloadSourcesByObjectId.entries()).map(
-      ([objectId, options]) => [
-        objectId,
-        Array.from(new Set(options.map((opt) => opt.downloadSource))),
-      ]
-    )
+  const uniqueDownloadSourcesByObjectId = useMemo(
+    () =>
+      new Map(
+        Array.from(downloadSourcesByObjectId.entries()).map(
+          ([objectId, options]) => [
+            objectId,
+            Array.from(new Set(options.map((opt) => opt.downloadSource))),
+          ]
+        )
+      ),
+    [downloadSourcesByObjectId]
   );
 
   return {
