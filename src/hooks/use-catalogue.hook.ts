@@ -21,31 +21,31 @@ export interface SteamTagsResponse {
 }
 
 export enum FilterType {
-  GENRES = "genres",
-  TAGS = "tags",
-  DOWNLOAD_SOURCE_FINGERPRINTS = "downloadSourceFingerprints",
-  PUBLISHERS = "publishers",
-  DEVELOPERS = "developers",
+  Genres = "genres",
+  Tags = "tags",
+  DownloadSourceFingerprints = "downloadSourceFingerprints",
+  Publishers = "publishers",
+  Developers = "developers",
 }
 
 export interface CatalogueData {
-  [FilterType.GENRES]: { data: string[]; label: string; color: string };
-  [FilterType.TAGS]: {
+  [FilterType.Genres]: { data: string[]; label: string; color: string };
+  [FilterType.Tags]: {
     data: Record<string, number>;
     label: string;
     color: string;
   };
-  [FilterType.DOWNLOAD_SOURCE_FINGERPRINTS]: {
+  [FilterType.DownloadSourceFingerprints]: {
     data: Record<string, string>;
     label: string;
     color: string;
   };
-  [FilterType.DEVELOPERS]: {
+  [FilterType.Developers]: {
     data: string[];
     label: string;
     color: string;
   };
-  [FilterType.PUBLISHERS]: {
+  [FilterType.Publishers]: {
     data: string[];
     label: string;
     color: string;
@@ -56,11 +56,11 @@ export interface SearchGamesFormValues {
   take?: number;
   skip?: number;
   title?: string;
-  [FilterType.TAGS]?: number[];
-  [FilterType.GENRES]?: string[];
-  [FilterType.PUBLISHERS]?: string[];
-  [FilterType.DEVELOPERS]?: string[];
-  [FilterType.DOWNLOAD_SOURCE_FINGERPRINTS]?: string[];
+  [FilterType.Tags]?: number[];
+  [FilterType.Genres]?: string[];
+  [FilterType.Publishers]?: string[];
+  [FilterType.Developers]?: string[];
+  [FilterType.DownloadSourceFingerprints]?: string[];
 }
 
 export interface SearchGamesResponseData {
@@ -179,27 +179,27 @@ export function useCatalogueData() {
     developersQuery.data &&
     publishersQuery.data
       ? {
-          [FilterType.GENRES]: {
+          [FilterType.Genres]: {
             data: genresQuery.data.en,
             label: "Genres",
             color: "magenta",
           },
-          [FilterType.TAGS]: {
+          [FilterType.Tags]: {
             data: tagsQuery.data.en,
             label: "Tags",
             color: "yellow",
           },
-          [FilterType.DOWNLOAD_SOURCE_FINGERPRINTS]: {
+          [FilterType.DownloadSourceFingerprints]: {
             data: downloadSourcesAndFingerprints,
             label: "Download Sources",
             color: "red",
           },
-          [FilterType.DEVELOPERS]: {
+          [FilterType.Developers]: {
             data: developersQuery.data,
             label: "Developers",
             color: "cyan",
           },
-          [FilterType.PUBLISHERS]: {
+          [FilterType.Publishers]: {
             data: publishersQuery.data,
             label: "Publishers",
             color: "lime",

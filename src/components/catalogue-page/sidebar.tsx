@@ -22,11 +22,11 @@ export default function Sidebar({
   const [filtersSearchTerms, setFiltersSearchTerms] = useState<
     Record<FilterType, string>
   >({
-    [FilterType.GENRES]: "",
-    [FilterType.TAGS]: "",
-    [FilterType.DEVELOPERS]: "",
-    [FilterType.PUBLISHERS]: "",
-    [FilterType.DOWNLOAD_SOURCE_FINGERPRINTS]: "",
+    [FilterType.Genres]: "",
+    [FilterType.Tags]: "",
+    [FilterType.Developers]: "",
+    [FilterType.Publishers]: "",
+    [FilterType.DownloadSourceFingerprints]: "",
   });
 
   const setFilterSearchTerm = (key: FilterType, term: string) => {
@@ -36,12 +36,12 @@ export default function Sidebar({
   if (!catalogueData) return null;
 
   const filterData: Record<FilterType, FilterData> = {
-    [FilterType.GENRES]: catalogueData[FilterType.GENRES].data,
-    [FilterType.TAGS]: catalogueData[FilterType.TAGS].data,
-    [FilterType.DEVELOPERS]: catalogueData[FilterType.DEVELOPERS].data,
-    [FilterType.PUBLISHERS]: catalogueData[FilterType.PUBLISHERS].data,
-    [FilterType.DOWNLOAD_SOURCE_FINGERPRINTS]:
-      catalogueData[FilterType.DOWNLOAD_SOURCE_FINGERPRINTS].data,
+    [FilterType.Genres]: catalogueData[FilterType.Genres].data,
+    [FilterType.Tags]: catalogueData[FilterType.Tags].data,
+    [FilterType.Developers]: catalogueData[FilterType.Developers].data,
+    [FilterType.Publishers]: catalogueData[FilterType.Publishers].data,
+    [FilterType.DownloadSourceFingerprints]:
+      catalogueData[FilterType.DownloadSourceFingerprints].data,
   };
 
   return (

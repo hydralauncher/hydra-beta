@@ -24,7 +24,7 @@ export default function Header({
 
   const activeFilters: FilterItem[] = [
     ...(genres?.map((value) => ({
-      type: FilterType.GENRES,
+      type: FilterType.Genres,
       label: value,
       value,
     })) ?? []),
@@ -35,18 +35,18 @@ export default function Header({
         )?.[0] ?? id.toString();
 
       return {
-        type: FilterType.TAGS,
+        type: FilterType.Tags,
         label: name,
         value: id,
       };
     }) ?? []),
     ...(publishers?.map((value) => ({
-      type: FilterType.PUBLISHERS,
+      type: FilterType.Publishers,
       label: value,
       value,
     })) ?? []),
     ...(developers?.map((value) => ({
-      type: FilterType.DEVELOPERS,
+      type: FilterType.Developers,
       label: value,
       value,
     })) ?? []),
