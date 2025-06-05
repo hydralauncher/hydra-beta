@@ -1,7 +1,9 @@
+import Link from "next/link";
+
 export interface SourceAnchorProps
   extends React.AnchorHTMLAttributes<HTMLAnchorElement> {
   title: string;
-  href: string;
+  href?: string;
 }
 
 export function SourceAnchor({
@@ -10,10 +12,18 @@ export function SourceAnchor({
   ...props
 }: Readonly<SourceAnchorProps>) {
   return (
-    <a href={href} {...props}>
-      <div className="source-anchor">
-        <p className="source-anchor__title">{title}</p>
-      </div>
-    </a>
+    <>
+      {href ? (
+        <Link href={href} {...props}>
+          <div className="source-anchor source-anchor--link">
+            <p className="source-anchor__title">{title}</p>
+          </div>
+        </Link>
+      ) : (
+        <div className="source-anchor">
+          <p className="source-anchor__title">{title}</p>
+        </div>
+      )}
+    </>
   );
 }

@@ -1,12 +1,10 @@
-import { useForm } from "react-hook-form";
 import { useQuery } from "@tanstack/react-query";
 import ky from "ky";
 import { api } from "@/services/api.service";
 import type { CatalogueGame } from "@/types";
 import { useSearchParams, useRouter } from "next/navigation";
-import { useEffect, useMemo } from "react";
-import { debounce } from "lodash-es";
-import { IS_BROWSER } from "@/constants";
+import { useMemo } from "react";
+import { useDownloadSourcesStore } from "@/stores";
 
 export interface SteamGenresResponse {
   en: string[];
@@ -15,28 +13,54 @@ export interface SteamGenresResponse {
   ru: string[];
 }
 
-export interface SteamUserTagsResponse {
+export interface SteamTagsResponse {
   en: Record<string, number>;
   es: Record<string, number>;
   pt: Record<string, number>;
   ru: Record<string, number>;
 }
 
+export enum FilterType {
+  Genres = "genres",
+  Tags = "tags",
+  DownloadSourceFingerprints = "downloadSourceFingerprints",
+  Publishers = "publishers",
+  Developers = "developers",
+}
+
 export interface CatalogueData {
-  genres: SteamGenresResponse;
-  userTags: SteamUserTagsResponse;
-  developers: string[];
-  publishers: string[];
+  [FilterType.Genres]: { data: string[]; label: string; color: string };
+  [FilterType.Tags]: {
+    data: Record<string, number>;
+    label: string;
+    color: string;
+  };
+  [FilterType.DownloadSourceFingerprints]: {
+    data: Record<string, string>;
+    label: string;
+    color: string;
+  };
+  [FilterType.Developers]: {
+    data: string[];
+    label: string;
+    color: string;
+  };
+  [FilterType.Publishers]: {
+    data: string[];
+    label: string;
+    color: string;
+  };
 }
 
 export interface SearchGamesFormValues {
   take?: number;
   skip?: number;
   title?: string;
-  tags?: number[];
-  genres?: string[];
-  publishers?: string[];
-  developers?: string[];
+  [FilterType.Tags]?: number[];
+  [FilterType.Genres]?: string[];
+  [FilterType.Publishers]?: string[];
+  [FilterType.Developers]?: string[];
+  [FilterType.DownloadSourceFingerprints]?: string[];
 }
 
 export interface SearchGamesResponseData {
@@ -56,59 +80,60 @@ function parseParam<T>(value: string | null): T | undefined {
 export function useCatalogueData() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const { downloadSources } = useDownloadSourcesStore();
 
-  const initialValues: SearchGamesFormValues = useMemo(() => {
-    return {
-      take: Number(searchParams.get("take") ?? "20"),
-      skip: Number(searchParams.get("skip") ?? "0"),
-      title: searchParams.get("title") || "",
+  const downloadSourcesAndFingerprints = useMemo(
+    () =>
+      downloadSources?.reduce<Record<string, string>>((acc, source) => {
+        acc[source.name] = source.fingerprint;
+        return acc;
+      }, {}) ?? {},
+    [downloadSources]
+  );
+
+  const values = useMemo(
+    () => ({
+      take: parseParam<number>(searchParams.get("take")) ?? 20,
+      skip: parseParam<number>(searchParams.get("skip")) ?? 0,
+      title: parseParam<string>(searchParams.get("title")) ?? "",
       tags: parseParam<number[]>(searchParams.get("tags")),
       genres: parseParam<string[]>(searchParams.get("genres")),
       publishers: parseParam<string[]>(searchParams.get("publishers")),
       developers: parseParam<string[]>(searchParams.get("developers")),
-    };
-  }, [searchParams]);
+      downloadSourceFingerprints: parseParam<string[]>(
+        searchParams.get("downloadSourceFingerprints")
+      ),
+    }),
+    [searchParams]
+  );
 
-  const form = useForm<SearchGamesFormValues>({
-    defaultValues: initialValues,
-  });
+  const updateSearchParams = useMemo(
+    () => (newValues: Partial<SearchGamesFormValues>) => {
+      const query = new URLSearchParams(searchParams.toString());
 
-  const { watch } = form;
+      Object.entries(newValues).forEach(([key, value]) => {
+        if (value && (!Array.isArray(value) || value.length > 0)) {
+          query.set(
+            key,
+            Array.isArray(value) ? JSON.stringify(value) : String(value)
+          );
+        } else {
+          query.delete(key);
+        }
+      });
 
-  useEffect(() => {
-    if (!IS_BROWSER) return;
-
-    const subscription = watch(
-      debounce((values) => {
-        const query = new URLSearchParams();
-
-        if (values.take) query.set("take", String(values.take));
-        if (values.skip) query.set("skip", String(values.skip));
-        if (values.title) query.set("title", values.title);
-        if (values.tags?.length) query.set("tags", JSON.stringify(values.tags));
-        if (values.genres?.length)
-          query.set("genres", JSON.stringify(values.genres));
-        if (values.publishers?.length)
-          query.set("publishers", JSON.stringify(values.publishers));
-        if (values.developers?.length)
-          query.set("developers", JSON.stringify(values.developers));
-
-        router.replace(`?${query.toString()}`);
-      }, 300)
-    );
-
-    return () => subscription.unsubscribe();
-  }, [watch, router]);
-
-  const values = form.getValues();
+      router.replace(`?${query.toString()}`);
+    },
+    [searchParams, router]
+  );
 
   const genresQuery = useQuery<SteamGenresResponse>({
     queryKey: ["catalogue", "genres"],
     queryFn: () => ky.get("/assets/steam-genres.json").json(),
   });
 
-  const userTagsQuery = useQuery<SteamUserTagsResponse>({
-    queryKey: ["catalogue", "userTags"],
+  const tagsQuery = useQuery<SteamTagsResponse>({
+    queryKey: ["catalogue", "tags"],
     queryFn: () => ky.get("/assets/steam-user-tags.json").json(),
   });
 
@@ -124,45 +149,61 @@ export function useCatalogueData() {
 
   const searchQuery = useQuery<SearchGamesResponseData>({
     queryKey: ["search-games", values],
-    queryFn: () =>
-      api
-        .post("catalogue/search", {
-          json: values,
-        })
-        .json(),
+    queryFn: () => api.post("catalogue/search", { json: values }).json(),
   });
 
   const isLoading =
-    genresQuery.isLoading ||
-    userTagsQuery.isLoading ||
-    developersQuery.isLoading ||
-    publishersQuery.isLoading ||
+    genresQuery.isLoading ??
+    tagsQuery.isLoading ??
+    developersQuery.isLoading ??
+    publishersQuery.isLoading ??
     searchQuery.isLoading;
 
   const isError =
-    genresQuery.isError ||
-    userTagsQuery.isError ||
-    developersQuery.isError ||
-    publishersQuery.isError ||
+    genresQuery.isError ??
+    tagsQuery.isError ??
+    developersQuery.isError ??
+    publishersQuery.isError ??
     searchQuery.isError;
 
   const error =
-    genresQuery.error ||
-    userTagsQuery.error ||
-    developersQuery.error ||
-    publishersQuery.error ||
+    genresQuery.error ??
+    tagsQuery.error ??
+    developersQuery.error ??
+    publishersQuery.error ??
     searchQuery.error;
 
   const catalogueData: CatalogueData | undefined =
     genresQuery.data &&
-    userTagsQuery.data &&
+    tagsQuery.data &&
     developersQuery.data &&
     publishersQuery.data
       ? {
-          genres: genresQuery.data,
-          userTags: userTagsQuery.data,
-          developers: developersQuery.data,
-          publishers: publishersQuery.data,
+          [FilterType.Genres]: {
+            data: genresQuery.data.en,
+            label: "Genres",
+            color: "magenta",
+          },
+          [FilterType.Tags]: {
+            data: tagsQuery.data.en,
+            label: "Tags",
+            color: "yellow",
+          },
+          [FilterType.DownloadSourceFingerprints]: {
+            data: downloadSourcesAndFingerprints,
+            label: "Download Sources",
+            color: "red",
+          },
+          [FilterType.Developers]: {
+            data: developersQuery.data,
+            label: "Developers",
+            color: "cyan",
+          },
+          [FilterType.Publishers]: {
+            data: publishersQuery.data,
+            label: "Publishers",
+            color: "lime",
+          },
         }
       : undefined;
 
@@ -170,7 +211,8 @@ export function useCatalogueData() {
   const isEmpty = !searchData || searchData.edges.length === 0;
 
   return {
-    form,
+    values,
+    updateSearchParams,
     catalogueData,
     search: {
       data: searchData,
