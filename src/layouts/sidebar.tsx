@@ -1,5 +1,4 @@
-import { useLibrary } from "@/hooks/use-library.hook";
-import { useUser } from "@/hooks/use-user.hook";
+import { useLibrary, useUser } from "@/hooks";
 import {
   House,
   SquaresFour,
@@ -80,6 +79,8 @@ function SidebarLibrary() {
           iconLeft={<MagnifyingGlass size={24} />}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
+          spellCheck={false}
+          autoComplete="off"
         />
 
         <Button variant="rounded" size="icon">
@@ -132,7 +133,7 @@ function SidebarContainer({
   );
 }
 
-export function Sidebar() {
+export default function Sidebar() {
   return (
     <SidebarContainer>
       <SidebarRouter />

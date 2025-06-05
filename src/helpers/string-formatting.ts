@@ -1,4 +1,4 @@
-import { charMap } from "./char-map";
+import { charMap } from "@/helpers";
 
 export const pipe =
   <T>(...fns: ((arg: T) => T)[]) =>
