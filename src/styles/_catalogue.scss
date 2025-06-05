@@ -4,6 +4,7 @@
   gap: calc(var(--spacing-unit) * 8);
   padding: calc(var(--spacing-unit) * 8);
   margin-top: calc(var(--spacing-unit) * 18);
+  height: fit-content;
 }
 
 .catalogue-header {
@@ -46,6 +47,7 @@
   display: flex;
   gap: calc(var(--spacing-unit) * 8);
   width: 100%;
+  height: fit-content;
 
   .catalogue__sidebar {
     gap: calc(var(--spacing-unit) * 2);
@@ -103,6 +105,7 @@
     display: grid;
     grid-template-columns: 1fr;
     gap: calc(var(--spacing-unit) * 8) calc(var(--spacing-unit) * 4);
+    height: fit-content;
 
     @media (min-width: 768px) {
       grid-template-columns: repeat(2, minmax(0, 1fr));
