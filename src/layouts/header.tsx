@@ -40,7 +40,7 @@ export function Header() {
           undefined,
           { shallow: true }
         );
-      }, 100),
+      }, 300),
     [router]
   );
 
@@ -108,7 +108,7 @@ export function Header() {
                 initial={{ x: 24, opacity: 0 }}
                 animate={{ x: 0, opacity: 1 }}
                 exit={{ x: 24, opacity: 0 }}
-                transition={{ duration: 0.2, ease: "easeInOut" }}
+                transition={{ duration: 0.2, ease: "easeInOut", delay: 0.1 }}
                 className="header__search-icon header__search-icon--left"
               >
                 <MagnifyingGlassIcon size={24} />
@@ -119,7 +119,7 @@ export function Header() {
                 initial={{ x: -24, opacity: 0 }}
                 animate={{ x: 0, opacity: 1 }}
                 exit={{ x: -24, opacity: 0 }}
-                transition={{ duration: 0.2, ease: "easeInOut" }}
+                transition={{ duration: 0.2, ease: "easeInOut", delay: 0.1 }}
                 className="header__search-icon header__search-icon--right"
               >
                 <MagnifyingGlassIcon size={24} />

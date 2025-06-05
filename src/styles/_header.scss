@@ -4,6 +4,21 @@
   left: 0;
   right: 0;
   z-index: 80;
+
+  &::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 56px;
+    pointer-events: none;
+    background: linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--background) 33%, transparent) 0%,
+      transparent 100%
+    );
+  }
 }
 
 .header::before {
@@ -29,7 +44,6 @@
   top: 0;
   left: 0;
   right: 0;
-  gap: calc(var(--spacing-unit) * 2);
 }
 
 .header__action {
@@ -58,11 +72,11 @@
 .header__search {
   display: flex;
   align-items: center;
-  padding: calc(var(--spacing-unit) * 4) calc(var(--spacing-unit) * 6);
+  padding: calc(var(--spacing-unit) * 7) calc(var(--spacing-unit) * 6);
+  transition: background-color 0.2s ease-in-out;
   cursor: pointer;
   position: relative;
-  width: 100%;
-  height: 56px;
+  flex: 1;
 
   &-icon {
     position: absolute;
