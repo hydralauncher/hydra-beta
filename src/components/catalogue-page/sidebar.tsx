@@ -12,6 +12,8 @@ interface SidebarProps {
   updateSearchParams: (newValues: Partial<SearchGamesFormValues>) => void;
 }
 
+type FilterData = string[] | Record<string, number> | Record<string, string>;
+
 export default function Sidebar({
   catalogueData,
   values,
@@ -24,6 +26,7 @@ export default function Sidebar({
     [FilterType.TAGS]: "",
     [FilterType.DEVELOPERS]: "",
     [FilterType.PUBLISHERS]: "",
+    [FilterType.DOWNLOAD_SOURCE_FINGERPRINTS]: "",
   });
 
   const setFilterSearchTerm = (key: FilterType, term: string) => {
@@ -32,11 +35,13 @@ export default function Sidebar({
 
   if (!catalogueData) return null;
 
-  const filterData: Record<FilterType, string[] | Record<string, number>> = {
+  const filterData: Record<FilterType, FilterData> = {
     [FilterType.GENRES]: catalogueData[FilterType.GENRES].data,
     [FilterType.TAGS]: catalogueData[FilterType.TAGS].data,
     [FilterType.DEVELOPERS]: catalogueData[FilterType.DEVELOPERS].data,
     [FilterType.PUBLISHERS]: catalogueData[FilterType.PUBLISHERS].data,
+    [FilterType.DOWNLOAD_SOURCE_FINGERPRINTS]:
+      catalogueData[FilterType.DOWNLOAD_SOURCE_FINGERPRINTS].data,
   };
 
   return (

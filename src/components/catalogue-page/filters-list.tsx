@@ -2,7 +2,10 @@ import List from "rc-virtual-list";
 import { Typography, Checkbox } from "@/components";
 import { SearchGamesFormValues, FilterType } from "@/hooks";
 
-type FilterSectionDataProps = string[] | Record<string, number>;
+type FilterSectionDataProps =
+  | string[]
+  | Record<string, number>
+  | Record<string, string>;
 
 interface FilterSectionProps {
   listData: FilterSectionDataProps | undefined;

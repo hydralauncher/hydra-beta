@@ -4,6 +4,7 @@ import { api } from "@/services/api.service";
 import type { CatalogueGame } from "@/types";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useMemo } from "react";
+import { useDownloadSourcesStore } from "@/stores";
 
 export interface SteamGenresResponse {
   en: string[];
@@ -22,6 +23,7 @@ export interface SteamTagsResponse {
 export enum FilterType {
   GENRES = "genres",
   TAGS = "tags",
+  DOWNLOAD_SOURCE_FINGERPRINTS = "downloadSourceFingerprints",
   PUBLISHERS = "publishers",
   DEVELOPERS = "developers",
 }
@@ -33,8 +35,21 @@ export interface CatalogueData {
     label: string;
     color: string;
   };
-  [FilterType.DEVELOPERS]: { data: string[]; label: string; color: string };
-  [FilterType.PUBLISHERS]: { data: string[]; label: string; color: string };
+  [FilterType.DOWNLOAD_SOURCE_FINGERPRINTS]: {
+    data: Record<string, string>;
+    label: string;
+    color: string;
+  };
+  [FilterType.DEVELOPERS]: {
+    data: string[];
+    label: string;
+    color: string;
+  };
+  [FilterType.PUBLISHERS]: {
+    data: string[];
+    label: string;
+    color: string;
+  };
 }
 
 export interface SearchGamesFormValues {
@@ -45,7 +60,7 @@ export interface SearchGamesFormValues {
   [FilterType.GENRES]?: string[];
   [FilterType.PUBLISHERS]?: string[];
   [FilterType.DEVELOPERS]?: string[];
-  downloadSourceFingerprints?: string[];
+  [FilterType.DOWNLOAD_SOURCE_FINGERPRINTS]?: string[];
 }
 
 export interface SearchGamesResponseData {
@@ -65,6 +80,16 @@ function parseParam<T>(value: string | null): T | undefined {
 export function useCatalogueData() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const { downloadSources } = useDownloadSourcesStore();
+
+  const downloadSourcesAndFingerprints = useMemo(
+    () =>
+      downloadSources?.reduce<Record<string, string>>((acc, source) => {
+        acc[source.name] = source.fingerprint;
+        return acc;
+      }, {}) ?? {},
+    [downloadSources]
+  );
 
   const values = useMemo(
     () => ({
@@ -163,6 +188,11 @@ export function useCatalogueData() {
             data: tagsQuery.data.en,
             label: "Tags",
             color: "yellow",
+          },
+          [FilterType.DOWNLOAD_SOURCE_FINGERPRINTS]: {
+            data: downloadSourcesAndFingerprints,
+            label: "Download Sources",
+            color: "red",
           },
           [FilterType.DEVELOPERS]: {
             data: developersQuery.data,
