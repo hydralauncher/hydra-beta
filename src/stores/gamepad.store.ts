@@ -1,5 +1,7 @@
 import { create } from "zustand";
-import { GamepadRawState, GamepadService, ButtonRawState } from "@/services";
+import { GamepadRawState, GamepadService } from "@/services";
+
+type GamepadStateMap = Map<number, GamepadRawState>;
 
 interface GamepadInfo {
   index: number;
@@ -7,46 +9,42 @@ interface GamepadInfo {
   layout: string;
 }
 
-export interface GamepadStore {
+export interface GamepadState {
   states: Map<number, GamepadRawState>;
   connectedGamepads: GamepadInfo[];
-  activeGamepad: GamepadInfo | null;
   hasGamepadConnected: boolean;
   lastUpdate: number;
   initialized: boolean;
-  polling: boolean;
-  debug: boolean;
 
   initialize: () => void;
   sync: () => void;
-  startPolling: () => void;
-  stopPolling: () => void;
   getActiveGamepad: () => GamepadInfo | null;
   getService: () => GamepadService | null;
-  logState: () => void;
   cleanup: () => void;
 }
 
-export const useGamepadStore = create<GamepadStore>((set, get) => {
-  const isDevelopment = process.env.NODE_ENV === "development";
+export const useGamepadStore = create<GamepadState>((set, get) => {
   let service: GamepadService | null = null;
-  let pollingInterval: number | null = null;
-  let lastLoggedState = "";
+  let cachedConnectedGamepads: GamepadInfo[] = [];
+  let unsubscribeStateChange: (() => void) | null = null;
+  let lastConnectedCount = 0;
 
   return {
     states: new Map(),
     connectedGamepads: [],
-    activeGamepad: null,
     hasGamepadConnected: false,
     lastUpdate: 0,
     initialized: false,
-    polling: false,
-    debug: isDevelopment,
 
     initialize: () => {
       if (get().initialized) return;
 
       service = GamepadService.getInstance();
+
+      unsubscribeStateChange = service.onStateChange(() => {
+        get().sync();
+      });
+
       set({ initialized: true });
       get().sync();
     },
@@ -54,43 +52,30 @@ export const useGamepadStore = create<GamepadStore>((set, get) => {
     sync: () => {
       if (!service) return;
 
-      const rawStates = service.getCurrentState() as Map<
-        number,
-        GamepadRawState
-      >;
+      const rawStates = service.getCurrentState() as GamepadStateMap;
+      const hasGamepadConnected = rawStates.size > 0;
+
+      let connectedGamepads = cachedConnectedGamepads;
+
+      if (rawStates.size !== lastConnectedCount) {
+        connectedGamepads = Array.from(rawStates.entries()).map(
+          ([idx, state]) => ({
+            index: idx,
+            name: state.name,
+            layout: state.layout,
+          })
+        );
+
+        cachedConnectedGamepads = connectedGamepads;
+        lastConnectedCount = rawStates.size;
+      }
 
       set({
         states: rawStates,
         lastUpdate: Date.now(),
-        activeGamepad: get().getActiveGamepad(),
-        hasGamepadConnected: rawStates.size > 0,
-        connectedGamepads: Array.from(rawStates.keys()).map((idx) => ({
-          index: idx,
-          name: rawStates.get(idx)?.name ?? "",
-          layout: rawStates.get(idx)?.layout ?? "",
-        })),
+        hasGamepadConnected,
+        connectedGamepads,
       });
-
-      get().logState();
-    },
-
-    startPolling: () => {
-      if (get().polling || !service) return;
-
-      pollingInterval = window.setInterval(() => {
-        get().sync();
-      }, 16); // ~60FPS
-
-      set({ polling: true });
-    },
-
-    stopPolling: () => {
-      if (!get().polling || !pollingInterval) return;
-
-      clearInterval(pollingInterval);
-      pollingInterval = null;
-
-      set({ polling: false });
     },
 
     getActiveGamepad: () => {
@@ -109,67 +94,27 @@ export const useGamepadStore = create<GamepadStore>((set, get) => {
       };
     },
 
-    logState: () => {
-      const { states, connectedGamepads } = get();
-
-      if (!get().debug || states.size === 0) return;
-
-      const stateSnapshot = JSON.stringify({
-        gamepads: connectedGamepads,
-        buttons: Array.from(states.entries()).map(([id, state]) => ({
-          id,
-          buttonValues: Array.from(state.buttons.entries()).map(
-            ([type, btn]) => ({
-              type,
-              value: btn.value.toFixed(2),
-              pressed: btn.pressed,
-            })
-          ),
-        })),
-      });
-
-      if (stateSnapshot === lastLoggedState) return;
-
-      lastLoggedState = stateSnapshot;
-
-      const statesObj: Record<
-        number,
-        Omit<GamepadRawState, "buttons"> & {
-          buttons: Record<string, ButtonRawState>;
-        }
-      > = {};
-      states.forEach((value, key) => {
-        const buttonsObj: Record<string, ButtonRawState> = {};
-        value.buttons.forEach((btn, btnType) => {
-          buttonsObj[String(btnType)] = btn;
-        });
-
-        statesObj[key] = {
-          ...value,
-          buttons: buttonsObj,
-        };
-      });
-
-      console.log("Gamepad States:", statesObj);
-    },
-
-    getService: () => {
-      return service;
-    },
+    getService: () => service,
 
     cleanup: () => {
-      get().stopPolling();
+      if (unsubscribeStateChange) {
+        unsubscribeStateChange();
+        unsubscribeStateChange = null;
+      }
 
       if (service) {
         service.dispose();
         service = null;
       }
 
+      lastConnectedCount = 0;
+      cachedConnectedGamepads = [];
+
       set({
         states: new Map(),
         connectedGamepads: [],
         hasGamepadConnected: false,
-        activeGamepad: null,
+        lastUpdate: 0,
         initialized: false,
       });
     },

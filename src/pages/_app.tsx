@@ -48,17 +48,6 @@ function Main({ children }: { children: React.ReactNode }) {
 const queryClient = new QueryClient();
 
 export default function App({ Component, pageProps }: AppProps) {
-  // const { initialize, startPolling, cleanup } = useGamepadStore();
-
-  // useEffect(() => {
-  //   initialize();
-  //   startPolling();
-
-  //   return () => {
-  //     cleanup();
-  //   };
-  // }, [initialize, startPolling, cleanup]);
-
   return (
     <QueryClientProvider client={queryClient}>
       <div
