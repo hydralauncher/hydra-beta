@@ -15,15 +15,14 @@ export function useUser() {
 
   const { data, refetch } = useQuery<User | null>({
     queryKey: ["me"],
-    queryFn: () =>
-      api.get<User>("profile/me", { credentials: "include" }).json(),
+    queryFn: () => api.get<User>("profile/me").json(),
     initialData: null,
     enabled: false,
   });
 
   const logout = useCallback(async () => {
     try {
-      await api.post("auth/logout", { credentials: "include" }).json();
+      await api.post("auth/logout").json();
     } finally {
       clearUser();
       clearAuth();

@@ -1,12 +1,13 @@
-import { api } from "@/services/api.service";
 import type {
   GameShop,
   HowLongToBeatCategory,
   SteamAchievement,
   UserGame,
 } from "@/types";
+import { toast } from "sonner";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useLibrary } from "./use-library.hook";
+import { api } from "@/services";
 import { useEffect, useState } from "react";
 
 export function useGamePage(shop: GameShop, objectId: string) {
@@ -41,14 +42,25 @@ export function useGamePage(shop: GameShop, objectId: string) {
 
   const { mutate: toggleFavorite } = useMutation({
     mutationFn: async () => {
-      setIsFavorite(!isFavorite);
+      return toast.promise(
+        async () => {
+          setIsFavorite(!isFavorite);
 
-      try {
-        await toggleGameFavorite(shop, objectId);
-      } catch (error) {
-        console.error(error);
-        setIsFavorite(isFavorite);
-      }
+          try {
+            await toggleGameFavorite(shop, objectId);
+          } catch (error) {
+            console.error(error);
+            setIsFavorite(isFavorite);
+
+            throw error;
+          }
+        },
+        {
+          loading: `${isFavorite ? "Removing from" : "Adding to"} favorites...`,
+          success: `${isFavorite ? "Removed from" : "Added to"} favorites`,
+          error: `Failed to ${isFavorite ? "remove from" : "add to"} favorites`,
+        }
+      );
     },
   });
 

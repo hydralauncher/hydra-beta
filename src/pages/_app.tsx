@@ -10,6 +10,7 @@ import { useUser } from "@/hooks";
 import { Header } from "@/layouts/header";
 import { IS_BROWSER } from "@/constants";
 import { DownloadSourcesService } from "@/services";
+import { Toaster } from "sonner";
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
@@ -73,6 +74,7 @@ export default function App({ Component, pageProps }: AppProps) {
         className={spaceGrotesk.className}
         style={{ width: "100%", display: "flex" }}
       >
+        <Toaster />
         <Sidebar />
 
         <Main>
