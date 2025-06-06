@@ -4,7 +4,7 @@ import { api } from "@/services";
 import type { CatalogueGame } from "@/types";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useMemo } from "react";
-import { useDownloadSources } from "./use-download-sources.hook";
+import { useDownloadSources } from "@/hooks";
 
 export interface SteamGenresResponse {
   en: string[];
