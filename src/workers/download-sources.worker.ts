@@ -82,15 +82,19 @@ self.onmessage = async (event) => {
     const { downloadSource } = event.data;
     downloadSources.push(downloadSource);
     await level.put("download-sources", downloadSources);
+
+    postMessage(downloadSources);
+    return;
   }
 
   if (topic === Topic.RemoveDownloadSource) {
     const { url } = event.data;
-    await level.put(
-      "download-sources",
-      downloadSources.filter((downloadSource) => downloadSource.url !== url)
+    const filteredSources = downloadSources.filter(
+      (downloadSource) => downloadSource.url !== url
     );
-  }
+    await level.put("download-sources", filteredSources);
 
-  postMessage(downloadSources);
+    postMessage(filteredSources);
+    return;
+  }
 };
