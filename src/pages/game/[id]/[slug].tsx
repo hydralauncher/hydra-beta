@@ -43,6 +43,7 @@ export default function GamePageWrapper({
   >([]);
 
   useEffect(() => {
+    console.log("id", id);
     getDownloadOptionsByObjectId(id as string).then(setGameDownloadOptions);
   }, [getDownloadOptionsByObjectId, id]);
 

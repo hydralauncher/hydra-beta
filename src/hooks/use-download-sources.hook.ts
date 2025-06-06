@@ -202,15 +202,16 @@ export function useDownloadSources() {
       },
     });
 
-  const getDownloadOptionsByObjectId = async (
-    objectId: string
-  ): Promise<DownloadOptionWithDownloadSource[]> => {
-    const downloadOptions = await levelStorage.getItem(
-      `download-sources:${objectId}`
-    );
+  const getDownloadOptionsByObjectId = useCallback(
+    async (objectId: string): Promise<DownloadOptionWithDownloadSource[]> => {
+      const downloadOptions = await levelStorage.getItem(
+        `download-sources:${objectId}`
+      );
 
-    return (downloadOptions ?? []) as DownloadOptionWithDownloadSource[];
-  };
+      return (downloadOptions ?? []) as DownloadOptionWithDownloadSource[];
+    },
+    []
+  );
 
   const clearDownloadSources = useCallback(async () => {
     await levelStorage.removeItem("download-sources");
