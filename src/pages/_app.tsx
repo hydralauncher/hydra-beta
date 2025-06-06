@@ -2,12 +2,11 @@ import "@/styles/globals.scss";
 
 import type { AppProps } from "next/app";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Sidebar } from "@/layouts/sidebar";
+import { Sidebar, Header } from "@/layouts";
 import { Space_Grotesk } from "next/font/google";
 import { useEffect, useRef } from "react";
 import { useRouter } from "next/router";
 import { useUser } from "@/hooks";
-import { Header } from "@/layouts/header";
 import { IS_BROWSER } from "@/constants";
 import { DownloadSourcesService } from "@/services";
 import { Toaster } from "sonner";

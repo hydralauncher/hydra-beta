@@ -1,7 +1,7 @@
 import { Button } from "@/components/common";
 import { IS_DESKTOP } from "@/constants";
 import { calculateTokenExpirationTimestamp } from "@/services";
-import { useUser } from "@/hooks/use-user.hook";
+import { useUser } from "@/hooks";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useCallback, useEffect } from "react";

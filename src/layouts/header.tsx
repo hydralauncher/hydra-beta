@@ -21,7 +21,7 @@ const usePageTitle = () => {
   return firstSegment ? capitalize(firstSegment) : "Home";
 };
 
-export function Header() {
+export default function Header() {
   const router = useRouter();
   const pageTitle = usePageTitle();
   const [isSearchOpen, setIsSearchOpen] = useState(false);

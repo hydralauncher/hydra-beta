@@ -1,4 +1,4 @@
-import { useGamepad } from "@/hooks/use-gamepad";
+import { useGamepad } from "@/hooks";
 import {
   GamepadAxisDirection,
   GamepadAxisType,
