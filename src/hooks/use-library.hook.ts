@@ -2,7 +2,7 @@ import { api } from "@/services";
 import { type Game, useLibraryStore } from "@/stores";
 import { useQuery } from "@tanstack/react-query";
 import { useCallback, useEffect } from "react";
-import { useUser } from "./use-user.hook";
+import { useUser } from "@/hooks";
 import { GameShop } from "@/types";
 
 export function useLibrary() {

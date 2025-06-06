@@ -1,4 +1,4 @@
-import { api } from "@/services/api.service";
+import { api } from "@/services";
 import type {
   GameShop,
   HowLongToBeatCategory,
@@ -6,7 +6,7 @@ import type {
   UserGame,
 } from "@/types";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { useLibrary } from "./use-library.hook";
+import { useLibrary } from "@/hooks";
 import { useEffect, useState } from "react";
 
 export function useGamePage(shop: GameShop, objectId: string) {

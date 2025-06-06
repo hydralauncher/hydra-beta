@@ -1,4 +1,4 @@
-import { GamepadLayout, getGamepadLayout } from "@/helpers/gamepad-layout";
+import { GamepadLayout, getGamepadLayout } from "@/helpers";
 import {
   GamepadAxisType,
   GamepadButtonType,

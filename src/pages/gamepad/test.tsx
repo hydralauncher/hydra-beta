@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useMemo } from "react";
-import { useGamepadStore } from "@/stores/gamepad.store";
-import { useGamepad } from "@/hooks/use-gamepad";
+import { useGamepadStore } from "@/stores";
+import { useGamepad } from "@/hooks";
 import {
   GamepadButtonType,
   GamepadAxisType,

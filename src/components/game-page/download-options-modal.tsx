@@ -3,7 +3,7 @@ import { AnimatePresence, motion } from "framer-motion";
 
 import { Modal, Typography, ScrollArea, Tooltip, Input } from "@/components";
 import { useDate, useSearch } from "@/hooks";
-import { DownloadOption } from "@/stores/download-sources.store";
+import { DownloadOption } from "@/stores";
 
 export interface DownloadOptionsModalProps {
   visible: boolean;

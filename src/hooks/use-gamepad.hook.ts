@@ -5,7 +5,7 @@ import {
   GamepadAxisType,
   GamepadVibrationOptions,
 } from "@/types";
-import { useGamepadStore } from "@/stores/gamepad.store";
+import { useGamepadStore } from "@/stores";
 import { useEffect, useRef } from "react";
 import { GamepadService } from "@/services";
 
