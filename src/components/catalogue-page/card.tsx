@@ -4,15 +4,27 @@ import { useDownloadSources } from "@/hooks";
 import Image from "next/image";
 import Link from "next/link";
 import { toSlug } from "@/helpers";
+import { useEffect, useState } from "react";
 
 interface CardProps {
   game: CatalogueGame;
 }
 
 export default function Card({ game }: Readonly<CardProps>) {
-  const { uniqueDownloadSourcesByObjectId } = useDownloadSources();
+  const { getDownloadOptionsByObjectId } = useDownloadSources();
 
-  const downloadSources = uniqueDownloadSourcesByObjectId.get(game.objectId);
+  const [uniqueDownloadSources, setUniqueDownloadSources] = useState<string[]>(
+    []
+  );
+
+  useEffect(() => {
+    getDownloadOptionsByObjectId(game.objectId).then((downloadOptions) => {
+      const uniqueDownloadSources = Array.from(
+        new Set(downloadOptions.map((option) => option.downloadSource))
+      );
+      setUniqueDownloadSources(uniqueDownloadSources);
+    });
+  }, [getDownloadOptionsByObjectId, game.objectId]);
 
   return (
     <div className="catalogue-card">
@@ -50,12 +62,12 @@ export default function Card({ game }: Readonly<CardProps>) {
       </div>
 
       <div className="catalogue-card__download-sources">
-        {downloadSources
+        {uniqueDownloadSources
           ?.slice(0, 3)
           .map((source) => <SourceAnchor title={source} key={source} />)}
 
-        {downloadSources?.length && downloadSources.length > 3 && (
-          <SourceAnchor title={`+${downloadSources.length - 3}`} />
+        {uniqueDownloadSources?.length && uniqueDownloadSources.length > 3 && (
+          <SourceAnchor title={`+${uniqueDownloadSources.length - 3}`} />
         )}
       </div>
     </div>

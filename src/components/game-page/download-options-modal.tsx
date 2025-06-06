@@ -2,13 +2,16 @@ import { Download, Calendar } from "@phosphor-icons/react";
 import { AnimatePresence, motion } from "framer-motion";
 
 import { Modal, Typography, ScrollArea, Tooltip, Input } from "@/components";
-import { useDate, useSearch } from "@/hooks";
-import { DownloadOption } from "@/stores/download-sources.store";
+import {
+  type DownloadOptionWithDownloadSource,
+  useDate,
+  useSearch,
+} from "@/hooks";
 
 export interface DownloadOptionsModalProps {
   visible: boolean;
   onClose: () => void;
-  downloadOptions: (DownloadOption & { downloadSource: string })[];
+  downloadOptions: DownloadOptionWithDownloadSource[];
   backgroundImageUrl: string;
 }
 

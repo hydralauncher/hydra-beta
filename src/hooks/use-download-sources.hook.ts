@@ -3,33 +3,103 @@ import { formatDownloadOptionName } from "@/helpers";
 import { downloadSourceSchema } from "@/schemas";
 
 import { api, getSteamGamesByLetter } from "@/services";
-import { DownloadOption, useDownloadSourcesStore } from "@/stores";
+import { levelStorage } from "@/stores/level-storage";
 import { useMutation } from "@tanstack/react-query";
 import ky from "ky";
-import { useMemo } from "react";
+import { useCallback } from "react";
 import type { InferType } from "yup";
 
+export interface DownloadOption {
+  objectIds: string[];
+  title: string;
+  uris: string[];
+  fileSize: string;
+  uploadDate: string;
+}
+
+export type DownloadOptionWithDownloadSource = DownloadOption & {
+  downloadSource: string;
+};
+
+export interface DownloadSource {
+  name: string;
+  url: string;
+  status: DownloadSourceStatus;
+  downloadOptions: DownloadOption[];
+  downloadCount: number;
+  fingerprint: string;
+}
+
 export function useDownloadSources() {
-  const {
-    addDownloadSource,
-    removeDownloadSource,
-    clearDownloadSources,
-    downloadSources,
-  } = useDownloadSourcesStore();
+  const mapDownloadSourcesByObjectId = useCallback(
+    (downloadSources: DownloadSource[]) => {
+      const map: Record<
+        string,
+        (DownloadOption & { downloadSource: string })[]
+      > = {};
 
-  const downloadSourcesUrls = useMemo(() => {
-    const urls = new Set<string>();
+      for (const downloadSource of downloadSources) {
+        for (const downloadOption of downloadSource.downloadOptions) {
+          for (const objectId of downloadOption.objectIds) {
+            if (!map[objectId]) {
+              map[objectId] = [];
+            }
 
-    for (const downloadSource of downloadSources) {
-      urls.add(downloadSource.url);
-    }
+            map[objectId].push({
+              ...downloadOption,
+              downloadSource: downloadSource.name,
+            } as DownloadOption & { downloadSource: string });
+          }
+        }
+      }
 
-    return urls;
-  }, [downloadSources]);
+      return map;
+    },
+    []
+  );
+
+  const writeDownloadSources = useCallback(
+    async (downloadSources: DownloadSource[]) => {
+      await levelStorage.setItem("download-sources", downloadSources);
+
+      const downloadSourcesByObjectId =
+        mapDownloadSourcesByObjectId(downloadSources);
+
+      for (const objectId in downloadSourcesByObjectId) {
+        await levelStorage.setItem(
+          `download-sources:${objectId}`,
+          downloadSourcesByObjectId[objectId]
+        );
+      }
+    },
+    [mapDownloadSourcesByObjectId]
+  );
+
+  const getDownloadSources = useCallback(async () => {
+    return await levelStorage
+      .getItem<DownloadSource[]>("download-sources")
+      .then((downloadSources) => downloadSources ?? []);
+  }, []);
+
+  const getDownloadSourcesUrls = useCallback(
+    (downloadSources: DownloadSource[]) => {
+      const urls = new Set<string>();
+
+      for (const downloadSource of downloadSources) {
+        urls.add(downloadSource.url);
+      }
+
+      return urls;
+    },
+    []
+  );
 
   const { mutateAsync: importDownloadSource, isPending: isImporting } =
     useMutation({
       mutationFn: async (values: { url: string; shouldSync: boolean }) => {
+        const downloadSources = await getDownloadSources();
+        const downloadSourcesUrls = getDownloadSourcesUrls(downloadSources);
+
         if (downloadSourcesUrls.has(values.url)) {
           throw new Error("Download source already exists");
         }
@@ -87,14 +157,17 @@ export function useDownloadSources() {
             .json();
         }
 
-        addDownloadSource({
-          name,
-          url: values.url,
-          status: DownloadSourceStatus.UpToDate,
-          downloadOptions: results,
-          downloadCount: downloads.length,
-          fingerprint,
-        });
+        await writeDownloadSources([
+          ...downloadSources,
+          {
+            name,
+            url: values.url,
+            status: DownloadSourceStatus.UpToDate,
+            downloadOptions: results,
+            downloadCount: downloads.length,
+            fingerprint,
+          },
+        ]);
       },
     });
 
@@ -103,7 +176,10 @@ export function useDownloadSources() {
       try {
         await api.delete(`profile/download-sources?url=${url}`).json();
       } finally {
-        removeDownloadSource(url);
+        const downloadSources = await getDownloadSources();
+        await writeDownloadSources(
+          downloadSources.filter((downloadSource) => downloadSource.url !== url)
+        );
       }
     },
   });
@@ -126,53 +202,30 @@ export function useDownloadSources() {
       },
     });
 
-  const downloadSourcesByObjectId = useMemo(() => {
-    const map = new Map<
-      string,
-      (DownloadOption & { downloadSource: string })[]
-    >();
+  const getDownloadOptionsByObjectId = async (
+    objectId: string
+  ): Promise<DownloadOptionWithDownloadSource[]> => {
+    const downloadOptions = await levelStorage.getItem(
+      `download-sources:${objectId}`
+    );
 
-    for (const downloadSource of downloadSources) {
-      for (const downloadOption of downloadSource.downloadOptions) {
-        for (const objectId of downloadOption.objectIds) {
-          if (!map.has(objectId)) {
-            map.set(objectId, []);
-          }
+    return (downloadOptions ?? []) as DownloadOptionWithDownloadSource[];
+  };
 
-          map.get(objectId)?.push({
-            ...downloadOption,
-            downloadSource: downloadSource.name,
-          } as DownloadOption & { downloadSource: string });
-        }
-      }
-    }
-
-    return map;
-  }, [downloadSources]);
-
-  const uniqueDownloadSourcesByObjectId = useMemo(
-    () =>
-      new Map(
-        Array.from(downloadSourcesByObjectId.entries()).map(
-          ([objectId, options]) => [
-            objectId,
-            Array.from(new Set(options.map((opt) => opt.downloadSource))),
-          ]
-        )
-      ),
-    [downloadSourcesByObjectId]
-  );
+  const clearDownloadSources = useCallback(async () => {
+    await levelStorage.removeItem("download-sources");
+    // how to clear all the download sources by object id?
+  }, []);
 
   return {
     importDownloadSource,
     removeDownloadSource: remove,
     clearDownloadSources,
     syncDownloadSources,
-    downloadSources,
+    getDownloadSources,
+    getDownloadOptionsByObjectId,
     isRemoving,
     isImporting,
     isSyncing,
-    downloadSourcesByObjectId,
-    uniqueDownloadSourcesByObjectId,
   };
 }

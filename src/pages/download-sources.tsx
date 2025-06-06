@@ -1,9 +1,8 @@
 import { useForm } from "react-hook-form";
 import { Button, Input, Modal, Typography } from "@/components";
-import { useDownloadSources, useFormat } from "@/hooks";
+import { type DownloadSource, useDownloadSources, useFormat } from "@/hooks";
 import { ArrowsClockwise, PlusCircle, Trash } from "@phosphor-icons/react";
-import { type DownloadSource } from "@/stores";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 export interface DownloadSourceProps {
   downloadSource: DownloadSource;
@@ -62,7 +61,7 @@ export default function DownloadSources() {
   });
 
   const {
-    downloadSources,
+    getDownloadSources,
     clearDownloadSources,
     importDownloadSource,
     isImporting,
@@ -70,6 +69,11 @@ export default function DownloadSources() {
   } = useDownloadSources();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [downloadSources, setDownloadSources] = useState<DownloadSource[]>([]);
+
+  useEffect(() => {
+    getDownloadSources().then(setDownloadSources);
+  }, [getDownloadSources]);
 
   return (
     <div>
