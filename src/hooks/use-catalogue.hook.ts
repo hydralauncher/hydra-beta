@@ -3,7 +3,7 @@ import ky from "ky";
 import { api } from "@/services/api.service";
 import type { CatalogueGame } from "@/types";
 import { useSearchParams, useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import { useDownloadSources } from "./use-download-sources.hook";
 
 export interface SteamGenresResponse {
@@ -80,23 +80,14 @@ function parseParam<T>(value: string | null): T | undefined {
 export function useCatalogueData() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const { getDownloadSources } = useDownloadSources();
+  const { downloadSources } = useDownloadSources();
 
-  const [downloadSourcesAndFingerprints, setDownloadSourcesAndFingerprints] =
-    useState<Record<string, string>>({});
-
-  useEffect(() => {
-    getDownloadSources().then((downloadSources) => {
-      const downloadSourcesAndFingerprints = downloadSources.reduce<
-        Record<string, string>
-      >((acc, source) => {
-        acc[source.name] = source.fingerprint;
-        return acc;
-      }, {});
-
-      setDownloadSourcesAndFingerprints(downloadSourcesAndFingerprints);
-    });
-  }, [getDownloadSources]);
+  const downloadSourcesAndFingerprints = useMemo(() => {
+    return downloadSources.reduce<Record<string, string>>((acc, source) => {
+      acc[source.name] = source.fingerprint;
+      return acc;
+    }, {});
+  }, [downloadSources]);
 
   const values = useMemo(
     () => ({

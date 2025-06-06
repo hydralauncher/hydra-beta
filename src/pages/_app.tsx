@@ -8,6 +8,9 @@ import { useEffect, useRef } from "react";
 import { useRouter } from "next/router";
 import { useUser } from "@/hooks";
 import { Header } from "@/layouts/header";
+import { IS_BROWSER } from "@/constants";
+import { DownloadSourcesService } from "@/services";
+
 const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
   variable: "--font-space-grotesk",
@@ -46,6 +49,11 @@ function Main({ children }: { children: React.ReactNode }) {
 }
 
 const queryClient = new QueryClient();
+
+if (IS_BROWSER) {
+  console.log("subscribe to worker");
+  DownloadSourcesService.subscribeToWorker();
+}
 
 export default function App({ Component, pageProps }: AppProps) {
   // const { initialize, startPolling, cleanup } = useGamepadStore();

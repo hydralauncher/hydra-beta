@@ -3,15 +3,10 @@ import { GetServerSideProps } from "next";
 import { useRouter } from "next/router";
 import { Typography, GamePage } from "@/components";
 import Head from "next/head";
-import {
-  DownloadOptionWithDownloadSource,
-  useDownloadSources,
-  useFormat,
-  useGamePage,
-} from "@/hooks";
+import { useDownloadSources, useFormat, useGamePage } from "@/hooks";
 import { GameStats, type SteamAppDetails } from "@/types";
 import { toSlug } from "@/helpers";
-import { useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 
 export interface GamePageProps {
   stats: GameStats;
@@ -36,16 +31,11 @@ export default function GamePageWrapper({
     isFavorite,
   } = useGamePage("steam", id as string);
 
-  const { getDownloadOptionsByObjectId } = useDownloadSources();
+  const { downloadOptionsByObjectId } = useDownloadSources();
 
-  const [gameDownloadOptions, setGameDownloadOptions] = useState<
-    DownloadOptionWithDownloadSource[]
-  >([]);
-
-  useEffect(() => {
-    console.log("id", id);
-    getDownloadOptionsByObjectId(id as string).then(setGameDownloadOptions);
-  }, [getDownloadOptionsByObjectId, id]);
+  const gameDownloadOptions = useMemo(() => {
+    return downloadOptionsByObjectId.get(id as string) ?? [];
+  }, [downloadOptionsByObjectId, id]);
 
   return (
     <>

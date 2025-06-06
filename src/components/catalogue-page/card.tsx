@@ -4,27 +4,24 @@ import { useDownloadSources } from "@/hooks";
 import Image from "next/image";
 import Link from "next/link";
 import { toSlug } from "@/helpers";
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
 
 interface CardProps {
   game: CatalogueGame;
 }
 
 export default function Card({ game }: Readonly<CardProps>) {
-  const { getDownloadOptionsByObjectId } = useDownloadSources();
+  const { downloadOptionsByObjectId } = useDownloadSources();
 
-  const [uniqueDownloadSources, setUniqueDownloadSources] = useState<string[]>(
-    []
-  );
-
-  useEffect(() => {
-    getDownloadOptionsByObjectId(game.objectId).then((downloadOptions) => {
-      const uniqueDownloadSources = Array.from(
-        new Set(downloadOptions.map((option) => option.downloadSource))
-      );
-      setUniqueDownloadSources(uniqueDownloadSources);
-    });
-  }, [getDownloadOptionsByObjectId, game.objectId]);
+  const uniqueDownloadSources = useMemo(() => {
+    return Array.from(
+      new Set(
+        downloadOptionsByObjectId
+          .get(game.objectId)
+          ?.map((option) => option.downloadSource)
+      )
+    );
+  }, [downloadOptionsByObjectId, game.objectId]);
 
   return (
     <div className="catalogue-card">
