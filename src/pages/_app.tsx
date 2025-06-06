@@ -51,7 +51,6 @@ function Main({ children }: { children: React.ReactNode }) {
 const queryClient = new QueryClient();
 
 if (IS_BROWSER) {
-  console.log("subscribe to worker");
   DownloadSourcesService.subscribeToWorker();
 }
 

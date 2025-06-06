@@ -17,7 +17,6 @@ export class DownloadSourcesService {
     );
 
     this.worker.onmessage = (event) => {
-      console.log(event.data);
       const {
         setDownloadOptionsByObjectId,
         setDownloadSourceUrls,
