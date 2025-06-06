@@ -7,6 +7,7 @@ import { Space_Grotesk } from "next/font/google";
 import { useEffect, useRef } from "react";
 import { useRouter } from "next/router";
 import { useUser } from "@/hooks";
+import { useGamepadStore } from "@/stores";
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
@@ -24,6 +25,10 @@ function Main({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     getUser();
   }, [getUser]);
+
+  useEffect(() => {
+    useGamepadStore.getState().sync();
+  }, []);
 
   useEffect(() => {
     if (contentRef.current) contentRef.current.scrollTop = 0;

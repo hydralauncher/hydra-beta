@@ -265,13 +265,13 @@ export class GamepadService {
       });
 
       this.lastActiveGamepad ??= index;
+      this.notifyStateChange();
     }
 
     const gamepadState = this.gamepadStates.get(index)!;
     const gamepadIndex = index;
 
-    let hasButtonsStateChanged = false;
-    let hasSticksStateChanged = false;
+    let hasStateChanged = false;
 
     for (const mapping of layout.buttons) {
       const { index, type } = mapping;
@@ -285,7 +285,7 @@ export class GamepadService {
         prevState?.pressed !== buttonState.pressed ||
         prevState?.value !== buttonState.value
       ) {
-        hasButtonsStateChanged = true;
+        hasStateChanged = true;
 
         this.updateButtonState(
           gamepadState,
@@ -316,11 +316,8 @@ export class GamepadService {
 
       const prevState = gamepadState.axes.get(type);
 
-      if (
-        !prevState ||
-        Math.abs(prevState.value - axisState) >= this.sticksDeadzone
-      ) {
-        hasSticksStateChanged = true;
+      if (!prevState || Math.abs(prevState.value - axisState) > 0.01) {
+        hasStateChanged = true;
 
         gamepadState.axes.set(type, {
           value: axisState,
@@ -359,7 +356,7 @@ export class GamepadService {
       now
     );
 
-    if (hasButtonsStateChanged || hasSticksStateChanged) {
+    if (hasStateChanged) {
       this.notifyStateChange();
     }
   }
@@ -588,8 +585,10 @@ export class GamepadService {
       this.handleGamepadDisconnection
     );
     this.gamepads.clear();
+    this.gamepadStates.clear();
     this.buttonPressCallbacks.clear();
     this.stickMoveCallbacks.clear();
+    this.stateChangeCallbacks.clear();
     this.clearAllTimers();
   }
 

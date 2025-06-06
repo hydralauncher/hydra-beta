@@ -13,45 +13,37 @@ export interface GamepadState {
   states: Map<number, GamepadRawState>;
   connectedGamepads: GamepadInfo[];
   hasGamepadConnected: boolean;
-  lastUpdate: number;
-  initialized: boolean;
 
-  initialize: () => void;
   sync: () => void;
   getActiveGamepad: () => GamepadInfo | null;
-  getService: () => GamepadService | null;
-  cleanup: () => void;
+  getService: () => GamepadService;
 }
 
 export const useGamepadStore = create<GamepadState>((set, get) => {
-  let service: GamepadService | null = null;
   let cachedConnectedGamepads: GamepadInfo[] = [];
-  let unsubscribeStateChange: (() => void) | null = null;
   let lastConnectedCount = 0;
+  let isInitialized = false;
+
+  const ensureInitialized = () => {
+    if (isInitialized) return;
+
+    isInitialized = true;
+
+    const service = GamepadService.getInstance();
+    service.onStateChange(() => {
+      get().sync();
+    });
+  };
 
   return {
     states: new Map(),
     connectedGamepads: [],
     hasGamepadConnected: false,
-    lastUpdate: 0,
-    initialized: false,
-
-    initialize: () => {
-      if (get().initialized) return;
-
-      service = GamepadService.getInstance();
-
-      unsubscribeStateChange = service.onStateChange(() => {
-        get().sync();
-      });
-
-      set({ initialized: true });
-      get().sync();
-    },
 
     sync: () => {
-      if (!service) return;
+      ensureInitialized();
 
+      const service = GamepadService.getInstance();
       const rawStates = service.getCurrentState() as GamepadStateMap;
       const hasGamepadConnected = rawStates.size > 0;
 
@@ -72,16 +64,15 @@ export const useGamepadStore = create<GamepadState>((set, get) => {
 
       set({
         states: rawStates,
-        lastUpdate: Date.now(),
         hasGamepadConnected,
         connectedGamepads,
       });
     },
 
     getActiveGamepad: () => {
-      if (!service) return null;
-
+      const service = GamepadService.getInstance();
       const activeGamepadIndex = service.getLastActiveGamepad();
+
       if (activeGamepadIndex === null) return null;
 
       const state = get().states.get(activeGamepadIndex);
@@ -94,29 +85,6 @@ export const useGamepadStore = create<GamepadState>((set, get) => {
       };
     },
 
-    getService: () => service,
-
-    cleanup: () => {
-      if (unsubscribeStateChange) {
-        unsubscribeStateChange();
-        unsubscribeStateChange = null;
-      }
-
-      if (service) {
-        service.dispose();
-        service = null;
-      }
-
-      lastConnectedCount = 0;
-      cachedConnectedGamepads = [];
-
-      set({
-        states: new Map(),
-        connectedGamepads: [],
-        hasGamepadConnected: false,
-        lastUpdate: 0,
-        initialized: false,
-      });
-    },
+    getService: () => GamepadService.getInstance(),
   };
 });
