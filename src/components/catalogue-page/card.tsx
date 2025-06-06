@@ -63,7 +63,7 @@ export default function Card({ game }: Readonly<CardProps>) {
           ?.slice(0, 3)
           .map((source) => <SourceAnchor title={source} key={source} />)}
 
-        {uniqueDownloadSources?.length && uniqueDownloadSources.length > 3 && (
+        {(uniqueDownloadSources?.length ?? 0) > 3 && (
           <SourceAnchor title={`+${uniqueDownloadSources.length - 3}`} />
         )}
       </div>
