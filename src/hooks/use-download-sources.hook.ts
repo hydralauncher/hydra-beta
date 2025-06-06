@@ -17,7 +17,7 @@ export function useDownloadSources() {
 
   const { mutateAsync: importDownloadSource, isPending: isImporting } =
     useMutation({
-      mutationFn: async (values: { url: string; shouldSync: boolean }) => {
+      mutationFn: async (values: { url: string }) => {
         if (downloadSourceUrls.has(values.url)) {
           throw new Error("Download source already exists");
         }
@@ -65,15 +65,14 @@ export function useDownloadSources() {
           })
           .json();
 
-        if (values.shouldSync) {
-          await api
-            .post("profile/download-sources", {
-              json: {
-                urls: [values.url],
-              },
-            })
-            .json();
-        }
+        await api
+          .post("profile/download-sources", {
+            json: {
+              urls: [values.url],
+            },
+          })
+          .json()
+          .catch(() => {});
 
         DownloadSourcesService.addDownloadSource({
           name,
@@ -106,7 +105,6 @@ export function useDownloadSources() {
         for (const downloadSource of downloadSources) {
           await importDownloadSource({
             url: downloadSource.url,
-            shouldSync: false,
           }).catch(() => {});
         }
 

@@ -50,14 +50,12 @@ function DownloadSource({ downloadSource }: DownloadSourceProps) {
 
 interface FormValues {
   url: string;
-  shouldSync: boolean;
 }
 
 export default function DownloadSources() {
   const { register, handleSubmit } = useForm<FormValues>({
     defaultValues: {
       url: "",
-      shouldSync: true,
     },
   });
 
