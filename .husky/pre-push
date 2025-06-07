@@ -1,2 +1,2 @@
-bun lint
+pnpm lint
 cargo clippy --manifest-path src-tauri/Cargo.toml

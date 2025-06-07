@@ -4,15 +4,24 @@ import { useDownloadSources } from "@/hooks";
 import Image from "next/image";
 import Link from "next/link";
 import { toSlug } from "@/helpers";
+import { useMemo } from "react";
 
 interface CardProps {
   game: CatalogueGame;
 }
 
 export default function Card({ game }: Readonly<CardProps>) {
-  const { uniqueDownloadSourcesByObjectId } = useDownloadSources();
+  const { downloadOptionsByObjectId } = useDownloadSources();
 
-  const downloadSources = uniqueDownloadSourcesByObjectId.get(game.objectId);
+  const uniqueDownloadSources = useMemo(() => {
+    return Array.from(
+      new Set(
+        downloadOptionsByObjectId
+          .get(game.objectId)
+          ?.map((option) => option.downloadSource)
+      )
+    );
+  }, [downloadOptionsByObjectId, game.objectId]);
 
   return (
     <div className="catalogue-card">
@@ -50,12 +59,12 @@ export default function Card({ game }: Readonly<CardProps>) {
       </div>
 
       <div className="catalogue-card__download-sources">
-        {downloadSources
+        {uniqueDownloadSources
           ?.slice(0, 3)
           .map((source) => <SourceAnchor title={source} key={source} />)}
 
-        {downloadSources?.length && downloadSources.length > 3 && (
-          <SourceAnchor title={`+${downloadSources.length - 3}`} />
+        {(uniqueDownloadSources?.length ?? 0) > 3 && (
+          <SourceAnchor title={`+${uniqueDownloadSources.length - 3}`} />
         )}
       </div>
     </div>

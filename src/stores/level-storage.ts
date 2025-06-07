@@ -1,11 +1,6 @@
+import { getLevelInstance } from "@/browser-level";
 import { IS_BROWSER, IS_DESKTOP } from "@/constants";
 import { invoke } from "@tauri-apps/api/core";
-import { Level } from "level";
-
-const getLevelInstance = <T>() =>
-  new Level<string, T>("hydra-db", {
-    valueEncoding: "json",
-  });
 
 export const levelStorage = {
   getItem: async <T>(key: string) => {

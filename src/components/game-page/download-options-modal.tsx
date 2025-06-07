@@ -3,12 +3,12 @@ import { AnimatePresence, motion } from "framer-motion";
 
 import { Modal, Typography, ScrollArea, Tooltip, Input } from "@/components";
 import { useDate, useSearch } from "@/hooks";
-import { DownloadOption } from "@/stores";
+import type { DownloadOptionWithDownloadSource } from "@/types";
 
 export interface DownloadOptionsModalProps {
   visible: boolean;
   onClose: () => void;
-  downloadOptions: (DownloadOption & { downloadSource: string })[];
+  downloadOptions: DownloadOptionWithDownloadSource[];
   backgroundImageUrl: string;
 }
 

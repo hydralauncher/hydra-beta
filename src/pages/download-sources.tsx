@@ -2,11 +2,11 @@ import { useForm } from "react-hook-form";
 import { Button, Input, Modal, Typography } from "@/components";
 import { useDownloadSources, useFormat } from "@/hooks";
 import { ArrowsClockwise, PlusCircle, Trash } from "@phosphor-icons/react";
-import { type DownloadSource } from "@/stores";
 import { useState } from "react";
+import type { LeanDownloadSource } from "@/types";
 
 export interface DownloadSourceProps {
-  downloadSource: DownloadSource;
+  downloadSource: LeanDownloadSource;
 }
 
 function DownloadSource({ downloadSource }: DownloadSourceProps) {
@@ -50,23 +50,21 @@ function DownloadSource({ downloadSource }: DownloadSourceProps) {
 
 interface FormValues {
   url: string;
-  shouldSync: boolean;
 }
 
 export default function DownloadSources() {
   const { register, handleSubmit } = useForm<FormValues>({
     defaultValues: {
       url: "",
-      shouldSync: true,
     },
   });
 
   const {
     downloadSources,
-    clearDownloadSources,
-    importDownloadSource,
     isImporting,
     isSyncing,
+    clearDownloadSources,
+    importDownloadSource,
   } = useDownloadSources();
 
   const [isModalOpen, setIsModalOpen] = useState(false);

@@ -2,3 +2,4 @@
 public/assets/
 storybook-static/
 src-tauri/target/
+pnpm-lock.yaml
