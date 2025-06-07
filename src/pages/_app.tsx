@@ -7,6 +7,7 @@ import { Space_Grotesk } from "next/font/google";
 import { useEffect, useRef } from "react";
 import { useRouter } from "next/router";
 import { useUser } from "@/hooks";
+import { useGamepadStore } from "@/stores";
 import { IS_BROWSER } from "@/constants";
 import { DownloadSourcesService } from "@/services";
 import { Toaster } from "sonner";
@@ -27,6 +28,10 @@ function Main({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     getUser();
   }, [getUser]);
+
+  useEffect(() => {
+    useGamepadStore.getState().sync();
+  }, []);
 
   useEffect(() => {
     if (contentRef.current) contentRef.current.scrollTop = 0;
@@ -55,17 +60,6 @@ if (IS_BROWSER) {
 }
 
 export default function App({ Component, pageProps }: AppProps) {
-  // const { initialize, startPolling, cleanup } = useGamepadStore();
-
-  // useEffect(() => {
-  //   initialize();
-  //   startPolling();
-
-  //   return () => {
-  //     cleanup();
-  //   };
-  // }, [initialize, startPolling, cleanup]);
-
   return (
     <QueryClientProvider client={queryClient}>
       <div

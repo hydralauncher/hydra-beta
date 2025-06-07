@@ -6,14 +6,19 @@ import {
   GamepadVibrationOptions,
 } from "@/types";
 import { useGamepadStore } from "@/stores";
-import { useEffect, useRef } from "react";
-import { GamepadService } from "@/services";
+import { useEffect, useRef, useCallback } from "react";
+
+const DEFAULT_VIBRATION_DURATION = 200;
+const DEFAULT_WEAK_MAGNITUDE = 0.5;
+const DEFAULT_STRONG_MAGNITUDE = 0.5;
 
 export interface UseGamepadReturn {
   isButtonPressed: (button: GamepadButtonType) => boolean;
   getButtonValue: (button: GamepadButtonType) => number;
   getAxisValue: (axis: GamepadAxisType) => number;
   vibrate: (options: GamepadVibrationOptions) => void;
+  connectedGamepads: { index: number; name: string; layout: string }[];
+  hasGamepadConnected: boolean;
 
   onButtonPressed: (
     button: GamepadButtonType,
@@ -28,8 +33,20 @@ export interface UseGamepadReturn {
 }
 
 export function useGamepad(): UseGamepadReturn {
-  const { states, hasGamepadConnected, getActiveGamepad } = useGamepadStore();
+  const {
+    states,
+    hasGamepadConnected,
+    connectedGamepads,
+    getActiveGamepad,
+    getService,
+    sync,
+  } = useGamepadStore();
+
   const callbackRefs = useRef<Map<string, () => void>>(new Map());
+
+  useEffect(() => {
+    sync();
+  }, [sync]);
 
   useEffect(() => {
     const currentCallbacks = callbackRefs.current;
@@ -40,103 +57,116 @@ export function useGamepad(): UseGamepadReturn {
     };
   }, []);
 
-  const getButtonState = (button: GamepadButtonType) => {
-    if (!hasGamepadConnected) return null;
+  const getButtonState = useCallback(
+    (button: GamepadButtonType) => {
+      if (!hasGamepadConnected) return null;
 
-    const activeGamepad = getActiveGamepad();
-    if (!activeGamepad) return null;
+      const activeGamepad = getActiveGamepad();
+      if (!activeGamepad) return null;
 
-    const state = states.get(activeGamepad.index);
-    if (!state) return null;
+      const state = states.get(activeGamepad.index);
+      if (!state) return null;
 
-    return state.buttons.get(button) ?? null;
-  };
+      return state.buttons.get(button) ?? null;
+    },
+    [hasGamepadConnected, getActiveGamepad, states]
+  );
 
-  const getAxisState = (axis: GamepadAxisType) => {
-    if (!hasGamepadConnected) return null;
+  const getAxisState = useCallback(
+    (axis: GamepadAxisType) => {
+      if (!hasGamepadConnected) return null;
 
-    const activeGamepad = getActiveGamepad();
-    if (!activeGamepad) return null;
+      const activeGamepad = getActiveGamepad();
+      if (!activeGamepad) return null;
 
-    const state = states.get(activeGamepad.index);
-    if (!state) return null;
+      const state = states.get(activeGamepad.index);
+      if (!state) return null;
 
-    return state.axes.get(axis) ?? null;
-  };
+      return state.axes.get(axis) ?? null;
+    },
+    [hasGamepadConnected, getActiveGamepad, states]
+  );
 
-  const isButtonPressed = (button: GamepadButtonType) => {
-    const buttonState = getButtonState(button);
-    if (!buttonState) return false;
+  const isButtonPressed = useCallback(
+    (button: GamepadButtonType) => {
+      const buttonState = getButtonState(button);
+      if (!buttonState) return false;
 
-    return buttonState.pressed;
-  };
+      return buttonState.pressed;
+    },
+    [getButtonState]
+  );
 
-  const getButtonValue = (button: GamepadButtonType) => {
-    const buttonState = getButtonState(button);
-    if (!buttonState) return 0;
+  const getButtonValue = useCallback(
+    (button: GamepadButtonType) => {
+      const buttonState = getButtonState(button);
+      if (!buttonState) return 0;
 
-    return buttonState.value;
-  };
+      return buttonState.value;
+    },
+    [getButtonState]
+  );
 
-  const getAxisValue = (axis: GamepadAxisType) => {
-    const axisState = getAxisState(axis);
-    if (!axisState) return 0;
+  const getAxisValue = useCallback(
+    (axis: GamepadAxisType) => {
+      const axisState = getAxisState(axis);
+      if (!axisState) return 0;
 
-    return axisState.value;
-  };
+      return axisState.value;
+    },
+    [getAxisState]
+  );
 
-  const onButtonPressed = (button: GamepadButtonType, callback: () => void) => {
-    const gamepadService = GamepadService.getInstance();
+  const onButtonPressed = useCallback(
+    (button: GamepadButtonType, callback: () => void) => {
+      const service = getService();
+      const callbackId = Symbol(`press_${button}`).toString();
+      const removeCallback = service.onButtonPress(button, callback);
 
-    const callbackId = Symbol(`press_${button}`).toString();
-    const removeCallback = gamepadService.onButtonPress(button, callback);
+      callbackRefs.current.set(callbackId, removeCallback);
 
-    callbackRefs.current.set(callbackId, removeCallback);
+      return () => {
+        removeCallback();
+        callbackRefs.current.delete(callbackId);
+      };
+    },
+    [getService]
+  );
 
-    return () => {
-      removeCallback();
-      callbackRefs.current.delete(callbackId);
-    };
-  };
+  const onStickMove = useCallback(
+    (
+      side: GamepadStickSide,
+      direction: GamepadAxisDirection,
+      callback: () => void
+    ) => {
+      const service = getService();
+      const callbackId = Symbol(`stick_${side}_${direction}`).toString();
+      const removeCallback = service.onStickMove(side, direction, callback);
 
-  const onStickMove = (
-    side: GamepadStickSide,
-    direction: GamepadAxisDirection,
-    callback: () => void
-  ) => {
-    const gamepadService = GamepadService.getInstance();
+      callbackRefs.current.set(callbackId, removeCallback);
 
-    const callbackId = Symbol(`stick_${side}_${direction}`).toString();
-    const removeCallback = gamepadService.onStickMove(
-      side,
-      direction,
-      callback
-    );
+      return () => {
+        removeCallback();
+        callbackRefs.current.delete(callbackId);
+      };
+    },
+    [getService]
+  );
 
-    callbackRefs.current.set(callbackId, removeCallback);
+  const vibrate = useCallback(
+    (options: GamepadVibrationOptions = {}) => {
+      const service = getService();
+      const {
+        duration = DEFAULT_VIBRATION_DURATION,
+        weakMagnitude = DEFAULT_WEAK_MAGNITUDE,
+        strongMagnitude = DEFAULT_STRONG_MAGNITUDE,
+        gamepadIndex = getActiveGamepad()?.index ?? -1,
+      } = options;
 
-    return () => {
-      removeCallback();
-      callbackRefs.current.delete(callbackId);
-    };
-  };
-
-  const vibrate = (options: GamepadVibrationOptions = {}) => {
-    const gamepadService = GamepadService.getInstance();
-    const {
-      duration = 200,
-      weakMagnitude = 0.5,
-      strongMagnitude = 0.5,
-      gamepadIndex = getActiveGamepad()?.index ?? -1,
-    } = options;
-
-    gamepadService.vibrate(
-      duration,
-      weakMagnitude,
-      strongMagnitude,
-      gamepadIndex
-    );
-  };
+      service.vibrate(duration, weakMagnitude, strongMagnitude, gamepadIndex);
+    },
+    [getService, getActiveGamepad]
+  );
 
   return {
     isButtonPressed,
@@ -145,5 +175,7 @@ export function useGamepad(): UseGamepadReturn {
     onButtonPressed,
     onStickMove,
     vibrate,
+    hasGamepadConnected,
+    connectedGamepads,
   };
 }

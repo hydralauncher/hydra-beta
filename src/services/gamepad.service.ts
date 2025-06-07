@@ -57,6 +57,7 @@ export class GamepadService {
   private readonly buttonPressCallbacks: ButtonPressCallbacks = new Map();
   private readonly stickMoveCallbacks: StickMoveCallbacks = new Map();
   private readonly layoutCache = new Map<string, GamepadLayout>();
+  private readonly stateChangeCallbacks = new Set<() => void>();
 
   private leftStickState: GamepadStickState = this.createInitialStickState();
   private rightStickState: GamepadStickState = this.createInitialStickState();
@@ -107,6 +108,8 @@ export class GamepadService {
     if (!this.isPolling) {
       this.startPolling();
     }
+
+    this.notifyStateChange();
   };
 
   private readonly handleGamepadDisconnection = (event: GamepadEvent) => {
@@ -120,6 +123,8 @@ export class GamepadService {
     if (this.gamepads.size === 0) {
       this.stopPolling();
     }
+
+    this.notifyStateChange();
   };
 
   private pollGamepads() {
@@ -236,6 +241,16 @@ export class GamepadService {
     };
   }
 
+  private notifyStateChange(): void {
+    this.stateChangeCallbacks.forEach((callback) => {
+      try {
+        callback();
+      } catch (error) {
+        console.error("Error in state change callback:", error);
+      }
+    });
+  }
+
   private updateGamepadState(index: number, gamepad: Gamepad) {
     const layout = this.getNewLayoutOrCached(gamepad);
     const now = Date.now();
@@ -249,10 +264,13 @@ export class GamepadService {
       });
 
       this.lastActiveGamepad ??= index;
+      this.notifyStateChange();
     }
 
     const gamepadState = this.gamepadStates.get(index)!;
     const gamepadIndex = index;
+
+    let hasStateChanged = false;
 
     for (const mapping of layout.buttons) {
       const { index, type } = mapping;
@@ -260,13 +278,22 @@ export class GamepadService {
 
       if (!buttonState) continue;
 
-      this.updateButtonState(
-        gamepadState,
-        type,
-        buttonState,
-        gamepadIndex,
-        now
-      );
+      const prevState = gamepadState.buttons.get(type);
+
+      if (
+        prevState?.pressed !== buttonState.pressed ||
+        prevState?.value !== buttonState.value
+      ) {
+        hasStateChanged = true;
+
+        this.updateButtonState(
+          gamepadState,
+          type,
+          buttonState,
+          gamepadIndex,
+          now
+        );
+      }
     }
 
     const leftStickPosition = { x: 0, y: 0 };
@@ -286,10 +313,16 @@ export class GamepadService {
         axisState = 0;
       }
 
-      gamepadState.axes.set(type, {
-        value: axisState,
-        lastUpdated: now,
-      });
+      const prevState = gamepadState.axes.get(type);
+
+      if (!prevState || Math.abs(prevState.value - axisState) > 0.01) {
+        hasStateChanged = true;
+
+        gamepadState.axes.set(type, {
+          value: axisState,
+          lastUpdated: now,
+        });
+      }
 
       switch (type) {
         case GamepadAxisType.LEFT_STICK_X:
@@ -321,6 +354,10 @@ export class GamepadService {
       new Vector2D(rightStickPosition.x, rightStickPosition.y),
       now
     );
+
+    if (hasStateChanged) {
+      this.notifyStateChange();
+    }
   }
 
   private updateStickState(
@@ -471,6 +508,14 @@ export class GamepadService {
     return this.lastActiveGamepad;
   }
 
+  public onStateChange(callback: () => void): () => void {
+    this.stateChangeCallbacks.add(callback);
+
+    return () => {
+      this.stateChangeCallbacks.delete(callback);
+    };
+  }
+
   public onStickMove(
     side: GamepadStickSide,
     direction: GamepadAxisDirection,
@@ -539,8 +584,10 @@ export class GamepadService {
       this.handleGamepadDisconnection
     );
     this.gamepads.clear();
+    this.gamepadStates.clear();
     this.buttonPressCallbacks.clear();
     this.stickMoveCallbacks.clear();
+    this.stateChangeCallbacks.clear();
     this.clearAllTimers();
   }
 
