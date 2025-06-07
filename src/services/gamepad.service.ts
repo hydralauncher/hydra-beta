@@ -57,11 +57,10 @@ export class GamepadService {
   private readonly buttonPressCallbacks: ButtonPressCallbacks = new Map();
   private readonly stickMoveCallbacks: StickMoveCallbacks = new Map();
   private readonly layoutCache = new Map<string, GamepadLayout>();
+  private readonly stateChangeCallbacks = new Set<() => void>();
 
   private leftStickState: GamepadStickState = this.createInitialStickState();
   private rightStickState: GamepadStickState = this.createInitialStickState();
-
-  private stateChangeCallbacks = new Set<() => void>();
 
   public static getInstance(): GamepadService {
     if (!GamepadService.instance) {

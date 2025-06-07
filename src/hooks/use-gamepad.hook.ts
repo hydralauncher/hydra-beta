@@ -8,12 +8,16 @@ import {
 import { useGamepadStore } from "@/stores";
 import { useEffect, useRef, useCallback } from "react";
 
+const DEFAULT_VIBRATION_DURATION = 200;
+const DEFAULT_WEAK_MAGNITUDE = 0.5;
+const DEFAULT_STRONG_MAGNITUDE = 0.5;
+
 export interface UseGamepadReturn {
   isButtonPressed: (button: GamepadButtonType) => boolean;
   getButtonValue: (button: GamepadButtonType) => number;
   getAxisValue: (axis: GamepadAxisType) => number;
   vibrate: (options: GamepadVibrationOptions) => void;
-  connectedGamepads: Array<{ index: number; name: string; layout: string }>;
+  connectedGamepads: { index: number; name: string; layout: string }[];
   hasGamepadConnected: boolean;
 
   onButtonPressed: (
@@ -153,9 +157,9 @@ export function useGamepad(): UseGamepadReturn {
     (options: GamepadVibrationOptions = {}) => {
       const service = getService();
       const {
-        duration = 200,
-        weakMagnitude = 0.5,
-        strongMagnitude = 0.5,
+        duration = DEFAULT_VIBRATION_DURATION,
+        weakMagnitude = DEFAULT_WEAK_MAGNITUDE,
+        strongMagnitude = DEFAULT_STRONG_MAGNITUDE,
         gamepadIndex = getActiveGamepad()?.index ?? -1,
       } = options;
 
