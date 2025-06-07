@@ -82,10 +82,10 @@ self.onmessage = async (event) => {
 
   if (topic === DownloadSourcesWorkerTopic.RemoveDownloadSource) {
     const { url } = event.data;
-    await level.put(
-      "download-sources",
-      downloadSources.filter((downloadSource) => downloadSource.url !== url)
+    downloadSources = downloadSources.filter(
+      (downloadSource) => downloadSource.url !== url
     );
+    await level.put("download-sources", downloadSources);
   }
 
   if (topic === DownloadSourcesWorkerTopic.ClearDownloadSources) {
