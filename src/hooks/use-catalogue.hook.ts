@@ -4,7 +4,7 @@ import { api } from "@/services";
 import type { CatalogueGame } from "@/types";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useMemo } from "react";
-import { useDownloadSourcesStore } from "@/stores";
+import { useDownloadSources } from "@/hooks";
 
 export interface SteamGenresResponse {
   en: string[];
@@ -80,16 +80,14 @@ function parseParam<T>(value: string | null): T | undefined {
 export function useCatalogueData() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const { downloadSources } = useDownloadSourcesStore();
+  const { downloadSources } = useDownloadSources();
 
-  const downloadSourcesAndFingerprints = useMemo(
-    () =>
-      downloadSources?.reduce<Record<string, string>>((acc, source) => {
-        acc[source.name] = source.fingerprint;
-        return acc;
-      }, {}) ?? {},
-    [downloadSources]
-  );
+  const downloadSourcesAndFingerprints = useMemo(() => {
+    return downloadSources.reduce<Record<string, string>>((acc, source) => {
+      acc[source.name] = source.fingerprint;
+      return acc;
+    }, {});
+  }, [downloadSources]);
 
   const values = useMemo(
     () => ({

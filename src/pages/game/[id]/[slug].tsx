@@ -31,12 +31,11 @@ export default function GamePageWrapper({
     isFavorite,
   } = useGamePage("steam", id as string);
 
-  const { downloadSourcesByObjectId } = useDownloadSources();
+  const { downloadOptionsByObjectId } = useDownloadSources();
 
-  const gameDownloadOptions = useMemo(
-    () => downloadSourcesByObjectId.get(id as string) ?? [],
-    [downloadSourcesByObjectId, id]
-  );
+  const gameDownloadOptions = useMemo(() => {
+    return downloadOptionsByObjectId.get(id as string) ?? [];
+  }, [downloadOptionsByObjectId, id]);
 
   return (
     <>

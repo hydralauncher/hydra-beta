@@ -8,6 +8,9 @@ import { useEffect, useRef } from "react";
 import { useRouter } from "next/router";
 import { useUser } from "@/hooks";
 import { useGamepadStore } from "@/stores";
+import { IS_BROWSER } from "@/constants";
+import { DownloadSourcesService } from "@/services";
+import { Toaster } from "sonner";
 
 const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
@@ -52,6 +55,10 @@ function Main({ children }: { children: React.ReactNode }) {
 
 const queryClient = new QueryClient();
 
+if (IS_BROWSER) {
+  DownloadSourcesService.subscribeToWorker();
+}
+
 export default function App({ Component, pageProps }: AppProps) {
   return (
     <QueryClientProvider client={queryClient}>
@@ -60,6 +67,7 @@ export default function App({ Component, pageProps }: AppProps) {
         className={spaceGrotesk.className}
         style={{ width: "100%", display: "flex" }}
       >
+        <Toaster />
         <Sidebar />
 
         <Main>

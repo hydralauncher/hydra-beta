@@ -1,4 +1,4 @@
-import { IS_BROWSER, IS_DESKTOP } from "@/constants";
+import { IS_BROWSER } from "@/constants";
 import { useAuthStore } from "@/stores";
 import ky, { BeforeRequestHook } from "ky";
 
@@ -22,8 +22,7 @@ const refreshToken: BeforeRequestHook = async (request) => {
       if (isTokenExpired) {
         const { expiresIn, accessToken } = await ky
           .post(`${API_URL}/auth/refresh`, {
-            credentials: "include",
-            json: IS_DESKTOP ? { refreshToken: auth.refreshToken } : undefined,
+            json: { refreshToken: auth.refreshToken },
           })
           .json<{
             expiresIn: number;
@@ -34,12 +33,10 @@ const refreshToken: BeforeRequestHook = async (request) => {
           calculateTokenExpirationTimestamp(expiresIn)
         );
 
-        if (IS_DESKTOP) {
-          auth.setAccessToken(accessToken);
+        auth.setAccessToken(accessToken);
 
-          request.headers.set("Authorization", `Bearer ${accessToken}`);
-        }
-      } else if (IS_DESKTOP) {
+        request.headers.set("Authorization", `Bearer ${accessToken}`);
+      } else {
         request.headers.set("Authorization", `Bearer ${auth.accessToken}`);
       }
     }
@@ -51,5 +48,4 @@ export const api = ky.create({
   hooks: {
     beforeRequest: [refreshToken],
   },
-  credentials: "include",
 });

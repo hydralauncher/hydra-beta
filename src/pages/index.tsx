@@ -1,11 +1,10 @@
 import { Button } from "@/components/common";
 import { IS_DESKTOP } from "@/constants";
-import { api, calculateTokenExpirationTimestamp } from "@/services";
+import { calculateTokenExpirationTimestamp } from "@/services";
 import { useUser } from "@/hooks";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useCallback, useEffect } from "react";
-import { useMutation } from "@tanstack/react-query";
 import { useAuthStore } from "@/stores";
 
 export default function Home() {
@@ -14,51 +13,19 @@ export default function Home() {
   const { setTokenExpirationTimestamp, setAccessToken, setRefreshToken } =
     useAuthStore();
 
-  const { mutateAsync: createSession } = useMutation({
-    mutationFn: ({
-      accessToken,
-      refreshToken,
-    }: {
-      accessToken: string;
-      refreshToken: string;
-    }) =>
-      api
-        .post("auth/session", {
-          json: { accessToken, refreshToken },
-          credentials: "include",
-        })
-        .json(),
-  });
-
   const authorizePayload = useCallback(
     async (payload: string) => {
       const { accessToken, refreshToken, expiresIn } = JSON.parse(
         atob(payload)
       );
 
-      return createSession({
-        accessToken,
-        refreshToken,
-      }).then(() => {
-        setTokenExpirationTimestamp(
-          calculateTokenExpirationTimestamp(expiresIn)
-        );
+      setTokenExpirationTimestamp(calculateTokenExpirationTimestamp(expiresIn));
+      setAccessToken(accessToken);
+      setRefreshToken(refreshToken);
 
-        if (IS_DESKTOP) {
-          setAccessToken(accessToken);
-          setRefreshToken(refreshToken);
-        }
-
-        getUser();
-      });
+      getUser();
     },
-    [
-      createSession,
-      getUser,
-      setAccessToken,
-      setRefreshToken,
-      setTokenExpirationTimestamp,
-    ]
+    [getUser, setAccessToken, setRefreshToken, setTokenExpirationTimestamp]
   );
 
   useEffect(() => {
