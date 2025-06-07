@@ -4,7 +4,6 @@ import { downloadSourceSchema } from "@/schemas";
 
 import { api, DownloadSourcesService } from "@/services";
 import { useDownloadSourcesStore } from "@/stores";
-import { levelStorage } from "@/stores/level-storage";
 import type { DownloadOption } from "@/types";
 import { useMutation } from "@tanstack/react-query";
 import ky from "ky";
@@ -113,7 +112,7 @@ export function useDownloadSources() {
     });
 
   const clearDownloadSources = useCallback(async () => {
-    await levelStorage.removeItem("download-sources");
+    DownloadSourcesService.clearDownloadSources();
   }, []);
 
   return {

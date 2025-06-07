@@ -1,3 +1,4 @@
+import { DownloadSourcesWorkerTopic } from "@/constants";
 import { useDownloadSourcesStore } from "@/stores";
 import type { DownloadSource, SteamGamesByLetterResponse } from "@/types";
 import ky from "ky";
@@ -33,15 +34,21 @@ export class DownloadSourcesService {
 
   public static addDownloadSource(downloadSource: DownloadSource) {
     this.worker!.postMessage({
-      topic: "add-download-source",
+      topic: DownloadSourcesWorkerTopic.AddDownloadSource,
       downloadSource,
     });
   }
 
   public static removeDownloadSource(url: string) {
     this.worker!.postMessage({
-      topic: "remove-download-source",
+      topic: DownloadSourcesWorkerTopic.RemoveDownloadSource,
       url,
+    });
+  }
+
+  public static clearDownloadSources() {
+    this.worker!.postMessage({
+      topic: DownloadSourcesWorkerTopic.ClearDownloadSources,
     });
   }
 }

@@ -1,13 +1,9 @@
 import { getLevelInstance } from "@/browser-level";
+import { DownloadSourcesWorkerTopic } from "@/constants";
 import type { DownloadOptionWithDownloadSource, DownloadSource } from "@/types";
 import { omit } from "lodash-es";
 
 const level = getLevelInstance();
-
-enum Topic {
-  AddDownloadSource = "add-download-source",
-  RemoveDownloadSource = "remove-download-source",
-}
 
 const mapDownloadSourcesByObjectId = (downloadSources: DownloadSource[]) => {
   const map: Map<string, DownloadOptionWithDownloadSource[]> = new Map();
@@ -68,7 +64,7 @@ level.get("download-sources").then((downloadSources) => {
 self.onmessage = async (event) => {
   const { topic } = event.data;
 
-  const downloadSources = await level
+  let downloadSources = await level
     .get("download-sources")
     .then((downloadSources) => {
       if (!downloadSources) {
@@ -78,18 +74,23 @@ self.onmessage = async (event) => {
       return downloadSources as DownloadSource[];
     });
 
-  if (topic === Topic.AddDownloadSource) {
+  if (topic === DownloadSourcesWorkerTopic.AddDownloadSource) {
     const { downloadSource } = event.data;
     downloadSources.push(downloadSource);
     await level.put("download-sources", downloadSources);
   }
 
-  if (topic === Topic.RemoveDownloadSource) {
+  if (topic === DownloadSourcesWorkerTopic.RemoveDownloadSource) {
     const { url } = event.data;
     await level.put(
       "download-sources",
       downloadSources.filter((downloadSource) => downloadSource.url !== url)
     );
+  }
+
+  if (topic === DownloadSourcesWorkerTopic.ClearDownloadSources) {
+    await level.del("download-sources");
+    downloadSources = [];
   }
 
   postMessage(downloadSources);
